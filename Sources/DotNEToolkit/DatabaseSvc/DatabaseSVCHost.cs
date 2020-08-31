@@ -1,6 +1,8 @@
 using DotNEToolkit.DatabaseSvc.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,14 +15,48 @@ namespace DotNEToolkit.DatabaseSvc
     /// </summary>
     public abstract class DatabaseSVCHost
     {
-        protected DatabaseSVConfig config;
+        private const string AppSettingKey = "DatabaseSVConfig";
+
+        private const string DefaultConfigName = "DatabaseSvc.json";
+
+        #region 实例变量
+
+        private DatabaseSVConfig config;
+
+        protected int port;
+        protected string rootPath;
+
+        protected List<TableAttribute> tables;
+
+        #endregion
+
+        #region 属性
+
+        public abstract DatabaseSVCType Type { get; }
+
+        #endregion
+
+        #region 构造方法
+
+        internal DatabaseSVCHost()
+        {
+
+        }
+
+        #endregion
+
+        #region 公开接口
 
         public virtual int Initialize()
         {
-            foreach (string ns in this.config.Namespaces)
+            this.config = JSONHelper.ParseFile<DatabaseSVConfig>(this.GetConfigPath());
+            if (this.config == null)
             {
-                this.InitializeTypeInfo(ns);
+                return ResponseCode.LoadConfigFailed;
             }
+
+            this.port = Convert.ToInt32(this.config.ServiceConfig["port"]);
+            this.rootPath = this.config.ServiceConfig["root_path"].ToString();
 
             return ResponseCode.Success;
         }
@@ -40,23 +76,50 @@ namespace DotNEToolkit.DatabaseSvc
             return ResponseCode.Success;
         }
 
-        protected void ProcessRequest(string path)
+        public static DatabaseSVCHost Create(DatabaseSVCType type)
         {
-
+            switch (type)
+            {
+                case DatabaseSVCType.HttpListener: return new HTTPDatabaseSVCHost();
+                case DatabaseSVCType.WCF: return new WCFDatabaseSVCHost();
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
+        #endregion
+
         #region 实例方法
+
+        internal void ProcessRequest(DBClientRequest request)
+        {
+            //string path = this.config.PathMapping.TryGetValue(request.Path, out path) ? path : request.Path;
+        }
+
+        private string GetConfigPath()
+        {
+            if (ConfigurationManager.AppSettings.AllKeys.Contains(AppSettingKey))
+            {
+                // 如果在App.config里配置了路径，那么使用App.config里的路径
+                return ConfigurationManager.AppSettings[AppSettingKey];
+            }
+            else
+            {
+                // 没配置就使用默认的
+                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultConfigName);
+            }
+        }
 
         /// <summary>
         /// 获取一个命名空间下的所有表信息
         /// </summary>
-        /// <param name="ns"></param>
+        /// <param name="namespaceName"></param>
         /// <returns></returns>
-        private List<TableAttribute> LookupTables(string ns)
+        private List<TableAttribute> LookupTables(string namespaceName)
         {
             List<TableAttribute> result = new List<TableAttribute>();
 
-            Assembly assembly = Assembly.Load(ns);
+            Assembly assembly = Assembly.Load(namespaceName);
 
             Type[] types = assembly.GetTypes();
 

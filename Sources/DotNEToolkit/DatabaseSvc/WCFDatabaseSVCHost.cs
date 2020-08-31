@@ -11,6 +11,9 @@ namespace DotNEToolkit.DatabaseSvc
     /// </summary>
     public class WCFDatabaseSVCHost : DatabaseSVCHost
     {
+        public override DatabaseSVCType Type => DatabaseSVCType.WCF;
 
+        internal WCFDatabaseSVCHost()
+        { }
     }
 }

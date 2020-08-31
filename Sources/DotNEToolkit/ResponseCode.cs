@@ -15,5 +15,10 @@ namespace DotNEToolkit
         /// 成功
         /// </summary>
         public const int Success = 1;
+
+        /// <summary>
+        /// 加载配置文件失败
+        /// </summary>
+        public const int LoadConfigFailed = 2;
     }
 }

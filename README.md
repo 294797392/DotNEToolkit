@@ -15,4 +15,10 @@
 
 ## DatabaseSvc
 一套通用的数据库服务框架
+以user表为例：
+获取所有数据 - http://192.168.16.1:1018/svc/user/get
+根据条件查询 - http://192.168.16.1:1018/svc/user/query
+更新数据	 - http://192.168.16.1:1018/svc/user/update
+删除数据	 - http://192.168.16.1:1018/svc/user/delete
+
 

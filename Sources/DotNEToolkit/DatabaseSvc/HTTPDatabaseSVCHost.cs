@@ -15,17 +15,17 @@ namespace DotNEToolkit.DatabaseSvc
     {
         private HttpListener listener;
 
-        /// <summary>
-        /// 同时处理请求的线程数
-        /// </summary>
-        private int numThread;
+        public override DatabaseSVCType Type => DatabaseSVCType.HttpListener;
+
+        internal HTTPDatabaseSVCHost()
+        { }
 
         public override int Initialize()
         {
             base.Initialize();
 
             this.listener = new HttpListener();
-            string uri = string.Format("http://127.0.0.1:{0}/{1}", this.config.ListenPort, this.config.RootPath);
+            string uri = string.Format("http://127.0.0.1:{0}/{1}/", this.port, this.rootPath);
             this.listener.Prefixes.Add(uri);
             return ResponseCode.Success;
         }
@@ -43,6 +43,14 @@ namespace DotNEToolkit.DatabaseSvc
             while (this.listener.IsListening)
             {
                 HttpListenerContext context = this.listener.GetContext();
+
+                HttpListenerRequest request = context.Request;
+
+                DBClientRequest clientRequest = new DBClientRequest()
+                {
+                };
+
+                this.ProcessRequest(clientRequest);
             }
         }
     }

@@ -11,14 +11,14 @@
         "password": "password"
     },
 
-
+    // 服务配置
     "svc_config": {
 
         // 服务的根目录
         "root_path": "svc",
 
-        // 监听端口
-        "listen_port": 1018
+        // 服务端口
+        "port": 1018
     },
 
     // 存放数据库模型的命名空间

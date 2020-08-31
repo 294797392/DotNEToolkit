@@ -31,7 +31,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\Dependence\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\Dependence\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -42,15 +49,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferQueue.cs" />
+    <Compile Include="Crypto\AbstractCryptor.cs" />
     <Compile Include="DatabaseSvc\Attributes\ColumnAttribute.cs" />
     <Compile Include="DatabaseSvc\Attributes\DatabaseAttribute.cs" />
     <Compile Include="DatabaseSvc\Attributes\TableAttribute.cs" />
+    <Compile Include="DatabaseSvc\DatabaseClientRequest.cs" />
     <Compile Include="DatabaseSvc\DatabaseClient.cs" />
     <Compile Include="DatabaseSvc\DatabaseSVCHost.cs" />
     <Compile Include="DatabaseSvc\DatabaseSVConfig.cs" />
+    <Compile Include="DatabaseSvc\DatabaseSVCType.cs" />
     <Compile Include="DatabaseSvc\HTTPDatabaseSVCHost.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
     <Compile Include="Extentions\DateTimeExtentions.cs" />
+    <Compile Include="Internals\Confguration.cs" />
     <Compile Include="JSONHelper.cs" />
     <Compile Include="ObjectCast.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,7 +75,9 @@
     <Folder Include="Win32API\WindowsShell\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DatabaseSvc\DatabaseSvc.json" />
+    <None Include="DatabaseSvc\DatabaseSvc.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
