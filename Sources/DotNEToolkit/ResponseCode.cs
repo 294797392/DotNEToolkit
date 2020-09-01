@@ -14,7 +14,12 @@ namespace DotNEToolkit
         /// <summary>
         /// 成功
         /// </summary>
-        public const int Success = 1;
+        public const int SUCCESS = 1;
+
+        /// <summary>
+        /// 异常
+        /// </summary>
+        public const int EXCEPTION = -1;
 
         /// <summary>
         /// 加载配置文件失败

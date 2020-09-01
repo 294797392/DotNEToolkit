@@ -48,7 +48,7 @@ namespace DotNETClient
 
         private void ButtonStartService_Click(object sender, RoutedEventArgs e)
         {
-            this.svchost = DatabaseSVCHost.Create(DatabaseSVCType.HttpListener);
+            this.svchost = DatabaseSVCHost.Create(DatabaseSVCType.WCF);
             this.svchost.Initialize();
             this.svchost.Start();
         }

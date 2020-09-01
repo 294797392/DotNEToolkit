@@ -27,7 +27,7 @@ namespace DotNEToolkit.DatabaseSvc
         protected int port;
         protected string rootPath;
 
-        protected List<InternalTable> tables;
+        internal List<InternalTable> tables;
 
         #endregion
 
@@ -59,22 +59,22 @@ namespace DotNEToolkit.DatabaseSvc
             this.port = Convert.ToInt32(this.config.ServiceConfig["port"]);
             this.rootPath = this.config.ServiceConfig["root_path"].ToString();
 
-            return ResponseCode.Success;
+            return ResponseCode.SUCCESS;
         }
 
         public virtual int Release()
         {
-            return ResponseCode.Success;
+            return ResponseCode.SUCCESS;
         }
 
         public virtual int Start()
         {
-            return ResponseCode.Success;
+            return ResponseCode.SUCCESS;
         }
 
         public virtual int Stop()
         {
-            return ResponseCode.Success;
+            return ResponseCode.SUCCESS;
         }
 
         public static DatabaseSVCHost Create(DatabaseSVCType type)
