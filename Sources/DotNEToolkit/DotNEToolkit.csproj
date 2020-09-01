@@ -59,6 +59,8 @@
     <Compile Include="DatabaseSvc\DatabaseSVConfig.cs" />
     <Compile Include="DatabaseSvc\DatabaseSVCType.cs" />
     <Compile Include="DatabaseSvc\HTTPDatabaseSVCHost.cs" />
+    <Compile Include="DatabaseSvc\Internals\InternalColumn.cs" />
+    <Compile Include="DatabaseSvc\Internals\InternalTable.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
     <Compile Include="Extentions\DateTimeExtentions.cs" />
     <Compile Include="Internals\Confguration.cs" />
@@ -78,6 +80,7 @@
     <None Include="DatabaseSvc\DatabaseSvc.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="DatabaseSvc\RequestDemo.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

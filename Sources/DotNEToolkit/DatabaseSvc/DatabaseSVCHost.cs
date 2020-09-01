@@ -1,4 +1,5 @@
 using DotNEToolkit.DatabaseSvc.Attributes;
+using DotNEToolkit.DatabaseSvc.Internals;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -26,7 +27,7 @@ namespace DotNEToolkit.DatabaseSvc
         protected int port;
         protected string rootPath;
 
-        protected List<TableAttribute> tables;
+        protected List<InternalTable> tables;
 
         #endregion
 
@@ -93,6 +94,8 @@ namespace DotNEToolkit.DatabaseSvc
 
         internal void ProcessRequest(DBClientRequest request)
         {
+            InternalTable table = this.tables.FirstOrDefault(t => t.Name == request.TableName);
+
             //string path = this.config.PathMapping.TryGetValue(request.Path, out path) ? path : request.Path;
         }
 
@@ -115,9 +118,9 @@ namespace DotNEToolkit.DatabaseSvc
         /// </summary>
         /// <param name="namespaceName"></param>
         /// <returns></returns>
-        private List<TableAttribute> LookupTables(string namespaceName)
+        private List<InternalTable> LookupTables(string namespaceName)
         {
-            List<TableAttribute> result = new List<TableAttribute>();
+            List<InternalTable> result = new List<InternalTable>();
 
             Assembly assembly = Assembly.Load(namespaceName);
 
@@ -136,20 +139,27 @@ namespace DotNEToolkit.DatabaseSvc
                     continue;
                 }
 
-                attribute.Columns = this.LookupColumns(type);
+                InternalTable table = new InternalTable()
+                {
+                    Columns = this.LookupColumns(type),
+                    ModelType = type,
+                    Name = attribute.Name
+                };
+
+                result.Add(table);
             }
 
             return result;
         }
 
         /// <summary>
-        /// 找到一个类型里的所有的列名
+        /// 找到一个类型里的所有的列信息
         /// </summary>
         /// <param name="classType">类型</param>
         /// <returns></returns>
-        private List<ColumnAttribute> LookupColumns(Type classType)
+        private List<InternalColumn> LookupColumns(Type classType)
         {
-            List<ColumnAttribute> result = new List<ColumnAttribute>();
+            List<InternalColumn> result = new List<InternalColumn>();
 
             FieldInfo[] fields = classType.GetFields(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Instance);
             if (fields == null || fields.Length == 0)
@@ -166,7 +176,12 @@ namespace DotNEToolkit.DatabaseSvc
                     continue;
                 }
 
-                result.Add(attribute);
+                InternalColumn column = new InternalColumn()
+                {
+                    Name = attribute.Name
+                };
+
+                result.Add(column);
             }
 
             return result;

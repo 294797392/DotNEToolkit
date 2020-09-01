@@ -12,11 +12,6 @@ namespace DotNEToolkit.DatabaseSvc.Attributes
     [AttributeUsage(AttributeTargets.Class)]
     public class TableAttribute : DatabaseAttribute
     {
-        /// <summary>
-        /// 存储表里的所有列名
-        /// </summary>
-        internal List<ColumnAttribute> Columns { get; set; }
-
         public TableAttribute()
         {
         }
