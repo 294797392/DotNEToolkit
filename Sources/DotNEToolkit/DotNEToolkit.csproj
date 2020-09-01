@@ -67,6 +67,7 @@
     <Compile Include="DatabaseSvc\Internals\InternalTable.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
     <Compile Include="Extentions\DateTimeExtentions.cs" />
+    <Compile Include="Extentions\DictionaryExtentions.cs" />
     <Compile Include="Internals\Confguration.cs" />
     <Compile Include="JSONHelper.cs" />
     <Compile Include="ObjectCast.cs" />

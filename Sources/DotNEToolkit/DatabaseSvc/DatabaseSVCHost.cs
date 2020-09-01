@@ -1,5 +1,6 @@
 using DotNEToolkit.DatabaseSvc.Attributes;
 using DotNEToolkit.DatabaseSvc.Internals;
+using DotNEToolkit.Extentions;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -19,6 +20,10 @@ namespace DotNEToolkit.DatabaseSvc
         private const string AppSettingKey = "DatabaseSVConfig";
 
         private const string DefaultConfigName = "DatabaseSvc.json";
+
+        private const int DefaultPort = 1018;
+
+        private const string DefaultRootPath = "svc";
 
         #region 实例变量
 
@@ -56,8 +61,8 @@ namespace DotNEToolkit.DatabaseSvc
                 return ResponseCode.LoadConfigFailed;
             }
 
-            this.port = Convert.ToInt32(this.config.ServiceConfig["port"]);
-            this.rootPath = this.config.ServiceConfig["root_path"].ToString();
+            this.port = this.config.ServiceConfig.GetValue<int>("port", DefaultPort);
+            this.rootPath = this.config.ServiceConfig.GetValue<string>("root_path", DefaultRootPath);
 
             return ResponseCode.SUCCESS;
         }
