@@ -12,7 +12,7 @@ namespace DotNEToolkit.DatabaseSvc
     internal class DBClientRequest
     {
         /// <summary>
-        /// 要查询的表明
+        /// 要查询的表名字
         /// </summary>
         public string TableName { get; set; }
 

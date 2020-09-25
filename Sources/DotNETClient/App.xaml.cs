@@ -1,3 +1,5 @@
+using DotNEToolkit;
+using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -15,10 +17,6 @@ namespace DotNETClient
     {
         static App()
         {
-            AwaitDemo demo = new AwaitDemo();
-            demo.LoadDataAsync();
-
-            Console.WriteLine("App");
         }
     }
 }

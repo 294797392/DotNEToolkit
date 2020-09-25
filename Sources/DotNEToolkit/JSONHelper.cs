@@ -17,6 +17,11 @@ namespace DotNEToolkit
 
         public static TResult Parse<TResult>(string json)
         {
+            if (string.IsNullOrEmpty(json))
+            {
+                return default(TResult);
+            }
+
             try
             {
                 return JsonConvert.DeserializeObject<TResult>(json);
@@ -26,6 +31,12 @@ namespace DotNEToolkit
                 logger.Error(string.Format("解析JSON异常, json = {0}", json), ex);
                 return default(TResult);
             }
+        }
+
+        public static bool TryParse<TResult>(string json, out TResult result)
+        {
+            result = Parse<TResult>(json);
+            return result != null;
         }
 
         public static TResult ParseFile<TResult>(string path)
@@ -48,6 +59,12 @@ namespace DotNEToolkit
                 logger.Error(string.Format("解析JSON异常, json = {0}", json), ex);
                 return default(TResult);
             }
+        }
+
+        public static bool TryParseFile<TResult>(string path, out TResult result)
+        {
+            result = ParseFile<TResult>(path);
+            return result != null;
         }
     }
 }
