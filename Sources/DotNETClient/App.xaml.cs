@@ -1,4 +1,5 @@
 using DotNEToolkit;
+using DotNEToolkit.DirectX.Direct2D;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,9 @@ namespace DotNETClient
     {
         static App()
         {
+            IntPtr p;
+            uint rc = D2D.D2D1CreateFactory(D2D1_FACTORY_TYPE.D2D1_FACTORY_TYPE_SINGLE_THREADED, out p);
+
         }
     }
 }
