@@ -23,6 +23,9 @@ namespace DotNETClient
         public MainWindow()
         {
             InitializeComponent();
+
+            Direct2DForm direct2DForm = new Direct2DForm();
+            direct2DForm.Show();
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
