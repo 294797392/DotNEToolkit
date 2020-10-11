@@ -8,6 +8,8 @@ int main()
 	//LPOLESTR oleStr = NULL;
 	//StringFromIID(IID_ID2D1Factory, &oleStr);
 
+	SUCCEEDED
+
 	IID iid;
 	IIDFromString(OLESTR("{06152247-6F50-465A-9245-118BFD3B6007}"), &iid);
 
