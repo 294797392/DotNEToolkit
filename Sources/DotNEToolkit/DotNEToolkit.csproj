@@ -70,8 +70,12 @@
     <Compile Include="DatabaseSvc\Internals\InternalTable.cs" />
     <Compile Include="DatabaseSvc\SQLBuilders\AbstractSQLBuilder.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
+<<<<<<< HEAD
     <Compile Include="DirectoryExtentions.cs" />
     <Compile Include="DirectX\Direct2D\Direct2DNatives.cs" />
+=======
+    <Compile Include="DirectX\Direct2D\D2D1.cs" />
+>>>>>>> b06dfb2e71edf76805cc3590d395d8429ab4279e
     <Compile Include="DirectX\Direct2D\D2D1_ALPHA_MODE.cs" />
     <Compile Include="DirectX\Direct2D\D2D1_ANTIALIAS_MODE.cs" />
     <Compile Include="DirectX\Direct2D\D2D1_BEZIER_SEGMENT.cs" />
@@ -143,9 +147,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResponseCode.cs" />
     <Compile Include="Win32API\OLE.cs" />
+    <Compile Include="Win32API\Win32Error.cs" />
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Expressions\" />
     <Folder Include="Networking\" />
     <Folder Include="ORMapping\" />
     <Folder Include="Reflection\" />
