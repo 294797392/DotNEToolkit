@@ -70,12 +70,8 @@
     <Compile Include="DatabaseSvc\Internals\InternalTable.cs" />
     <Compile Include="DatabaseSvc\SQLBuilders\AbstractSQLBuilder.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
-<<<<<<< HEAD
     <Compile Include="DirectoryExtentions.cs" />
-    <Compile Include="DirectX\Direct2D\Direct2DNatives.cs" />
-=======
     <Compile Include="DirectX\Direct2D\D2D1.cs" />
->>>>>>> b06dfb2e71edf76805cc3590d395d8429ab4279e
     <Compile Include="DirectX\Direct2D\D2D1_ALPHA_MODE.cs" />
     <Compile Include="DirectX\Direct2D\D2D1_ANTIALIAS_MODE.cs" />
     <Compile Include="DirectX\Direct2D\D2D1_BEZIER_SEGMENT.cs" />
