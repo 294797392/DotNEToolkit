@@ -70,6 +70,7 @@
     <Compile Include="DatabaseSvc\Internals\InternalTable.cs" />
     <Compile Include="DatabaseSvc\SQLBuilders\AbstractSQLBuilder.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
+    <Compile Include="DirectoryExtentions.cs" />
     <Compile Include="DirectX\Direct2D\Direct2DNatives.cs" />
     <Compile Include="DirectX\Direct2D\D2D1_ALPHA_MODE.cs" />
     <Compile Include="DirectX\Direct2D\D2D1_ANTIALIAS_MODE.cs" />
