@@ -1,0 +1,31 @@
+﻿// 数据库服务的配置文件
+
+{
+    // 数据库配置
+    "db_config": {
+        "type": "",
+        "ip": "",
+        "port": 1234,
+        "name": "db_name",
+        "user_name": "admin",
+        "password": "password"
+    },
+
+    // 服务配置
+    "svc_config": {
+
+        // 服务的根目录
+        "root_path": "svc",
+
+        // 服务端口
+        "port": 1018
+    },
+
+    // 存放数据库模型的命名空间
+    "namespaces": [ "", "" ],
+
+    // 默认路径和自定义路径的映射关系
+    "uri_mapping": {
+
+    }
+}

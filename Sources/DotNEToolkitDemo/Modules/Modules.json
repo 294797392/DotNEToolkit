@@ -1,0 +1,25 @@
+﻿[
+    {
+        "ID": "1",
+        "TypeID": "1",
+        "Name": "DemoModule",
+        "InputParameters": {
+            "Modules": [ "2", "2", "2" ]
+        }
+    },
+
+    {
+        "ID": "2",
+        "TypeID": "1",
+        "Name": "DemoModule",
+        "InputParameters": {
+            "StringList": [
+                "123",
+                "456"
+            ],
+            "IntList": [ 1, 2, 3, 4, 5 ],
+            "IntValue": 1,
+            "StringValue": "Text"
+        }
+    }
+]

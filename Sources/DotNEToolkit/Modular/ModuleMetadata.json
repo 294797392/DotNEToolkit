@@ -1,0 +1,14 @@
+﻿[
+    {
+        "Name": "module1",
+        "Description": "",
+        "TypeID": "1",
+        "EntryClass": ""
+    },
+    {
+        "Name": "module2",
+        "Description": "",
+        "TypeID": "2",
+        "EntryClass": ""
+    }
+]

@@ -1,0 +1,7 @@
+﻿[
+    {
+        "Name": "DemoModule",
+        "TypeID": "1",
+        "EntryClass": "DotNEToolkitDemo.Modules.DemoModule, DotNEToolkitDemo"
+    }
+]

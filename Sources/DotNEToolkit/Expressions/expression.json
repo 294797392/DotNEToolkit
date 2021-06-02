@@ -1,0 +1,47 @@
+﻿[
+
+    {
+        "Name": "rangein",
+        "Description": "判断指定的数值是否在指定范围内",
+        "Syntax": "rangein(value, min, max)",
+        "EntryClass": "FactoryIV.Base.Expressions.Evaluators.Math.RangeEvaluator, FactoryIV.Base",
+        "Category": 1,
+        "MinimalParameters": 3
+    },
+
+    {
+        "Name": "strcmp",
+        "Description": "判断所有字符串是否相等",
+        "Syntax": "strcmp('str1', 'str2', 'str3', ...)",
+        "EntryClass": "FactoryIV.Base.Expressions.Evaluators.Text.StringComparingEvaluator, FactoryIV.Base",
+        "Category": 1,
+        "MinimalParameters": 2
+    },
+
+    {
+        "Name": "macro",
+        "Description": "读取系统里预定义的一个宏定义",
+        "Syntax": "{MacroName}",
+        "EntryClass": "FactoryIV.Base.Expressions.Evaluators.MacroDefinitionEvaluator, FactoryIV.Base",
+        "Category": 1,
+        "MinimalParameters": 0
+    },
+
+    {
+        "Name": "division",
+        "Description": "除法运算",
+        "Syntax": "{1,1}",
+        "EntryClass": "FactoryIV.Base.Expressions.Evaluators.Math.Division, FactoryIV.Base",
+        "Category": 1,
+        "MinimalParameters": 2
+    },
+
+    {
+        "Name": "uppercase",
+        "Description": "字符转大写",
+        "Syntax": "{1,1}",
+        "EntryClass": "FactoryIV.Base.Expressions.Evaluators.Text.UppercaseEvaluator, FactoryIV.Base",
+        "Category": 1,
+        "MinimalParameters": 1
+    }
+]

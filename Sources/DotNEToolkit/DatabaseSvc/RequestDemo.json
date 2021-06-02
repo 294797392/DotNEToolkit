@@ -1,0 +1,43 @@
+﻿{
+    /* 版本号 */
+    "version": 1,
+
+    /* select 查询语句 */
+    "select": {
+        "table": "user",
+        "conditions": [
+            {
+                /* 等于和不等于语句 */
+                "column": "id",
+                "operator": "equal | not equal",
+                "value": "1"
+            },
+
+            {
+                /* in语句 */
+                "column": "id",
+                "operator": "in",
+                "value": [ "1", "2", "3" ]
+            }
+        ]
+    },
+
+    /* 更新语句 */
+    "update": {
+        "table": "user",
+        "condition": [],
+        "model": {}
+    },
+
+    /* 插入语句 */
+    "insert": {
+        "table": "user",
+        "model": {}
+    },
+
+    /* 删除语句 */
+    "delete": {
+        "table": "",
+        "condition": []
+    }
+}
