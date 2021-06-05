@@ -31,6 +31,24 @@ namespace DotNEToolkit
         /// </summary>
         public const int InvalidParams = 3;
 
+        /// <summary>
+        /// 不支持的操作
+        /// </summary>
+        public const int NotSupported = 4;
+
+        /// <summary>
+        /// 文件不存在
+        /// </summary>
+        public const int FileNotFound = 5;
+
+
+
+
+
+
+
+
+
         #region 100 - 200 ModuleFactory
 
         public const int ModuleNotFound = 100;

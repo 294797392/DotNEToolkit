@@ -365,6 +365,31 @@ namespace DotNEToolkit.Modular
             }
         }
 
+        /// <summary>
+        /// 判断某个Module是否派生自baseType
+        /// </summary>
+        /// <param name="definition"></param>
+        /// <param name="baseType"></param>
+        /// <returns></returns>
+        public bool SubclassOf(ModuleDefinition definition, Type baseType)
+        {
+            ModuleMetadata metadata = this.metadataList.FirstOrDefault(v => v.ID == definition.TypeID);
+            if (metadata == null)
+            {
+                return false;
+            }
+
+            Type t = Type.GetType(metadata.EntryClass);
+            if (t.IsSubclassOf(baseType))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         #endregion
 
         private void NotifyModuleStatusChanged(IModuleInstance module, ModuleStatus status)

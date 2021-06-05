@@ -1,4 +1,5 @@
 using DotNEToolkit;
+using DotNEToolkit.Excels;
 using DotNEToolkit.linux;
 using DotNEToolkit.Modular;
 using DotNEToolkitDemo.Modules;
@@ -32,6 +33,13 @@ namespace DotNETClient
         public MainWindow()
         {
             InitializeComponent();
+
+            //ExcelSheet sheet;
+            //Excel.Read("描述.xls", ReadOptions.RetainEmptyCell, out sheet);
+
+            //Excel.Write(sheet, "1.xls", ExcelVersions.Xls);
+
+            Console.ReadLine();
 
             //List<ModuleDefinition> modules = JSONHelper.ParseFile<List<ModuleDefinition>>("Modules/Modules.json");
 

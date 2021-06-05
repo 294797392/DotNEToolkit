@@ -14,16 +14,11 @@ namespace DotNEToolkit
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("DirectoryExtentions");
 
-        /// <summary>
-        /// 枚举某个目录，会把异常截住
-        /// </summary>
-        /// <param name="dir">要枚举的目录</param>
-        /// <returns>子目录列表</returns>
-        public static IEnumerable<string> EnumerateDirectories(string dir)
+        public static IEnumerable<string> EnumerateDirectories(string dir, SearchOption option)
         {
             try
             {
-                return Directory.EnumerateDirectories(dir, "*", SearchOption.TopDirectoryOnly);
+                return Directory.EnumerateDirectories(dir, "*", option);
             }
             catch (System.Security.SecurityException)
             {
@@ -39,6 +34,16 @@ namespace DotNEToolkit
             }
 
             return new List<string>();
+        }
+
+        /// <summary>
+        /// 枚举某个目录，会把异常截住
+        /// </summary>
+        /// <param name="dir">要枚举的目录</param>
+        /// <returns>子目录列表</returns>
+        public static IEnumerable<string> EnumerateDirectories(string dir)
+        {
+            return EnumerateDirectories(dir, SearchOption.TopDirectoryOnly);
         }
 
         /// <summary>

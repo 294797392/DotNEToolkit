@@ -38,6 +38,18 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\Dependence\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="NPOI">
+      <HintPath>..\..\Dependence\NPOI\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML">
+      <HintPath>..\..\Dependence\NPOI\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net">
+      <HintPath>..\..\Dependence\NPOI\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats">
+      <HintPath>..\..\Dependence\NPOI\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -78,7 +90,14 @@
     <Compile Include="DatabaseSvc\SQLBuilders\AbstractSQLBuilder.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
     <Compile Include="DelegateUtility.cs" />
-    <Compile Include="Excels.cs" />
+    <Compile Include="Excels\ReadOptions.cs" />
+    <Compile Include="Excels\ExcelCell.cs" />
+    <Compile Include="Excels\ExcelCellTypes.cs" />
+    <Compile Include="Excels\ExcelColumnAttribute.cs" />
+    <Compile Include="Excels\ExcelRow.cs" />
+    <Compile Include="Excels\Excel.cs" />
+    <Compile Include="Excels\ExcelSheet.cs" />
+    <Compile Include="Excels\ExcelVersions.cs" />
     <Compile Include="Expressions\EvaluationContext.cs" />
     <Compile Include="Expressions\Evaluators\ExpressionEvaluator.cs" />
     <Compile Include="Expressions\Expression.cs" />
