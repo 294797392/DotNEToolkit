@@ -152,6 +152,7 @@
     <Compile Include="Network\TcpPacket.cs" />
     <Compile Include="Network\TcpServerSocket.cs" />
     <Compile Include="ObjectCast.cs" />
+    <Compile Include="Parallel.cs" />
     <Compile Include="PhoneReader\AlibabaAPIClient.cs" />
     <Compile Include="PhoneReader\IPhoneAPIClient.cs" />
     <Compile Include="PhoneReader\JuheAPIClient.cs" />

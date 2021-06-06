@@ -30,9 +30,28 @@ namespace DotNETClient
     {
         private ModuleFactory factory;
 
+        private void Foreach(int v, object userData)
+        {
+            Console.WriteLine("开始运行:{0}", v);
+            System.Threading.Thread.Sleep(new Random().Next(100, 900));
+        }
+
+        private void Callback(object userData)
+        {
+            Console.WriteLine("全部运行完了");
+        }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            List<int> source = new List<int>();
+            for (int i = 0; i < 100; i++)
+            {
+                source.Add(i);
+            }
+
+            DotNEToolkit.Parallel.Foreach<int>(source, 5, Foreach, null, Callback);
 
             //ExcelSheet sheet;
             //Excel.Read("描述.xls", ReadOptions.RetainEmptyCell, out sheet);
