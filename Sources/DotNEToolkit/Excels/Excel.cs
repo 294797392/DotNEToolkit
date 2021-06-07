@@ -1,4 +1,5 @@
 ﻿using DotNEToolkit.Excels;
+using DotNEToolkit.Excels.Attributes;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace DotNEToolkit
@@ -18,24 +20,12 @@ namespace DotNEToolkit
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("Excel");
 
-        public static int QuickWrite()
-        {
-            return DotNETCode.NotSupported;
-        }
-
-        /// <summary>
-        /// 把ExcelSheet对象保存成Excel文件
-        /// </summary>
-        /// <param name="excelSheet"></param>
-        /// <param name="filePath"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        public static int Write(ExcelSheet excelSheet, string filePath, ExcelVersions version = ExcelVersions.Xls)
+        public static int QuickWrite(ExcelSheet excelSheet, string filePath, ExcelVersions version = ExcelVersions.Xls)
         {
             using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
-                IWorkbook workbook = OpenWrite(version, fs);
-                ISheet sheet = workbook.CreateSheet("sheet1");
+                IWorkbook workbook = OpenWrite(version);
+                ISheet sheet = workbook.CreateSheet(string.IsNullOrEmpty(excelSheet.Name) ? "sheet1" : excelSheet.Name);
 
                 for (int i = 0; i < excelSheet.Rows.Count; i++)
                 {
@@ -57,13 +47,7 @@ namespace DotNEToolkit
             }
         }
 
-        /// <summary>
-        /// 把excel文件转成内存对象
-        /// </summary>
-        /// <param name="options">读取Excel文件的选项</param>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public static int Read(string filePath, ReadOptions options, out ExcelSheet excelSheet)
+        public static int QuickRead(string filePath, ReadOptions options, out ExcelSheet excelSheet)
         {
             excelSheet = null;
 
@@ -72,7 +56,7 @@ namespace DotNEToolkit
                 return DotNETCode.FileNotFound;
             }
 
-            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
+            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 string extention = Path.GetExtension(filePath);
                 IWorkbook workbook = OpenRead(extention, fs);
@@ -104,14 +88,14 @@ namespace DotNEToolkit
                     for (int cellnum = 0; cellnum < numCell; cellnum++)
                     {
                         ICell cell = row.GetCell(cellnum);
-                        if (cell == null)
+                        if (cell == null || cell.CellType == CellType.Blank)
                         {
                             // 空列，根据选项进行处理
                             if (options.HasFlag(ReadOptions.IgnoreEmptyCell))
                             {
 
                             }
-                            else if (options.HasFlag(ReadOptions.RetainEmptyCell))
+                            else if (options.HasFlag(ReadOptions.KeepEmptyCell))
                             {
                                 excelRow.AddCell(null, ExcelCellTypes.Null);
                             }
@@ -132,6 +116,12 @@ namespace DotNEToolkit
                                     break;
                                 }
 
+                            case CellType.Blank:
+                                {
+                                    // 空列，在107行进行了处理
+                                    break;
+                                }
+
                             default:
                                 logger.ErrorFormat("不支持的Cell数据类型, {0}", cell.CellType);
                                 return DotNETCode.NotSupported;
@@ -148,6 +138,61 @@ namespace DotNEToolkit
             }
 
             return DotNETCode.Success;
+        }
+
+        /// <summary>
+        /// 把ExcelSheet对象保存成Excel文件
+        /// </summary>
+        /// <param name="excelSheet"></param>
+        /// <param name="filePath"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public static int Write<TRow>(string filePath, IList<TRow> dataList, ExcelVersions version = ExcelVersions.Xls) where TRow : IExcelRow
+        {
+            List<PropertyAttribute<ExcelColumnAttribute>> properties = Reflections.GetPropertyAttribute<ExcelColumnAttribute>(typeof(TRow));
+            if (properties.Count == 0)
+            {
+                return DotNETCode.Success;
+            }
+
+            ExcelSheet sheet = new ExcelSheet();
+
+            // 先写第一行，相当于是标题
+            ExcelRow titleRow = new ExcelRow();
+            IEnumerable<ExcelColumnAttribute> columns = properties.Select(v => v.Attribute);
+            foreach (ExcelColumnAttribute column in columns)
+            {
+                titleRow.AddCell(column.Name, ExcelCellTypes.String);
+            }
+            sheet.AddRow(titleRow);
+
+            foreach (TRow row in dataList)
+            {
+                ExcelRow excelRow = new ExcelRow();
+
+                foreach (PropertyAttribute<ExcelColumnAttribute> property in properties)
+                {
+                    // 当前要写入的列
+                    object value = property.Property.GetValue(row, null);
+
+                    excelRow.AddCell(value, property.Attribute.Type);
+                }
+
+                sheet.AddRow(excelRow);
+            }
+
+            return QuickWrite(sheet, filePath, version);
+        }
+
+        /// <summary>
+        /// 把excel文件转成内存对象
+        /// </summary>
+        /// <param name="options">读取Excel文件的选项</param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static int Read<TRow>(string filePath, ReadOptions options, out List<TRow> rows) where TRow : IExcelRow
+        {
+            throw new NotImplementedException();
         }
 
         private static IWorkbook OpenRead(string extension, FileStream fs)
@@ -219,18 +264,18 @@ namespace DotNEToolkit
             return workbook;
         }
 
-        private static IWorkbook OpenWrite(ExcelVersions version, FileStream fs)
+        private static IWorkbook OpenWrite(ExcelVersions version)
         {
             switch (version)
             {
                 case ExcelVersions.Xls:
                     {
-                        return new HSSFWorkbook(fs);
+                        return new HSSFWorkbook();
                     }
 
                 case ExcelVersions.Xlsx:
                     {
-                        return new XSSFWorkbook(fs);
+                        return new XSSFWorkbook();
                     }
 
                 default:
@@ -253,6 +298,12 @@ namespace DotNEToolkit
                     {
                         ICell cell = row.CreateCell(cellIndex, CellType.String);
                         cell.SetCellValue(excelCell.Value.ToString());
+                        return cell;
+                    }
+
+                case ExcelCellTypes.Null:
+                    {
+                        ICell cell = row.CreateCell(cellIndex, CellType.Blank);
                         return cell;
                     }
 

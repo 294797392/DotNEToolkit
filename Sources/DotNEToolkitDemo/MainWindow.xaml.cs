@@ -2,6 +2,7 @@ using DotNEToolkit;
 using DotNEToolkit.Excels;
 using DotNEToolkit.linux;
 using DotNEToolkit.Modular;
+using DotNEToolkitDemo;
 using DotNEToolkitDemo.Modules;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -54,18 +55,18 @@ namespace DotNETClient
         {
             InitializeComponent();
 
-            List<int> source = new List<int>();
-            for (int i = 0; i < 100; i++)
-            {
-                source.Add(i);
-            }
+            //List<int> source = new List<int>();
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    source.Add(i);
+            //}
 
-            DotNEToolkit.Parallel.Foreach<int>(source, 5, Foreach, null, Callback);
+            //DotNEToolkit.Parallel.Foreach<int>(source, 5, Foreach, null, Callback);
 
             //ExcelSheet sheet;
-            //Excel.Read("描述.xls", ReadOptions.RetainEmptyCell, out sheet);
+            //Excel.QuickRead("636356149796417536_CMSXJ48H_200_20210511.xlsx", ReadOptions.KeepEmptyCell, out sheet);
 
-            //Excel.Write(sheet, "1.xls", ExcelVersions.Xls);
+            //Excel.QuickWrite(sheet, "1.xls", ExcelVersions.Xls);
 
             Console.ReadLine();
 

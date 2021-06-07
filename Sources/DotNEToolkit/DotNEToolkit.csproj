@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\Dependence\NPOI\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\Dependence\log4net.dll</HintPath>
     </Reference>
@@ -90,10 +93,11 @@
     <Compile Include="DatabaseSvc\SQLBuilders\AbstractSQLBuilder.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
     <Compile Include="DelegateUtility.cs" />
+    <Compile Include="Excels\Attributes\ExcelColumnAttribute.cs" />
+    <Compile Include="Excels\IExcelRow.cs" />
     <Compile Include="Excels\ReadOptions.cs" />
     <Compile Include="Excels\ExcelCell.cs" />
     <Compile Include="Excels\ExcelCellTypes.cs" />
-    <Compile Include="Excels\ExcelColumnAttribute.cs" />
     <Compile Include="Excels\ExcelRow.cs" />
     <Compile Include="Excels\Excel.cs" />
     <Compile Include="Excels\ExcelSheet.cs" />

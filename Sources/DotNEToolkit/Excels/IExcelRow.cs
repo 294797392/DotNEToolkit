@@ -5,8 +5,10 @@ using System.Text;
 
 namespace DotNEToolkit.Excels
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class ExcelColumnAttribute : Attribute
+    /// <summary>
+    /// 表示Excel里的一行
+    /// </summary>
+    public interface IExcelRow
     {
     }
 }

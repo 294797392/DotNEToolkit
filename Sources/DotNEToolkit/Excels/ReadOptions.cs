@@ -18,6 +18,6 @@ namespace DotNEToolkit.Excels
         /// <summary>
         /// 保留Excel里的空列（会保存一个空对象在ExcelRow里）
         /// </summary>
-        RetainEmptyCell = 2
+        KeepEmptyCell = 2
     }
 }
