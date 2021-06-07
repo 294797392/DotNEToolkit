@@ -33,7 +33,16 @@ namespace DotNETClient
         private void Foreach(int v, object userData)
         {
             Console.WriteLine("开始运行:{0}", v);
-            System.Threading.Thread.Sleep(new Random().Next(100, 900));
+            //if (v == 99)
+            if (v == 98)
+            {
+                System.Threading.Thread.Sleep(10000);
+                Console.WriteLine("99个数据处理完毕");
+            }
+            else
+            {
+                System.Threading.Thread.Sleep(new Random().Next(100, 900));
+            }
         }
 
         private void Callback(object userData)

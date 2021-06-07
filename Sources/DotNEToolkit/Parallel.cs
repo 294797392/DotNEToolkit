@@ -70,15 +70,16 @@ namespace DotNEToolkit
             ThreadContext lastContext = null;
 
             // 保存运行的线程上下文信息
-            List<ThreadContext> threadContexts = new List<ThreadContext>();
+            List<ThreadContext> contextList = new List<ThreadContext>();
 
             for (int i = 0; i < threadNum; i++)
             {
                 ThreadContext context = new ThreadContext();
                 context.ID = i;
-                context.Task = new Task((v) =>
+                context.Task = new Task((state) =>
                 {
-                    ThreadContext innerContext = v as ThreadContext;
+                    // 当前运行的线程上下文信息
+                    ThreadContext currentContext = state as ThreadContext;
 
                     while (true)
                     {
@@ -89,17 +90,20 @@ namespace DotNEToolkit
                             if (toProcess == length - 1)
                             {
                                 // 运行最后一个任务的线程
-                                lastContext = innerContext;
+                                lastContext = currentContext;
                             }
                         }
 
                         if (toProcess >= length)
                         {
                             // 所有的数据都处理完了
-                            if (lastContext == innerContext)
+                            if (lastContext == currentContext)
                             {
-                                // 运行到这里说明，lastContext已经运行完了，但是又抢到了一个资源，那么此时表示所有的任务全部都运行完了
-                                // 直接回调
+                                // 运行到这里说明，lastContext已经运行完了，但是又抢到了一个资源
+                                // 此时可能其他线程还在运行，所以要等其他所有的线程运行结束
+                                IEnumerable<Task> toWait = contextList.Where(v => v != currentContext).Select(v => v.Task);     // 要等待运行结束的线程
+                                Task.WaitAll(toWait.ToArray());
+
                                 if (callback != null)
                                 {
                                     callback(userData);
@@ -112,7 +116,7 @@ namespace DotNEToolkit
 
                         try
                         {
-                            logger.DebugFormat("线程{0}开始处理{1}", innerContext.ID, value);
+                            logger.DebugFormat("线程{0}开始处理{1}", currentContext.ID, value);
                             action(value, userData);
                         }
                         catch (Exception ex)
@@ -122,6 +126,8 @@ namespace DotNEToolkit
                     }
 
                 }, context);
+
+                contextList.Add(context);
 
                 context.Task.Start();
             }
