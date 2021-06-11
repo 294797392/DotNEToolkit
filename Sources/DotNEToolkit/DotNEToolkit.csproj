@@ -196,6 +196,7 @@
     </None>
     <None Include="DatabaseSvc\RequestDemo.json" />
     <None Include="Expressions\expression.json" />
+    <None Include="Expressions\readme.md" />
     <None Include="Modular\ModuleMetadata.json" />
     <None Include="Modular\Modules.json" />
     <None Include="TaskDispatchers\readme.md" />

@@ -84,6 +84,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="IPC019.cs" />
     <Compile Include="UserControls\tailDemo.xaml.cs">
       <DependentUpon>tailDemo.xaml</DependentUpon>
     </Compile>
