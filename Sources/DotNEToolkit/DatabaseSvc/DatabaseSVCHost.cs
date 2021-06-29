@@ -58,28 +58,28 @@ namespace DotNEToolkit.DatabaseSvc
             this.config = JSONHelper.ParseFile<DatabaseSVConfig>(this.GetConfigPath());
             if (this.config == null)
             {
-                return DotNETCode.LoadConfigFailed;
+                return DotNETCode.LOAD_CONFIG_FAILED;
             }
 
             this.port = this.config.ServiceConfig.GetValue<int>("port", DefaultPort);
             this.rootPath = this.config.ServiceConfig.GetValue<string>("root_path", DefaultRootPath);
 
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         public virtual int Release()
         {
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         public virtual int Start()
         {
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         public virtual int Stop()
         {
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         public static DatabaseSVCHost Create(DatabaseSVCType type)

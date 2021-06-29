@@ -30,7 +30,7 @@ namespace DotNEToolkit.Network
             if (port <= 0 || port > 65535)
             {
                 logger.ErrorFormat("端口不正确, {0}", port);
-                return DotNETCode.InvalidParams;
+                return DotNETCode.INVALID_PARAMS;
             }
 
             try
@@ -42,12 +42,12 @@ namespace DotNEToolkit.Network
 
                 logger.DebugFormat("TCP服务启动成功，监听端口 = {0}", port);
 
-                return DotNETCode.Success;
+                return DotNETCode.SUCCESS;
             }
             catch (Exception ex)
             {
                 logger.Error("启动TCP服务异常", ex);
-                return DotNETCode.Exception;
+                return DotNETCode.UNKNOWN_EXCEPTION;
             }
         }
 

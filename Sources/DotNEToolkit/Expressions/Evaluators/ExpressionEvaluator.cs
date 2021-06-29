@@ -56,14 +56,14 @@ namespace DotNEToolkit.Expressions.Evaluators
                 if (expression.Parameters.Count != this.MinimalParameters)
                 {
                     logger.ErrorFormat("表达式参数个数不匹配, 最小个数:{0}, 实际个数:{1}", this.MinimalParameters, expression.Parameters.Count);
-                    return DotNETCode.InvalidParams;
+                    return DotNETCode.INVALID_PARAMS;
                 }
 
                 // 检查参数是否有空值
                 if (expression.Parameters.Exists(v => v == null))
                 {
                     logger.ErrorFormat("表达式参数出现空引用");
-                    return DotNETCode.InvalidParams;
+                    return DotNETCode.INVALID_PARAMS;
                 }
             }
 

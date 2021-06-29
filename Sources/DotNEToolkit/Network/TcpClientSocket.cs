@@ -71,18 +71,18 @@ namespace DotNEToolkit.Network
             IPAddress serverAddress;
             if (!IPAddress.TryParse(ip, out serverAddress))
             {
-                return DotNETCode.InvalidParams;
+                return DotNETCode.INVALID_PARAMS;
             }
 
             if (port <= 0 || port > 65535)
             {
-                return DotNETCode.InvalidParams;
+                return DotNETCode.INVALID_PARAMS;
             }
 
             IPEndPoint remoteEP = new IPEndPoint(serverAddress, port);
             this.socket.BeginConnect(ip, port, this.ConnectedCallback, this.socket);
 
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         public void Disconnect()

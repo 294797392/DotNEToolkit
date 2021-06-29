@@ -47,7 +47,7 @@ namespace DotNEToolkit.TaskDispatchers
         [ModuleAction()]
         public override int Initialize(IDictionary parameters)
         {
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         /// <summary>

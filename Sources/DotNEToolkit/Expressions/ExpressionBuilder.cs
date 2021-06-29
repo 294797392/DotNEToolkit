@@ -69,7 +69,7 @@ namespace DotNEToolkit.Expressions
 
             object o;
             int rc = this.Evaluate(expression, ctx, out o);
-            if (rc == DotNETCode.Success)
+            if (rc == DotNETCode.SUCCESS)
             {
                 result = (TResult)o;
             }
@@ -273,7 +273,7 @@ namespace DotNEToolkit.Expressions
                             {
                                 object valueObject;
                                 int rc = this.EvaluateExpression(expression, context, out valueObject);
-                                if (rc != DotNETCode.Success)
+                                if (rc != DotNETCode.SUCCESS)
                                 {
                                     return rc;
                                 }
@@ -284,7 +284,7 @@ namespace DotNEToolkit.Expressions
                             {
                                 object resultObject;
                                 int rc = this.GetEvaluator(expression.Name).Evaluate(expression, context, out resultObject);
-                                if (rc != DotNETCode.Success)
+                                if (rc != DotNETCode.SUCCESS)
                                 {
                                     return rc;
                                 }

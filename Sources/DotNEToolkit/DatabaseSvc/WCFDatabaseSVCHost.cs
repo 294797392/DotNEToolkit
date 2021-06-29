@@ -109,10 +109,10 @@ namespace DotNEToolkit.DatabaseSvc
             catch (Exception ex)
             {
                 logger.Fatal("启动WCF WebService异常", ex);
-                return DotNETCode.Success;
+                return DotNETCode.SUCCESS;
             }
 
-            return DotNETCode.Exception;
+            return DotNETCode.UNKNOWN_EXCEPTION;
         }
 
         #endregion

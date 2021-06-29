@@ -27,7 +27,7 @@ namespace DotNEToolkit.DatabaseSvc
             this.listener = new HttpListener();
             string uri = string.Format("http://127.0.0.1:{0}/{1}/", this.port, this.rootPath);
             this.listener.Prefixes.Add(uri);
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         public override int Start()
@@ -35,7 +35,7 @@ namespace DotNEToolkit.DatabaseSvc
             base.Start();
             this.listener.Start();
             Task.Factory.StartNew(this.ProcessHttpRequest);
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         private void ProcessHttpRequest()

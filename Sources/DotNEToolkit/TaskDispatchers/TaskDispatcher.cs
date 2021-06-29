@@ -135,7 +135,7 @@ namespace DotNEToolkit.TaskDispatchers
                     throw new NotImplementedException();
             }
 
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         #endregion
@@ -227,7 +227,7 @@ namespace DotNEToolkit.TaskDispatchers
         {
             Task task = null;
             bool initialized = false;
-            int rc = DotNETCode.Success;
+            int rc = DotNETCode.SUCCESS;
 
             try
             {
@@ -261,7 +261,7 @@ namespace DotNEToolkit.TaskDispatchers
 
                 // 解析参数表达式
                 IDictionary inputParams;
-                if ((rc = ExpressionUtility.EvaluateExpressions(taskDef.InputParameters, null, out inputParams)) != DotNETCode.Success)
+                if ((rc = ExpressionUtility.EvaluateExpressions(taskDef.InputParameters, null, out inputParams)) != DotNETCode.SUCCESS)
                 {
                     this.ProcessTaskStatusChanged(TaskStatus.FAIL, task);
                     logger.ErrorFormat("计算输入参数表达式失败, 运行任务失败, code = {0}, {1}", rc, DotNETCode.GetMessage(rc));
@@ -271,7 +271,7 @@ namespace DotNEToolkit.TaskDispatchers
                 // 保存输入参数，供其他的任务解析输入表达式使用
                 //this.Context.TaskInputs[taskDef.ID] = inputParams;
 
-                if ((rc = task.Initialize(inputParams)) != DotNETCode.Success)
+                if ((rc = task.Initialize(inputParams)) != DotNETCode.SUCCESS)
                 {
                     this.ProcessTaskStatusChanged(TaskStatus.FAIL, task);
                     logger.ErrorFormat("初始化{0}失败, code = {1}, {2}", taskDef.Name, rc, DotNETCode.GetMessage(rc));
@@ -280,7 +280,7 @@ namespace DotNEToolkit.TaskDispatchers
 
                 initialized = true;
 
-                if ((rc = task.Run()) != DotNETCode.Success)
+                if ((rc = task.Run()) != DotNETCode.SUCCESS)
                 {
                     this.ProcessTaskStatusChanged(TaskStatus.FAIL, task);
                     logger.ErrorFormat("运行{0}失败, code = {1}, {2}", taskDef.Name, rc, DotNETCode.GetMessage(rc));

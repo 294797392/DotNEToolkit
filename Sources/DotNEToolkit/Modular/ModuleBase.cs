@@ -74,7 +74,7 @@ namespace DotNEToolkit.Modular
         {
             this.InputParameters = parameters;
             this.InitializeBinding();
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         /// <summary>

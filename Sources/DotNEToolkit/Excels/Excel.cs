@@ -43,7 +43,7 @@ namespace DotNEToolkit
 
                 workbook.Write(fs);
                 fs.Close();
-                return DotNETCode.Success;
+                return DotNETCode.SUCCESS;
             }
         }
 
@@ -53,7 +53,7 @@ namespace DotNEToolkit
 
             if (!File.Exists(filePath))
             {
-                return DotNETCode.FileNotFound;
+                return DotNETCode.FILE_NOT_FOUND;
             }
 
             using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -124,7 +124,7 @@ namespace DotNEToolkit
 
                             default:
                                 logger.ErrorFormat("不支持的Cell数据类型, {0}", cell.CellType);
-                                return DotNETCode.NotSupported;
+                                return DotNETCode.NOT_SUPPORTED;
                         }
                     }
 
@@ -137,7 +137,7 @@ namespace DotNEToolkit
                 fs.Close();
             }
 
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace DotNEToolkit
             List<PropertyAttribute<ExcelColumnAttribute>> properties = Reflections.GetPropertyAttribute<ExcelColumnAttribute>(typeof(TRow));
             if (properties.Count == 0)
             {
-                return DotNETCode.Success;
+                return DotNETCode.SUCCESS;
             }
 
             ExcelSheet sheet = new ExcelSheet();

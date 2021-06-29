@@ -53,7 +53,7 @@ namespace DotNEToolkit.Media
         {
             if (string.IsNullOrEmpty(uri))
             {
-                return DotNETCode.InvalidParams;
+                return DotNETCode.INVALID_PARAMS;
             }
 
             return this.mpk.Open(uri);

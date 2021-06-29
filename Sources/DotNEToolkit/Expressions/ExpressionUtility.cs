@@ -42,7 +42,7 @@ namespace DotNEToolkit.Expressions
                     {
                         object result;
                         int code = ExpressionBuilder.Instance.Evaluate(value_string, context, out result);
-                        if (code != DotNETCode.Success)
+                        if (code != DotNETCode.SUCCESS)
                         {
                             return code;
                         }
@@ -56,7 +56,7 @@ namespace DotNEToolkit.Expressions
                 }
             }
 
-            return DotNETCode.Success;
+            return DotNETCode.SUCCESS;
         }
     }
 }

@@ -86,7 +86,7 @@ namespace DotNEToolkit.Modular
 
         private int InitializeModuleFinal(IModuleInstance moduleInst)
         {
-            int code = DotNETCode.Success;
+            int code = DotNETCode.SUCCESS;
 
             this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.Initializing);
 
@@ -94,7 +94,7 @@ namespace DotNEToolkit.Modular
             {
                 moduleInst.Status = ModuleStatus.Initializing;
 
-                if ((code = moduleInst.Initialize(moduleInst.Definition.InputParameters)) != DotNETCode.Success)
+                if ((code = moduleInst.Initialize(moduleInst.Definition.InputParameters)) != DotNETCode.SUCCESS)
                 {
                     moduleInst.Status = ModuleStatus.InitializeFailed;
                     this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.InitializeFailed);
@@ -107,24 +107,24 @@ namespace DotNEToolkit.Modular
                 moduleInst.Status = ModuleStatus.Initialized;
                 this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.Initialized);
 
-                return DotNETCode.Success;
+                return DotNETCode.SUCCESS;
             }
             catch (Exception ex)
             {
                 moduleInst.Status = ModuleStatus.InitializeException;
                 this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.InitializeException);
                 logger.Error("初始化模块异常", ex);
-                return DotNETCode.Exception;
+                return DotNETCode.UNKNOWN_EXCEPTION;
             }
         }
 
         private void InitializeModuleFinal(IModuleInstance moduleInst, int interval)
         {
-            int code = DotNETCode.Success;
+            int code = DotNETCode.SUCCESS;
 
             while (true)
             {
-                if ((code = this.InitializeModuleFinal(moduleInst)) != DotNETCode.Success)
+                if ((code = this.InitializeModuleFinal(moduleInst)) != DotNETCode.SUCCESS)
                 {
                     Thread.Sleep(interval);
                     continue;
@@ -152,28 +152,30 @@ namespace DotNEToolkit.Modular
             });
         }
 
-        private IModuleInstance CreateModuleInstance(ModuleDefinition moduleDef)
+        private int CreateModuleInstance(ModuleDefinition moduleDef, out IModuleInstance instance)
         {
+            instance = null;
+
             ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == moduleDef.TypeID);
             if (metadata == null)
             {
                 logger.ErrorFormat("客户端不存在模块:{0}", moduleDef);
-                return null;
+                return DotNETCode.MODULE_NOT_FOUND;
             }
             else
             {
                 try
                 {
-                    IModuleInstance module = ConfigFactory<IModuleInstance>.CreateInstance(metadata.EntryClass);
-                    module.Definition = moduleDef;
-                    module.Factory = this;
-                    module.PublishEvent += this.Module_PublishEvent;
-                    return module;
+                    instance = ConfigFactory<IModuleInstance>.CreateInstance(metadata.EntryClass);
+                    instance.Definition = moduleDef;
+                    instance.Factory = this;
+                    instance.PublishEvent += this.Module_PublishEvent;
+                    return DotNETCode.SUCCESS;
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("加载模块异常, {0}, {1}", moduleDef, ex);
-                    return null;
+                    return DotNETCode.UNKNOWN_EXCEPTION;
                 }
             }
         }
@@ -240,8 +242,10 @@ namespace DotNEToolkit.Modular
 
             foreach (ModuleDefinition moduleDef in initialModules)
             {
-                IModuleInstance moduleInst = this.CreateModuleInstance(moduleDef);
-                if (moduleInst == null)
+                IModuleInstance moduleInst;
+
+                int code = this.CreateModuleInstance(moduleDef, out moduleInst);
+                if (code != DotNETCode.SUCCESS)
                 {
                     // TODO：初始化模块失败..
                     continue;
@@ -261,20 +265,23 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public int SetupModule(ModuleDefinition moduleDef)
         {
-            IModuleInstance moduleInst = this.CreateModuleInstance(moduleDef);
-            if (moduleInst == null)
+            IModuleInstance moduleInst;
+
+            int code = DotNETCode.SUCCESS;
+
+            if ((code = this.CreateModuleInstance(moduleDef, out moduleInst)) != DotNETCode.SUCCESS)
             {
-                return DotNETCode.CreateModuleFailed;
+                return code;    
             }
 
-            int code = moduleInst.Initialize(moduleDef.InputParameters);
-            if (code == DotNETCode.Success)
+            if ((code = moduleInst.Initialize(moduleDef.InputParameters)) != DotNETCode.SUCCESS)
             {
-                // 加载成功
-                this.ModuleList.Add(moduleInst);
+                return code;
             }
 
-            return code;
+            this.ModuleList.Add(moduleInst);
+
+            return DotNETCode.SUCCESS;
         }
 
         public List<TModuleInstance> LookupModules<TModuleInstance>() where TModuleInstance : IModuleInstance

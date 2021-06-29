@@ -14,32 +14,32 @@ namespace DotNEToolkit
         /// <summary>
         /// 成功
         /// </summary>
-        public const int Success = 0;
+        public const int SUCCESS = 0;
 
         /// <summary>
         /// 异常
         /// </summary>
-        public const int Exception = -1;
+        public const int UNKNOWN_EXCEPTION = -1;
 
         /// <summary>
         /// 加载配置文件失败
         /// </summary>
-        public const int LoadConfigFailed = 2;
+        public const int LOAD_CONFIG_FAILED = 2;
 
         /// <summary>
         /// 无效的参数
         /// </summary>
-        public const int InvalidParams = 3;
+        public const int INVALID_PARAMS = 3;
 
         /// <summary>
         /// 不支持的操作
         /// </summary>
-        public const int NotSupported = 4;
+        public const int NOT_SUPPORTED = 4;
 
         /// <summary>
         /// 文件不存在
         /// </summary>
-        public const int FileNotFound = 5;
+        public const int FILE_NOT_FOUND = 5;
 
 
 
@@ -51,12 +51,7 @@ namespace DotNEToolkit
 
         #region 100 - 200 ModuleFactory
 
-        public const int ModuleNotFound = 100;
-
-        /// <summary>
-        /// 加载模块失败
-        /// </summary>
-        public const int CreateModuleFailed = 101;
+        public const int MODULE_NOT_FOUND = 100;
 
         #endregion
 
