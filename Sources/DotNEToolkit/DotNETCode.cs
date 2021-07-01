@@ -17,6 +17,11 @@ namespace DotNEToolkit
         public const int SUCCESS = 0;
 
         /// <summary>
+        /// 失败
+        /// </summary>
+        public const int FAILED = 1;
+
+        /// <summary>
         /// 异常
         /// </summary>
         public const int UNKNOWN_EXCEPTION = -1;
@@ -45,15 +50,39 @@ namespace DotNEToolkit
 
 
 
-
-
-
-
         #region 100 - 200 ModuleFactory
 
         public const int MODULE_NOT_FOUND = 100;
 
         #endregion
+
+
+        #region 201 - 300 JSON
+
+        /// <summary>
+        /// 无效的JSON格式
+        /// </summary>
+        public const int JSON_INVALID_FORMAT = 201;
+
+        #endregion
+
+
+
+        #region 301 - 400 File
+
+        /// <summary>
+        /// 写文件失败
+        /// </summary>
+        public const int FILE_WRITE_FAILED = 301;
+
+        /// <summary>
+        /// 没有权限
+        /// </summary>
+        public const int FILE_PERMISSION_ERROR = 302;
+
+        #endregion
+
+
 
         public static string GetMessage(int code)
         {
