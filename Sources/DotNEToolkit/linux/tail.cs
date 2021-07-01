@@ -18,6 +18,8 @@ namespace DotNEToolkit.linux
 
         /// <summary>
         /// 如果打开文件失败，那么这个值指定重试打开文件的间隔时间
+        /// 打开文件成功后，这个值指定每次读取文件的间隔时间
+        /// 单位是毫秒
         /// </summary>
         private const int sleep_period = 1000;
 
@@ -83,13 +85,15 @@ namespace DotNEToolkit.linux
 
         private string[] new_line_splitter;
 
+        private bool isRunning;
+
         #endregion
 
         #region 属性
 
-        public StreamReader reader { get; private set; }
+        private StreamReader reader { get; set; }
 
-        public FileStream stream { get; private set; }
+        private FileStream stream { get; set; }
 
         public tail_options options { get; private set; }
 
@@ -123,7 +127,13 @@ namespace DotNEToolkit.linux
 
         public void start(string path)
         {
+            this.isRunning = true;
             this.tail_async(path);
+        }
+
+        public void stop()
+        {
+            
         }
 
         public void addopt(tail_options opt)
@@ -250,7 +260,7 @@ namespace DotNEToolkit.linux
                 bool retry = this.options.HasFlag(tail_options.retry);
                 bool readline = this.options.HasFlag(tail_options.readline);
 
-                while (true)
+                while (this.isRunning)
                 {
                     FileStream fs = null;           // 文件流
                     StreamReader reader = null;     // 文件读取器
@@ -282,6 +292,13 @@ namespace DotNEToolkit.linux
                     do
                     {
                         Thread.Sleep(this.period);
+
+                        // 判断当前是否还正在运行
+                        if (!this.isRunning)
+                        {
+                            this.close();
+                            break;
+                        }
 
                         if (!File.Exists(path) ||                                   // 文件不存在
                             File.GetCreationTime(path).ToFileTime() != timestamp)   // 判断当前文件和已经打开的文件是否一致（如果用户删除了之前打开的文件，然后创建了一个同名的文件，那么就不一致）
@@ -338,7 +355,7 @@ namespace DotNEToolkit.linux
                             }
                         }
                     }
-                    while (follow); // 一直读取，读完了也继续读
+                    while (follow && this.isRunning); // 一直读取，读完了也继续读
                 }
             });
         }
