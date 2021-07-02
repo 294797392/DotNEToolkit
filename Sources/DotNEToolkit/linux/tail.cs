@@ -75,7 +75,13 @@ namespace DotNEToolkit.linux
 
         #region 公开事件
 
-        public event Action<tail, tail_event_type, object> callback;
+        /// <summary>
+        /// 第一个参数是tail对象
+        /// 第二个参数是事件类型
+        /// 第三个参数是事件类型所关联的数据
+        /// 第四个参数是userData
+        /// </summary>
+        public event Action<tail, tail_event_type, object, object> callback;
 
         #endregion
 
@@ -86,6 +92,8 @@ namespace DotNEToolkit.linux
         private string[] new_line_splitter;
 
         private bool isRunning;
+
+        private object userData;
 
         #endregion
 
@@ -129,6 +137,12 @@ namespace DotNEToolkit.linux
         {
             this.isRunning = true;
             this.tail_async(path);
+        }
+
+        public void start(string path, object userData)
+        {
+            this.userData = userData;
+            this.start(path);
         }
 
         public void stop()
@@ -207,7 +221,7 @@ namespace DotNEToolkit.linux
         {
             if (this.callback != null)
             {
-                this.callback(this, tevent, data);
+                this.callback(this, tevent, data, this.userData);
             }
         }
 
