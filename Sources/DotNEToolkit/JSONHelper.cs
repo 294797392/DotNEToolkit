@@ -259,7 +259,7 @@ namespace DotNEToolkit
             return item == null ? DotNETCode.FAILED : DotNETCode.SUCCESS;
         }
 
-        public static IEnumerable<TSource> SelectAll<TSource>(string jsonFile)
+        public static List<TSource> SelectAll<TSource>(string jsonFile)
         {
             List<TSource> list;
             if (!JSONHelper.DeserializeJSONFile<List<TSource>>(jsonFile, out list))

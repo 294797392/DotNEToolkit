@@ -257,24 +257,39 @@ namespace DotNEToolkit.Modular
             this.InitializeModulesAsync(this.ModuleList, interval);
         }
 
+        public int SetupModules(IEnumerable<ModuleDefinition> modules)
+        {
+            int code = DotNETCode.SUCCESS;
+
+            foreach (ModuleDefinition module in modules)
+            {
+                if ((code = this.SetupModule(module)) != DotNETCode.SUCCESS)
+                {
+                    return code;
+                }
+            }
+
+            return code;
+        }
+
         /// <summary>
         /// 同步加载一个模块，如果加载失败则直接返回
         /// 不会尝试重新加载
         /// </summary>
-        /// <param name="moduleDef"></param>
+        /// <param name="module"></param>
         /// <returns></returns>
-        public int SetupModule(ModuleDefinition moduleDef)
+        public int SetupModule(ModuleDefinition module)
         {
             IModuleInstance moduleInst;
 
             int code = DotNETCode.SUCCESS;
 
-            if ((code = this.CreateModuleInstance(moduleDef, out moduleInst)) != DotNETCode.SUCCESS)
+            if ((code = this.CreateModuleInstance(module, out moduleInst)) != DotNETCode.SUCCESS)
             {
                 return code;    
             }
 
-            if ((code = moduleInst.Initialize(moduleDef.InputParameters)) != DotNETCode.SUCCESS)
+            if ((code = moduleInst.Initialize(module.InputParameters)) != DotNETCode.SUCCESS)
             {
                 return code;
             }

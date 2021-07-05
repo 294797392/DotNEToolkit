@@ -18,7 +18,7 @@ namespace DotNEToolkit
         /// <summary>
         /// 根据进程名字关闭一个进程
         /// </summary>
-        /// <param name="procName"></param>
+        /// <param name="procName">要关闭的进程名字，注意该进程名字不带后缀名（.exe）</param>
         public static void KillProcess(string procName)
         {
             Process[] processes = Process.GetProcessesByName(procName);

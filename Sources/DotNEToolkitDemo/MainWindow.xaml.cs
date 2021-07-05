@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,7 +31,7 @@ namespace DotNETClient
     public partial class MainWindow : Window
     {
         private ModuleFactory factory;
-
+        Process proc;
         private void Foreach(int v, object userData)
         {
             Console.WriteLine("开始运行:{0}", v);
@@ -55,49 +56,18 @@ namespace DotNETClient
         {
             InitializeComponent();
 
-            //List<int> source = new List<int>();
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    source.Add(i);
-            //}
+            proc = new Process();
+            proc.StartInfo = new ProcessStartInfo()
+            {
+                FileName = "FlyPRO.exe"
+            };
+            proc.Start();
+            proc.WaitForInputIdle();
+        }
 
-            //DotNEToolkit.Parallel.Foreach<int>(source, 5, Foreach, null, Callback);
-
-            //ExcelSheet sheet;
-            //Excel.QuickRead("636356149796417536_CMSXJ48H_200_20210511.xlsx", ReadOptions.KeepEmptyCell, out sheet);
-
-            //Excel.QuickWrite(sheet, "1.xls", ExcelVersions.Xls);
-
-            Console.ReadLine();
-
-            //List<ModuleDefinition> modules = JSONHelper.ParseFile<List<ModuleDefinition>>("Modules/Modules.json");
-
-            //List<string> metaFiles = new List<string>()
-            //{
-            //    "Modules/ModuleMetadatas.json"
-            //};
-
-            //this.factory = ModuleFactory.CreateFactory();
-            //this.factory.RegisterModuleMetadata(metaFiles);
-            //this.factory.SetupModulesAsync(modules, 1000);
-
-            //Task.Factory.StartNew(() =>
-            //{
-            //    System.Threading.Thread.Sleep(5000);
-
-            //    DemoModule module = this.factory.LookupModule<DemoModule>();
-
-            //    Console.WriteLine("123");
-            //});
-
-            //tail t = new tail();
-            //t.callback += T_callback;
-            //t.addopt(tail.tail_options.follow);
-            //t.addopt(tail.tail_options.readline);
-            //t.addopt(tail.tail_options.retry);
-            //t.period = 50;
-            //t.bufsize = 16384;
-            //t.start(@"E:\chuangmi\factoryIV\FactoryIV.Build\Rolling.log");
+        private void T_callback1(tail arg1, tail.tail_event_type arg2, object arg3, object arg4)
+        {
+            Console.WriteLine(arg3.ToString());
         }
 
         private void T_callback(tail arg1, tail.tail_event_type arg2, object data)
@@ -112,9 +82,7 @@ namespace DotNETClient
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            IntPtr handle = Win32API.GetDesktopWindow();
-
-            Win32API.SendMessage(handle, Win32API.WM_APPCOMMAND, handle, 10 * 65536);
+            MessageBox.Show(Win32APIHelper.GetWindowText(proc.MainWindowHandle, 275, 433));
         }
     }
 }

@@ -8,6 +8,43 @@ namespace DotNEToolkit
 {
     public static class Win32APIHelper
     {
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("Win32APIHelper");
+
+        /// <summary>
+        /// 获取某个窗口中，某个位置的控件上的文本
+        /// </summary>
+        /// <param name="hWnd">要获取的窗口的句柄</param>
+        /// <param name="x">要获取文本的控件的x坐标</param>
+        /// <param name="y">要获取文本的控件的y坐标</param>
+        /// <returns>获取到的文本</returns>
+        public static string GetWindowText(IntPtr hWnd, int x, int y)
+        {
+            Win32API.POINT point = new Win32API.POINT()
+            {
+                x = x,
+                y = y
+            };
+
+            IntPtr handle = Win32API.ChildWindowFromPoint(hWnd, point);
+            if (handle == IntPtr.Zero)
+            {
+                logger.ErrorFormat("ChildWindowFromPoint失败, {0}", Marshal.GetLastWin32Error());
+                return null;
+            }
+
+            int size = Win32API.SendMessage(handle, Win32API.WM_GETTEXTLENGTH, 0, 0);
+            if (size == 0)
+            {
+                return string.Empty;
+            }
+
+            char[] title = new char[size];
+            SendMessage(handle, Win32API.WM_GETTEXT, size, Marshal.UnsafeAddrOfPinnedArrayElement(title, 0));
+            return new string(title);
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int bufSize, IntPtr buf);
     }
 
     public static class Win32API
@@ -70,6 +107,9 @@ namespace DotNEToolkit
         public const int WM_COMMAND = 0x0111;
         public const int WM_LBUTTONDOWN = 0x0201;
         public const int WM_LBUTTONUP = 0x0202;
+
+        public const int WM_GETTEXT = 0x000D;
+        public const int WM_GETTEXTLENGTH = 0x000E;
 
         #region WM_APPCOMMAND
 
@@ -161,6 +201,12 @@ namespace DotNEToolkit
         [DllImport("user32.dll", EntryPoint = "GetWindowLongA", SetLastError = true)]
         public static extern long GetWindowLong(IntPtr hwnd, int nIndex);
 
+        [DllImport("user32.dll")]
+        public static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int nMaxCount);
+
+        [DllImport("user32.dll")]
+        public static extern int GetWindowTextLength(IntPtr hWnd);
+
         public static IntPtr SetWindowLong(HandleRef hWnd, int nIndex, int dwNewLong)
         {
             if (IntPtr.Size == 4)
@@ -188,7 +234,7 @@ namespace DotNEToolkit
         public static extern IntPtr GetParent(IntPtr hwnd);
 
         [DllImport("user32.dll", EntryPoint = "ShowWindow", SetLastError = true)]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         /// <summary>
         /// 立即刷新某个窗口
@@ -198,6 +244,15 @@ namespace DotNEToolkit
         /// <returns></returns>
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool UpdateWindow(IntPtr hWnd);
+
+        /// <summary>
+        /// 返回父窗口中包含了指定点的第一个子窗口的句柄
+        /// </summary>
+        /// <param name="hWndParent"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll")]
+        public static extern IntPtr ChildWindowFromPoint(IntPtr hWndParent, POINT point);
 
         #endregion
 

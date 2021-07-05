@@ -87,6 +87,10 @@ namespace DotNEToolkit.linux
 
         #region 实例变量
 
+        private StreamReader reader { get; set; }
+
+        private FileStream stream { get; set; }
+
         private char[] remain;
 
         private string[] new_line_splitter;
@@ -99,10 +103,6 @@ namespace DotNEToolkit.linux
 
         #region 属性
 
-        private StreamReader reader { get; set; }
-
-        private FileStream stream { get; set; }
-
         public tail_options options { get; private set; }
 
         /// <summary>
@@ -114,6 +114,11 @@ namespace DotNEToolkit.linux
         /// 每次读取文件的缓冲区大小
         /// </summary>
         public int bufsize { get; set; }
+
+        /// <summary>
+        /// 读取文件的时候的编码格式
+        /// </summary>
+        public Encoding encoding { get; set; }
 
         #endregion
 
@@ -165,12 +170,17 @@ namespace DotNEToolkit.linux
 
             try
             {
+                if (this.encoding == null)
+                {
+                    this.encoding = Encoding.Default;
+                }
+
                 FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
                 // 默认从文件结尾处开始读取
                 stream.Seek(0, SeekOrigin.End);
 
-                reader = new StreamReader(stream);
+                reader = new StreamReader(stream, this.encoding);
 
                 return stream;
             }
