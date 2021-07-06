@@ -232,10 +232,17 @@ namespace DotNEToolkit
             }
 
             List<T> list;
-            if (!JSONHelper.DeserializeJSONFile<List<T>>(jsonFile, out list))
+            if (!File.Exists(jsonFile))
             {
-                // 无效的JSON格式
-                return DotNETCode.JSON_INVALID_FORMAT;
+                list = new List<T>();
+            }
+            else 
+            {
+                if (!JSONHelper.DeserializeJSONFile<List<T>>(jsonFile, out list))
+                {
+                    // 无效的JSON格式
+                    return DotNETCode.JSON_INVALID_FORMAT;
+                }
             }
 
             list.Add(obj);

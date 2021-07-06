@@ -254,6 +254,14 @@ namespace DotNEToolkit
         [DllImport("user32.dll")]
         public static extern IntPtr ChildWindowFromPoint(IntPtr hWndParent, POINT point);
 
+        /// <summary>
+        /// 返回指定坐标处的窗口句柄
+        /// </summary>
+        /// <param name="Point"></param>
+        /// <returns>如果找到了窗口，则返回窗口句柄，否则返回空句柄</returns>
+        [DllImport("user32.dll")]
+        public static extern IntPtr WindowFromPoint(POINT Point);
+
         #endregion
 
         #region shell32

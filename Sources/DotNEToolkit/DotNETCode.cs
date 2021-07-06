@@ -46,16 +46,11 @@ namespace DotNEToolkit
         /// </summary>
         public const int FILE_NOT_FOUND = 5;
 
-
-
-
-
         #region 100 - 200 ModuleFactory
 
         public const int MODULE_NOT_FOUND = 100;
 
         #endregion
-
 
         #region 201 - 300 JSON
 
@@ -65,8 +60,6 @@ namespace DotNEToolkit
         public const int JSON_INVALID_FORMAT = 201;
 
         #endregion
-
-
 
         #region 301 - 400 File
 
@@ -81,8 +74,6 @@ namespace DotNEToolkit
         public const int FILE_PERMISSION_ERROR = 302;
 
         #endregion
-
-
 
         public static string GetMessage(int code)
         {

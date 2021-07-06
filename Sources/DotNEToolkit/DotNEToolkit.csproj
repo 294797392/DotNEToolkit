@@ -184,6 +184,7 @@
     <Compile Include="TaskDispatchers\TaskDispatcherEvent.cs" />
     <Compile Include="TaskDispatchers\TaskEvent.cs" />
     <Compile Include="Win32API.cs" />
+    <Compile Include="WindowScanner.cs" />
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
