@@ -10,6 +10,9 @@ namespace DotNEToolkit.Modular
 {
     /// <summary>
     /// 模块工厂
+    /// 自动识别modules.*.json的文件为模块元数据文件
+    /// 
+    /// ModuleFactory从模块元数据文件里根据TypeID去查找对应模块的EntryClass
     /// </summary>
     public class ModuleFactory
     {
@@ -183,6 +186,23 @@ namespace DotNEToolkit.Modular
         #endregion
 
         #region 公开接口
+
+        /// <summary>
+        /// 根据配置文件加载ModuleFactory
+        /// 同步接口
+        /// </summary>
+        /// <param name="descFile">ModuleFactory描述文件的路径</param>
+        /// <returns></returns>
+        public static ModuleFactory CreateFactory(string descFile)
+        {
+            ModuleFactoryDescription description;
+            if (!JSONHelper.DeserializeJSONFile(descFile, out description))
+            {
+                return null;
+            }
+
+            return CreateFactory(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)));
+        }
 
         /// <summary>
         /// 创建一个模块工厂并同步初始化模块实例

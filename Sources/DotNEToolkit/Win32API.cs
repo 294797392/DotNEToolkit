@@ -49,6 +49,9 @@ namespace DotNEToolkit
 
     public static class Win32API
     {
+        public const int ERROR_INSUFFICIENT_BUFFER = 122;
+        public const int ERROR_NO_MORE_ITEMS = 259;
+
         [StructLayout(LayoutKind.Sequential)]
         public struct GUID
         {

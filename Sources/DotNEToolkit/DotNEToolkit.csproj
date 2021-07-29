@@ -66,6 +66,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Android\AdbWinApi.cs" />
+    <Compile Include="Android\ADBManager.cs" />
     <Compile Include="Bindings\BindableBase.cs" />
     <Compile Include="Bindings\BindableProperties.cs" />
     <Compile Include="Bindings\BindableProperty.cs" />
@@ -143,6 +145,7 @@
     <Compile Include="Modular\ModuleDefinition.cs" />
     <Compile Include="Modular\ModuleEvent.cs" />
     <Compile Include="Modular\ModuleFactory.cs" />
+    <Compile Include="Modular\ModuleFactoryDescription.cs" />
     <Compile Include="Modular\ModuleFlags.cs" />
     <Compile Include="Modular\ModuleStatus.cs" />
     <Compile Include="Modular\ModuleMetadata.cs" />
@@ -199,7 +202,7 @@
     <None Include="Expressions\expression.json" />
     <None Include="Expressions\readme.md" />
     <None Include="Modular\ModuleMetadata.json" />
-    <None Include="Modular\Modules.json" />
+    <None Include="Modular\ModuleFactoryDescription.json" />
     <None Include="TaskDispatchers\readme.md" />
     <None Include="TaskDispatchers\task.json" />
   </ItemGroup>

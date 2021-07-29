@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit.Modular
 {
+    /// <summary>
+    /// 表示一个模块的状态
+    /// </summary>
     public enum ModuleStatus
     {
         /// <summary>

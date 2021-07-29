@@ -1,0 +1,12 @@
+﻿{
+    "Modules": [
+        {
+            "ID": "",
+            "Name": "",
+            "TypeID": "",
+            "InputParameters": {
+                "PropertyName": "PropertyValue"
+            }
+        }
+    ]
+}
