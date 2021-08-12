@@ -7,8 +7,9 @@ namespace DotNEToolkit.Expressions
 {
     /// <summary>
     /// 计算表达式需要的上下文信息
+    /// 该接口是一个标记接口，没有任何内容
     /// </summary>
-    public abstract class EvaluationContext
+    public interface IEvaluationContext
     {
     }
 }

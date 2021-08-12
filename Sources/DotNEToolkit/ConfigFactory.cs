@@ -56,7 +56,6 @@ namespace DotNEToolkit
             }
         }
 
-
         /// <summary>
         /// 根据类名和Assebmly名创建IEventDispatcher
         /// </summary>
@@ -87,13 +86,18 @@ namespace DotNEToolkit
         /// </summary>
         /// <param name="className"></param>
         /// <returns></returns>
-        public static T CreateInstance(string className)
+        public static T CreateInstance(string className, params object[] args)
+        {
+            logger.Debug("Create instance: " + className);
+            Type type = Type.GetType(className, true);
+            return CreateInstance(type, args);
+        }
+
+        public static T CreateInstance(Type type, params object[] args)
         {
             try
             {
-                logger.Debug("Create instance: " + className);
-                Type type = Type.GetType(className, true);
-                T instance = (T)Activator.CreateInstance(type);
+                T instance = (T)Activator.CreateInstance(type, args);
                 return instance;
             }
             catch (Exception ex)

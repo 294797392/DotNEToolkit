@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DotNEToolkit.TaskDispatchers
 {
-    public enum TaskDispatcherEvent
+    public enum TaskDispatcherStatus
     {
         /// <summary>
         /// 空闲状态
@@ -13,24 +13,19 @@ namespace DotNEToolkit.TaskDispatchers
         IDLE,
 
         /// <summary>
-        /// 开始执行工作流
+        /// 正在运行工作流
         /// </summary>
-        ExecutionStarted,
+        RUN,
 
         /// <summary>
         /// 引擎执行失败
         /// </summary>
-        ExecutionFailure,
+        FAIL,
 
         /// <summary>
         /// 引擎执行成功
         /// </summary>
-        ExecutionSuccess,
-
-        /// <summary>
-        /// 执行的任务状态改变
-        /// </summary>
-        TaskStatusChanged
+        PASS,
     }
 
     /// <summary>
@@ -41,11 +36,11 @@ namespace DotNEToolkit.TaskDispatchers
         /// <summary>
         /// 任务的状态
         /// </summary>
-        public TaskStatus Status { get; set; }
+        public WorkflowStatus Status { get; set; }
 
         /// <summary>
         /// 状态改变了的Task实例
         /// </summary>
-        public Task Task { get; set; }
+        public WorkflowTask Task { get; set; }
     }
 }

@@ -67,7 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Android\AdbWinApi.cs" />
-    <Compile Include="Android\ADBManager.cs" />
+    <Compile Include="Android\AndroidDevice.cs" />
+    <Compile Include="Android\AndroidDevices.cs" />
     <Compile Include="Bindings\BindableBase.cs" />
     <Compile Include="Bindings\BindableProperties.cs" />
     <Compile Include="Bindings\BindableProperty.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="DatabaseSvc\Internals\InternalTable.cs" />
     <Compile Include="DatabaseSvc\SQLBuilders\AbstractSQLBuilder.cs" />
     <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
+    <Compile Include="DataModels\ModelBase.cs" />
     <Compile Include="DelegateUtility.cs" />
     <Compile Include="Excels\Attributes\ExcelColumnAttribute.cs" />
     <Compile Include="Excels\IExcelRow.cs" />
@@ -104,7 +106,7 @@
     <Compile Include="Excels\Excel.cs" />
     <Compile Include="Excels\ExcelSheet.cs" />
     <Compile Include="Excels\ExcelVersions.cs" />
-    <Compile Include="Expressions\EvaluationContext.cs" />
+    <Compile Include="Expressions\IEvaluationContext.cs" />
     <Compile Include="Expressions\Evaluators\ExpressionEvaluator.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionBuilder.cs" />
@@ -124,7 +126,7 @@
     <Compile Include="Extentions\StreamExtentions.cs" />
     <Compile Include="HttpUtility.cs" />
     <Compile Include="INIReader.cs" />
-    <Compile Include="KeyboardScanner.cs" />
+    <Compile Include="Keyboard.cs" />
     <Compile Include="linux\tail.cs" />
     <Compile Include="Media\MPKernel.cs" />
     <Compile Include="Media\MPKernelFactory.cs" />
@@ -175,12 +177,12 @@
     <Compile Include="SingletonObject.cs" />
     <Compile Include="StreamUtility.cs" />
     <Compile Include="TaskDispatchers\Repetitions.cs" />
-    <Compile Include="TaskDispatchers\Task.cs" />
+    <Compile Include="TaskDispatchers\WorkflowTask.cs" />
     <Compile Include="TaskDispatchers\TaskDefinition.cs" />
     <Compile Include="TaskDispatchers\TaskFlags.cs" />
     <Compile Include="TaskDispatchers\TaskQueue.cs" />
     <Compile Include="TaskDispatchers\TaskQueueFactory.cs" />
-    <Compile Include="TaskDispatchers\TaskStatus.cs" />
+    <Compile Include="TaskDispatchers\WorkflowStatus.cs" />
     <Compile Include="TaskDispatchers\TaskTrigger.cs" />
     <Compile Include="TaskDispatchers\WaitableTask.cs" />
     <Compile Include="TaskDispatchers\TaskDispatcher.cs" />
@@ -204,7 +206,6 @@
     <None Include="Modular\ModuleMetadata.json" />
     <None Include="Modular\ModuleFactoryDescription.json" />
     <None Include="TaskDispatchers\readme.md" />
-    <None Include="TaskDispatchers\task.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

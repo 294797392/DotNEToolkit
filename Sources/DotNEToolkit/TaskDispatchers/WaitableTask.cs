@@ -10,7 +10,7 @@ namespace DotNEToolkit.TaskDispatchers
     /// <summary>
     /// 表示一个可等待的任务
     /// </summary>
-    public abstract class WaitableTask : Task
+    public abstract class WaitableTask : WorkflowTask
     {
         #region 实例变量
 

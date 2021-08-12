@@ -74,6 +74,12 @@ namespace DotNEToolkit
             return result != null;
         }
 
+        /// <summary>
+        /// 把一个json文件序列化成C#对象
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="jsonFile"></param>
+        /// <returns>如果序列化失败，那么返回空</returns>
         public static TResult ParseFile<TResult>(string jsonFile)
         {
             if (!File.Exists(jsonFile))
@@ -315,6 +321,18 @@ namespace DotNEToolkit
             list.Remove(exist);
             list.Insert(index, item);
             return DotNETCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// 保存所有对象，会覆盖JSON文件
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="jsonFile"></param>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static int SaveAll<TSource>(string jsonFile, IEnumerable<TSource> items)
+        {
+            return JSONHelper.Write<List<TSource>>(jsonFile, new List<TSource>(items));
         }
     }
 }

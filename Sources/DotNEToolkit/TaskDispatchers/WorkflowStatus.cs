@@ -6,9 +6,9 @@ using System.Text;
 namespace DotNEToolkit.TaskDispatchers
 {
     /// <summary>
-    /// 任务的状态
+    /// 工作流状态
     /// </summary>
-    public enum TaskStatus
+    public enum WorkflowStatus
     {
         /// <summary>
         /// 空闲状态，等待运行

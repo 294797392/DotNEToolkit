@@ -115,5 +115,31 @@ namespace DotNEToolkit.Extentions
 
             return result;
         }
+
+        /// <summary>
+        /// 判断一个集合里是否有重复元素
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static bool HasDuplicated(this List<string> source)
+        {
+            int count = source.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                for (int j = 0; j < count; j++)
+                {
+                    if (i != j)
+                    {
+                        if (source[i] == source[j])
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }

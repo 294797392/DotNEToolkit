@@ -36,7 +36,7 @@ namespace DotNEToolkit.Modular
         /// 组件类型ID
         /// </summary>
         [JsonProperty("TypeID")]
-        public string TypeID { get; set; }
+        public string MetadataID { get; set; }
 
         /// <summary>
         /// 模块的标志位
@@ -79,7 +79,7 @@ namespace DotNEToolkit.Modular
 
         public override string ToString()
         {
-            return string.Format("{0}:{1}", this.TypeID, this.Name);
+            return string.Format("{0}:{1}", this.MetadataID, this.Name);
         }
     }
 }

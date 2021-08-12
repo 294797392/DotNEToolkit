@@ -46,7 +46,7 @@ namespace DotNEToolkit.Expressions.Evaluators
         /// <param name="context"></param>
         /// <param name="result">表达式计算后的结果</param>
         /// <returns>计算表达式是否成功</returns>
-        public int Evaluate(Expression expression, EvaluationContext context, out object result)
+        public int Evaluate(Expression expression, IEvaluationContext context, out object result)
         {
             result = null;
 
@@ -76,7 +76,7 @@ namespace DotNEToolkit.Expressions.Evaluators
         /// 子类必须实现该类
         /// </summary>
         /// <returns></returns>
-        internal abstract int EvaluateCore(Expression expression, EvaluationContext context, out object result);
+        internal abstract int EvaluateCore(Expression expression, IEvaluationContext context, out object result);
 
 
         protected void PubMessage(string message, params object[] param)

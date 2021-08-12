@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using DotNEToolkit.Expressions;
 using DotNEToolkit.Modular;
 using DotNEToolkit.Modular.Attributes;
 using Newtonsoft.Json;
@@ -9,11 +10,22 @@ using Newtonsoft.Json;
 namespace DotNEToolkit.TaskDispatchers
 {
     /// <summary>
+    /// 定义工作流任务的通用属性
+    /// </summary>
+    public static class WorkflowProperties
+    {
+        /// <summary>
+        /// 工作流的状态
+        /// </summary>
+        public const string WP_STATUS = "STATUS";
+    }
+
+    /// <summary>
     /// 测试流程的实例
     /// 测试流程执行器
     /// </summary>
-    [ModuleOutput("Status", typeof(TaskStatus))]
-    public abstract class Task : ModuleBase
+    [ModuleOutput(WorkflowProperties.WP_STATUS, typeof(WorkflowStatus))]
+    public abstract class WorkflowTask : ModuleBase
     {
         #region 类变量
 
@@ -31,7 +43,7 @@ namespace DotNEToolkit.TaskDispatchers
 
         #region 构造方法
 
-        public Task()
+        public WorkflowTask()
         {
         }
 
@@ -47,6 +59,7 @@ namespace DotNEToolkit.TaskDispatchers
         [ModuleAction()]
         public override int Initialize(IDictionary parameters)
         {
+            base.Initialize(parameters);
             return DotNETCode.SUCCESS;
         }
 

@@ -30,17 +30,35 @@ namespace DotNEToolkit.Modular
 
         #region 属性
 
-        public ModuleStatus Status { get; set; }
+        /// <summary>
+        /// 模块当前的状态
+        /// </summary>
+        public ModuleStatus Status { get; internal set; }
 
+        /// <summary>
+        /// 模块ID
+        /// </summary>
         public string ID { get { return this.Definition.ID; } }
 
+        /// <summary>
+        /// 模块名字
+        /// </summary>
         public string Name { get { return this.Definition.Name; } }
 
+        /// <summary>
+        /// 模块的描述信息
+        /// </summary>
         public string Description { get { return this.Definition.Description; } }
 
-        public ModuleDefinition Definition { get; set; }
+        /// <summary>
+        /// 模块的定义
+        /// </summary>
+        public ModuleDefinition Definition { get; internal set; }
 
-        public ModuleFactory Factory { get; set; }
+        /// <summary>
+        /// 模块所属工厂
+        /// </summary>
+        public ModuleFactory Factory { get; internal set; }
 
         /// <summary>
         /// 模块当前的输出参数
@@ -109,70 +127,15 @@ namespace DotNEToolkit.Modular
                     continue;
                 }
 
-                bool isModule = property.PropertyType.IsSubclassOf(typeof(ModuleBase));
-
-                // 该依赖属性的类型不是IModuleInstance
-                if (!isModule)
+                if (property.PropertyType.Name == "String")
                 {
-                    if (property.PropertyType.Name == "String")
-                    {
-                        property.SetValue(this, value, null);
-                    }
-                    else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericArguments()[0].IsSubclassOf(typeof(ModuleBase)))
-                    {
-                        // 如果是泛型，并且泛型里的参数类型是IModuleInstance
-
-                        // 配置文件里的和实际类型不匹配
-                        JArray jArray = value as JArray;
-                        if (jArray == null)
-                        {
-                            continue;
-                        }
-
-                        // 获取泛型里元素的类型
-                        Type elementType = property.PropertyType.GetGenericArguments()[0];
-
-                        // 动态生成一个泛型
-                        object v = Activator.CreateInstance(property.PropertyType);
-                        MethodInfo addMethod = v.GetType().GetMethod("Add");
-                        foreach (JToken token in jArray)
-                        {
-                            IModuleInstance minstance = this.Factory.LookupModule<IModuleInstance>(token.ToString());
-                            if (minstance == null)
-                            {
-                                continue;
-                            }
-
-                            addMethod.Invoke(v, new object[] { minstance });
-                        }
-
-                        property.SetValue(this, v, null);
-                    }
-                    else
-                    {
-                        string json = value.ToString();
-                        object v = JsonConvert.DeserializeObject(json, property.PropertyType);
-                        property.SetValue(this, v, null);
-                    }
+                    property.SetValue(this, value, null);
                 }
                 else
                 {
-                    // 该依赖属性的类型是一个IModuleInstance，OK，反射赋值
-                    // 存在对应的实例，那么反射赋值
-                    string moduleID = value.ToString();
-                    if (string.IsNullOrEmpty(moduleID))
-                    {
-                        continue;
-                    }
-
-                    IModuleInstance minstance = this.Factory.LookupModule<IModuleInstance>(moduleID);
-                    if (minstance == null)
-                    {
-                        // 模块工厂里没有注册相应的模块
-                        continue;
-                    }
-
-                    property.SetValue(this, minstance, null);
+                    string json = value.ToString();
+                    object v = JsonConvert.DeserializeObject(json, property.PropertyType);
+                    property.SetValue(this, v, null);
                 }
             }
 

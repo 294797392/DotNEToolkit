@@ -18,6 +18,8 @@ namespace DotNEToolkit.Modular
     {
         private const string ModuleMetadataFilePattern = "modules.*.json";
 
+        private static readonly string DefaultDescriptionFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ModuleFactoryDescription.json");
+
         #region 类变量
 
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ModuleFactory");
@@ -87,7 +89,7 @@ namespace DotNEToolkit.Modular
             return JSONHelper.ParseDirectory<ModuleMetadata>(AppDomain.CurrentDomain.BaseDirectory, ModuleMetadataFilePattern);
         }
 
-        private int InitializeModuleFinal(IModuleInstance moduleInst)
+        private int InitializeModuleFinal(ModuleBase moduleInst)
         {
             int code = DotNETCode.SUCCESS;
 
@@ -121,7 +123,7 @@ namespace DotNEToolkit.Modular
             }
         }
 
-        private void InitializeModuleFinal(IModuleInstance moduleInst, int interval)
+        private void InitializeModuleFinal(ModuleBase moduleInst, int interval)
         {
             int code = DotNETCode.SUCCESS;
 
@@ -143,7 +145,7 @@ namespace DotNEToolkit.Modular
         {
             Task.Factory.StartNew(() =>
             {
-                foreach (IModuleInstance moduleInst in moduleList)
+                foreach (ModuleBase moduleInst in moduleList)
                 {
                     this.InitializeModuleFinal(moduleInst, interval);
                 }
@@ -155,11 +157,11 @@ namespace DotNEToolkit.Modular
             });
         }
 
-        private int CreateModuleInstance(ModuleDefinition moduleDef, out IModuleInstance instance)
+        private int CreateModuleInstance(ModuleDefinition moduleDef, out ModuleBase instance)
         {
             instance = null;
 
-            ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == moduleDef.TypeID);
+            ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == moduleDef.MetadataID);
             if (metadata == null)
             {
                 logger.ErrorFormat("客户端不存在模块:{0}", moduleDef);
@@ -169,7 +171,7 @@ namespace DotNEToolkit.Modular
             {
                 try
                 {
-                    instance = ConfigFactory<IModuleInstance>.CreateInstance(metadata.EntryClass);
+                    instance = ConfigFactory<ModuleBase>.CreateInstance(metadata.EntryClass);
                     instance.Definition = moduleDef;
                     instance.Factory = this;
                     instance.PublishEvent += this.Module_PublishEvent;
@@ -202,6 +204,11 @@ namespace DotNEToolkit.Modular
             }
 
             return CreateFactory(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)));
+        }
+
+        public static ModuleFactory CreateDefaultFactory()
+        {
+            return CreateFactory(DefaultDescriptionFile);
         }
 
         /// <summary>
@@ -262,7 +269,7 @@ namespace DotNEToolkit.Modular
 
             foreach (ModuleDefinition moduleDef in initialModules)
             {
-                IModuleInstance moduleInst;
+                ModuleBase moduleInst;
 
                 int code = this.CreateModuleInstance(moduleDef, out moduleInst);
                 if (code != DotNETCode.SUCCESS)
@@ -300,7 +307,7 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public int SetupModule(ModuleDefinition module)
         {
-            IModuleInstance moduleInst;
+            ModuleBase moduleInst;
 
             int code = DotNETCode.SUCCESS;
 
@@ -388,9 +395,9 @@ namespace DotNEToolkit.Modular
         /// <typeparam name="TModuleInstance"></typeparam>
         /// <param name="metadataID">要创建的模块的类型ID</param>
         /// <returns></returns>
-        public TModuleInstance CreateInstance<TModuleInstance>(string metadataID) where TModuleInstance : IModuleInstance
+        public TModuleInstance CreateInstance<TModuleInstance>(ModuleDefinition definition) where TModuleInstance : ModuleBase
         {
-            ModuleMetadata type = this.metadataList.FirstOrDefault(minfo => minfo.ID == metadataID);
+            ModuleMetadata type = this.metadataList.FirstOrDefault(minfo => minfo.ID == definition.MetadataID);
             if (type == null)
             {
                 return default(TModuleInstance);
@@ -398,7 +405,10 @@ namespace DotNEToolkit.Modular
 
             try
             {
-                return ConfigFactory<TModuleInstance>.CreateInstance(type.EntryClass);
+                TModuleInstance module = ConfigFactory<TModuleInstance>.CreateInstance(type.EntryClass);
+                module.Factory = this;
+                module.Definition = definition;
+                return module;
             }
             catch (Exception ex)
             {
@@ -415,7 +425,7 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public bool SubclassOf(ModuleDefinition definition, Type baseType)
         {
-            ModuleMetadata metadata = this.metadataList.FirstOrDefault(v => v.ID == definition.TypeID);
+            ModuleMetadata metadata = this.metadataList.FirstOrDefault(v => v.ID == definition.MetadataID);
             if (metadata == null)
             {
                 return false;

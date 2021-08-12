@@ -46,6 +46,21 @@ namespace DotNEToolkit
         /// </summary>
         public const int FILE_NOT_FOUND = 5;
 
+        /// <summary>
+        /// 读数据失败
+        /// </summary>
+        public const int READ_FAILED = 6;
+
+        /// <summary>
+        /// 写数据失败
+        /// </summary>
+        public const int WRITE_FAILED = 7;
+
+        /// <summary>
+        /// 读数据超时
+        /// </summary>
+        public const int READ_TIMEOUT = 8;
+
         #region 100 - 200 ModuleFactory
 
         public const int MODULE_NOT_FOUND = 100;
@@ -77,7 +92,21 @@ namespace DotNEToolkit
 
         public static string GetMessage(int code)
         {
-            return string.Empty;
+            switch (code)
+            {
+                case DotNETCode.SUCCESS: return "成功";
+                case DotNETCode.FAILED: return "失败";
+                case DotNETCode.LOAD_CONFIG_FAILED: return "加载配置失败";
+                case DotNETCode.INVALID_PARAMS: return "无效的参数";
+                case DotNETCode.NOT_SUPPORTED: return "不支持的操作";
+                case DotNETCode.FILE_NOT_FOUND: return "文件不存在";
+                case DotNETCode.READ_FAILED: return "读取数据失败";
+                case DotNETCode.WRITE_FAILED: return "写数据失败";
+                case DotNETCode.READ_TIMEOUT: return "读取数据超时";
+
+                default:
+                    return "未知错误码";
+            }
         }
     }
 }

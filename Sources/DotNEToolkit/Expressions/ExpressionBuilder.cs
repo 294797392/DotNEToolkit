@@ -56,14 +56,14 @@ namespace DotNEToolkit.Expressions
         /// 计算表达式需要的上下文数据
         /// </param>
         /// <returns></returns>
-        public int Evaluate(string expression, EvaluationContext ctx, out object result)
+        public int Evaluate(string expression, IEvaluationContext ctx, out object result)
         {
             string expr = expression.Substring(1);
             Expression exp = this.BuildExpressionTree(expression);
             return this.EvaluateExpression(exp, ctx, out result);
         }
 
-        public int Evaluate<TResult>(string expression, EvaluationContext ctx, out TResult result)
+        public int Evaluate<TResult>(string expression, IEvaluationContext ctx, out TResult result)
         {
             result = default(TResult);
 
@@ -255,7 +255,7 @@ namespace DotNEToolkit.Expressions
 
         #region 对表达式树进行求值
 
-        private int EvaluateExpression(Expression parent, EvaluationContext context, out object result)
+        private int EvaluateExpression(Expression parent, IEvaluationContext context, out object result)
         {
             result = null;
 

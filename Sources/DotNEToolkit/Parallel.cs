@@ -9,26 +9,26 @@ using System.Threading.Tasks;
 namespace DotNEToolkit
 {
     /// <summary>
-    /// 保存线程上下文信息
-    /// </summary>
-    internal class ThreadContext
-    {
-        /// <summary>
-        /// 线程ID
-        /// </summary>
-        public int ID { get; set; }
-
-        /// <summary>
-        /// 线程所对应的Task
-        /// </summary>
-        public Task Task { get; set; }
-    }
-
-    /// <summary>
     /// 并行操作的封装
     /// </summary>
     public static class Parallel
     {
+        /// <summary>
+        /// 保存线程上下文信息
+        /// </summary>
+        private class ThreadContext
+        {
+            /// <summary>
+            /// 线程ID
+            /// </summary>
+            public int ID { get; set; }
+
+            /// <summary>
+            /// 线程所对应的Task
+            /// </summary>
+            public Task Task { get; set; }
+        }
+
         /// <summary>
         /// 默认开启5线程运行任务
         /// </summary>

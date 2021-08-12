@@ -32,7 +32,7 @@ namespace DotNEToolkit.TaskDispatchers
 
         public override string ToString()
         {
-            return string.Format("Name:{0}, TypeID:{1}, ID:{2}", this.Name, this.TypeID, this.ID);
+            return string.Format("Name:{0}, TypeID:{1}, ID:{2}", this.Name, this.MetadataID, this.ID);
         }
     }
 }

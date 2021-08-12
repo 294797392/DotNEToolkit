@@ -24,9 +24,14 @@ namespace DotNEToolkit.TaskDispatchers
         #region 事件
 
         /// <summary>
-        /// 任务调度器通过这个事件通知外部模块有事件发生
+        /// 任务调度器状态改变
         /// </summary>
-        public event Action<TaskDispatcher, TaskDispatcherEvent, object> PublishEvent;
+        public event Action<TaskDispatcher, TaskDispatcherStatus> StatusChanged;
+
+        /// <summary>
+        /// 任务状态改变
+        /// </summary>
+        public event Action<TaskDispatcher, WorkflowStatus, WorkflowTask> TaskStatusChanged;
 
         #endregion
 
@@ -45,6 +50,11 @@ namespace DotNEToolkit.TaskDispatchers
         #endregion
 
         #region 属性
+
+        /// <summary>
+        /// 表达式上下文信息
+        /// </summary>
+        public IEvaluationContext EvaluationContext { get; internal set; }
 
         /// <summary>
         /// 模块工厂
@@ -150,21 +160,21 @@ namespace DotNEToolkit.TaskDispatchers
         private void ExecuteTasks(IEnumerable<TaskDefinition> tasks, IEnumerable<TaskDefinition> postTasks)
         {
             /* 存储运行失败了的Activity */
-            List<TaskDefinition> failureActivities1 = null;
-            List<TaskDefinition> failureActivities3 = null;
+            List<TaskDefinition> failureTasks = null;
+            List<TaskDefinition> failureTasks2 = null;
             List<bool> result = new List<bool>();
 
-            this.ProcessEvent(TaskDispatcherEvent.ExecutionStarted);
-            result.Add(this.ExecuteTasksFinally(tasks, out failureActivities1));
-            result.Add(this.ExecutePostTasks(postTasks, out failureActivities3));
+            this.ProcessStatusChanged(TaskDispatcherStatus.RUN);
+            result.Add(this.ExecuteTasksFinally(tasks, out failureTasks));
+            result.Add(this.ExecutePostTasks(postTasks, out failureTasks2));
 
             if (result.All(s => s))
             {
-                this.ProcessEvent(TaskDispatcherEvent.ExecutionSuccess);
+                this.ProcessStatusChanged(TaskDispatcherStatus.PASS);
             }
             else
             {
-                this.ProcessEvent(TaskDispatcherEvent.ExecutionFailure);
+                this.ProcessStatusChanged(TaskDispatcherStatus.FAIL);
             }
         }
 
@@ -225,24 +235,18 @@ namespace DotNEToolkit.TaskDispatchers
         /// <returns></returns>
         private bool ExecuteTask(TaskDefinition taskDef)
         {
-            Task task = null;
+            WorkflowTask task = null;
             bool initialized = false;
             int rc = DotNETCode.SUCCESS;
 
             try
             {
-                task = this.ModuleFactory.CreateInstance<Task>(taskDef.TypeID);
-                task.Definition = taskDef;
-                task.Factory = this.ModuleFactory;
-
-                //task.ProjectDefinition = this.ProjectDefinition;
-                //task.Context = this.Context;
-                //this.taskMap[taskDef.TypeID] = task;
+                task = this.ModuleFactory.CreateInstance<WorkflowTask>(taskDef);
 
                 // 如果Task有Disabled标记，那么跳过运行
                 if (taskDef.HasFlag(ModuleFlags.Disabled))
                 {
-                    this.ProcessTaskStatusChanged(TaskStatus.SKIP, task);
+                    this.ProcessTaskStatusChanged(WorkflowStatus.SKIP, task);
                     logger.InfoFormat("{0}未启用, 跳过", taskDef.Name);
                     return true;
                 }
@@ -251,29 +255,26 @@ namespace DotNEToolkit.TaskDispatchers
                 if (taskDef.Delay > 0)
                 {
                     logger.InfoFormat("延时{0}秒运行{1}", (double)taskDef.Delay / (double)1000, taskDef.Name);
-                    this.ProcessTaskStatusChanged(TaskStatus.WAIT, task);
+                    this.ProcessTaskStatusChanged(WorkflowStatus.WAIT, task);
                     Thread.Sleep(taskDef.Delay);
                 }
 
                 logger.InfoFormat("开始运行:{0}", taskDef.Name);
 
-                this.ProcessTaskStatusChanged(TaskStatus.RUN, task);
+                this.ProcessTaskStatusChanged(WorkflowStatus.RUN, task);
 
                 // 解析参数表达式
                 IDictionary inputParams;
-                if ((rc = ExpressionUtility.EvaluateExpressions(taskDef.InputParameters, null, out inputParams)) != DotNETCode.SUCCESS)
+                if ((rc = ExpressionUtility.EvaluateExpressions(taskDef.InputParameters, this.EvaluationContext, out inputParams)) != DotNETCode.SUCCESS)
                 {
-                    this.ProcessTaskStatusChanged(TaskStatus.FAIL, task);
+                    this.ProcessTaskStatusChanged(WorkflowStatus.FAIL, task);
                     logger.ErrorFormat("计算输入参数表达式失败, 运行任务失败, code = {0}, {1}", rc, DotNETCode.GetMessage(rc));
                     return false;
                 }
 
-                // 保存输入参数，供其他的任务解析输入表达式使用
-                //this.Context.TaskInputs[taskDef.ID] = inputParams;
-
                 if ((rc = task.Initialize(inputParams)) != DotNETCode.SUCCESS)
                 {
-                    this.ProcessTaskStatusChanged(TaskStatus.FAIL, task);
+                    this.ProcessTaskStatusChanged(WorkflowStatus.FAIL, task);
                     logger.ErrorFormat("初始化{0}失败, code = {1}, {2}", taskDef.Name, rc, DotNETCode.GetMessage(rc));
                     return false;
                 }
@@ -282,12 +283,12 @@ namespace DotNEToolkit.TaskDispatchers
 
                 if ((rc = task.Run()) != DotNETCode.SUCCESS)
                 {
-                    this.ProcessTaskStatusChanged(TaskStatus.FAIL, task);
+                    this.ProcessTaskStatusChanged(WorkflowStatus.FAIL, task);
                     logger.ErrorFormat("运行{0}失败, code = {1}, {2}", taskDef.Name, rc, DotNETCode.GetMessage(rc));
                     return false;
                 }
 
-                this.ProcessTaskStatusChanged(TaskStatus.PASS, task);
+                this.ProcessTaskStatusChanged(WorkflowStatus.PASS, task);
                 logger.InfoFormat("运行{0}成功", taskDef.Name);
                 return true;
             }
@@ -302,7 +303,7 @@ namespace DotNEToolkit.TaskDispatchers
                 {
                     logger.WarnFormat("{0}运行出现异常, 退出", taskDef.Name);
                 }
-                this.ProcessTaskStatusChanged(TaskStatus.EXCEPTION, task);
+                this.ProcessTaskStatusChanged(WorkflowStatus.EXCEPTION, task);
                 return false;
             }
             finally
@@ -310,7 +311,7 @@ namespace DotNEToolkit.TaskDispatchers
                 if (task != null)
                 {
                     // 保存输出参数，供其他的任务解析输入表达式使用
-                    //this.Context.TaskOutputs[task.ID] = task.OutputParameters;
+                    this.taskProperties[task.ID] = task.Properties;
 
                     if (initialized)
                     {
@@ -412,25 +413,21 @@ namespace DotNEToolkit.TaskDispatchers
             return true;
         }
 
-        private void ProcessTaskStatusChanged(TaskStatus status, Task task)
+        private void ProcessTaskStatusChanged(WorkflowStatus status, WorkflowTask task)
         {
-            if (this.PublishEvent != null)
+            task.Properties[WorkflowProperties.WP_STATUS] = status;
+
+            if (this.TaskStatusChanged != null)
             {
-                TaskStatusChangedEventArgs eventArgs = new TaskStatusChangedEventArgs()
-                {
-                    Status = status,
-                    Task = task
-                };
-                this.PublishEvent(this, TaskDispatcherEvent.TaskStatusChanged, eventArgs);
+                this.TaskStatusChanged(this, status, task);
             }
-            task.Properties["Status"] = status;
         }
 
-        private void ProcessEvent(TaskDispatcherEvent evt)
+        private void ProcessStatusChanged(TaskDispatcherStatus status)
         {
-            if (this.PublishEvent != null)
+            if (this.StatusChanged != null)
             {
-                this.PublishEvent(this, evt, null);
+                this.StatusChanged(this, status);
             }
         }
 

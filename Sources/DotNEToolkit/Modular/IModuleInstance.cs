@@ -23,7 +23,7 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 模块状态
         /// </summary>
-        ModuleStatus Status { get; set; }
+        ModuleStatus Status { get; }
 
         /// <summary>
         /// 模块ID
@@ -43,12 +43,12 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 描述文件
         /// </summary>
-        ModuleDefinition Definition { get; set; }
+        ModuleDefinition Definition { get; }
 
         /// <summary>
         /// 所属的工厂
         /// </summary>
-        ModuleFactory Factory { get; set; }
+        ModuleFactory Factory { get; }
 
         /// <summary>
         /// 初始化模块

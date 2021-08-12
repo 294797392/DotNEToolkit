@@ -21,7 +21,7 @@ namespace DotNEToolkit.Expressions
         /// <param name="source">带有表达式的参数</param>
         /// <param name="output">存储解析后的参数</param>
         /// <param name="context">解析表达式需要的上下文信息</param>
-        public static int EvaluateExpressions(IDictionary source, EvaluationContext context, out IDictionary output)
+        public static int EvaluateExpressions(IDictionary source, IEvaluationContext context, out IDictionary output)
         {
             string json = JsonConvert.SerializeObject(source);
             output = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
