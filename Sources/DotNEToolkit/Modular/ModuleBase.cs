@@ -109,11 +109,6 @@ namespace DotNEToolkit.Modular
 
         private void InitializeBinding()
         {
-            if (this.InputParameters == null || this.InputParameters.Count == 0)
-            {
-                return;
-            }
-
             //DateTime start = DateTime.Now;
             //Console.WriteLine("开始反射");
 
