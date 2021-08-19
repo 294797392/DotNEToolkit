@@ -47,6 +47,237 @@ namespace DotNEToolkit
         private static extern int SendMessage(IntPtr hWnd, int Msg, int bufSize, IntPtr buf);
     }
 
+    /// <summary>
+    /// 返回值定义
+    /// </summary>
+    internal static class MMSYSERR
+    {
+        public const int MMSYSERR_NOERROR = 0;                   /* no error */
+        public const int MMSYSERR_ERROR = 1;  /* unspecified error */
+        public const int MMSYSERR_BADDEVICEID = 2;  /* device ID out of range */
+        public const int MMSYSERR_NOTENABLED = 3;  /* driver failed enable */
+        public const int MMSYSERR_ALLOCATED = 4;  /* device already allocated */
+        public const int MMSYSERR_INVALHANDLE = 5;  /* device handle is invalid */
+        public const int MMSYSERR_NODRIVER = 6;  /* no device driver present */
+        public const int MMSYSERR_NOMEM = 7;  /* memory allocation error */
+        public const int MMSYSERR_NOTSUPPORTED = 8;  /* function isn't supported */
+        public const int MMSYSERR_BADERRNUM = 9;  /* error value out of range */
+        public const int MMSYSERR_INVALFLAG = 10; /* invalid flag passed */
+        public const int MMSYSERR_INVALPARAM = 11; /* invalid parameter passed */
+        public const int MMSYSERR_HANDLEBUSY = 12; /* handle being used */
+        /* simultaneously on another */
+        /* thread (eg callback; */
+        public const int MMSYSERR_INVALIDALIAS = 13; /* specified alias not found */
+        public const int MMSYSERR_BADDB = 14; /* bad registry database */
+        public const int MMSYSERR_KEYNOTFOUND = 15; /* registry key not found */
+        public const int MMSYSERR_READERROR = 16; /* registry read error */
+        public const int MMSYSERR_WRITEERROR = 17; /* registry write error */
+        public const int MMSYSERR_DELETEERROR = 18; /* registry delete error */
+        public const int MMSYSERR_VALNOTFOUND = 19; /* registry value not found */
+        public const int MMSYSERR_NODRIVERCB = 20; /* driver does not call DriverCallback */
+        public const int MMSYSERR_MOREDATA = 21; /* more data to be returned */
+        public const int MMSYSERR_LASTERROR = 21; /* last error in range */
+    }
+
+    public static class waveIn
+    {
+        private const string waveDll = "Winmm.dll";
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct wavehdr_tag
+        {
+            /// <summary>
+            /// Pointer to the waveform buffer.
+            /// </summary>
+            public IntPtr lpData;               /* pointer to locked data buffer */
+
+            /// <summary>
+            /// Length, in bytes, of the buffer.
+            /// </summary>
+            public uint dwBufferLength;         /* length of data buffer */
+
+            /// <summary>
+            /// When the header is used in input, specifies how much data is in the buffer.
+            /// </summary>
+            public uint dwBytesRecorded;        /* used for input only */
+
+            /// <summary>
+            /// User data.
+            /// </summary>
+            public uint dwUser;                 /* for client's use */
+            public uint dwFlags;                /* assorted flags (see defines) */
+            public uint dwLoops;                /* loop control counter */
+            public IntPtr lpNext;               /* reserved for driver */
+            public uint reserved;               /* reserved for driver */
+        }
+
+        #region 枚举
+
+        public enum uMsgEnum : uint
+        {
+            /// <summary>
+            /// Sent when the device is closed using the waveInClose function.
+            /// </summary>
+            WIM_CLOSE = 0x3BF,
+
+            /// <summary>
+            /// Sent when the device driver is finished with a data block sent using the waveInAddBuffer function.
+            /// </summary>
+            WIM_DATA = 0x3C0,
+
+            /// <summary>
+            /// Sent when the device is opened using the waveInOpen function.
+            /// </summary>
+            WIM_OPEN = 0x3BE
+        }
+
+        #endregion
+
+        #region DeviceID
+
+        public const uint WAVE_MAPPER = 0xFFFFFFFF;
+
+        #endregion
+
+        #region fdwOpen选项
+
+        /// <summary>
+        /// The dwCallback parameter is an event handle.
+        /// </summary>
+        public const int CALLBACK_EVENT = 0x00050000;
+
+        /// <summary>
+        /// The dwCallback parameter is a callback procedure address.
+        /// </summary>
+        public const int CALLBACK_FUNCTION = 0x00030000;
+
+        /// <summary>
+        /// No callback mechanism. This is the default setting.
+        /// </summary>
+        public const int CALLBACK_NULL = 0x00000000;
+
+        /// <summary>
+        /// The dwCallback parameter is a thread identifier.
+        /// </summary>
+        public const int CALLBACK_THREAD = 0x00020000;
+
+        /// <summary>
+        /// The dwCallback parameter is a window handle.
+        /// </summary>
+        public const int CALLBACK_WINDOW = 0x00010000;
+
+        /// <summary>
+        /// If this flag is specified, the ACM driver does not perform conversions on the audio data.
+        /// </summary>
+        public const int WAVE_FORMAT_DIRECT = 0x0008;
+
+        /// <summary>
+        /// The function queries the device to determine whether it supports the given format, but it does not open the device.
+        /// </summary>
+        public const int WAVE_FORMAT_QUERY = 0x0001;
+
+        /// <summary>
+        /// The uDeviceID parameter specifies a waveform-audio device to be mapped to by the wave mapper.
+        /// </summary>
+        public const int WAVE_MAPPED = 0x0004;
+
+        #endregion
+
+        #region waveIn函数
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hwi"></param>
+        /// <param name="uMsg"></param>
+        /// <param name="dwInstance"></param>
+        /// <param name="dwParam1">wavehdr_tag指针</param>
+        /// <param name="dwParam2"></param>
+        public delegate void waveInProcDlg(IntPtr hwi, uint uMsg, uint dwInstance, uint dwParam1, uint dwParam2);
+
+        /// <summary>
+        /// 获取音频输入设备的数量
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInGetNumDevs();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="phwi">用于返回设备句柄的指针; 如果 dwFlags=WAVE_FORMAT_QUERY, 这里应是 NULL</param>
+        /// <param name="uDeviceID">设备ID; 可以指定为: WAVE_MAPPER, 这样函数会根据给定的波形格式选择合适的设备</param>
+        /// <param name="pwfx">要申请的声音格式</param>
+        /// <param name="dwCallback">回调函数地址或窗口句柄; 若不使用回调机制, 设为 NULL</param>
+        /// <param name="dwInstance">给回调函数的实例数据; 不用于窗口</param>
+        /// <param name="fdwOpen">打开选项</param>
+        /// <returns></returns>
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInOpen([Out] out IntPtr phwi, [In] uint uDeviceID, [In] IntPtr pwfx, [In] waveInProcDlg dwCallback, [In] int dwInstance, [In] int fdwOpen);
+
+        /// <summary>
+        /// The waveInClose function closes the given waveform-audio input device.
+        /// </summary>
+        /// <param name="phwi"></param>
+        /// <remarks>
+        /// If there are input buffers that have been sent with the waveInAddBuffer function and that haven't been returned to the application, the close operation will fail. Call the waveInReset function to mark all pending buffers as done.
+        /// 为了确保关闭成功, 要在调用waveInClose之前先调用waveInReset
+        /// </remarks>
+        /// <returns></returns>
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInClose([In] IntPtr phwi);
+
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInStart([In] IntPtr hwi);
+
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInStop([In] IntPtr hwi);
+
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInReset([In] IntPtr hwi);
+
+        /// <summary>
+        /// The waveInPrepareHeader function prepares a buffer for waveform-audio input.
+        /// </summary>
+        /// <param name="hwi">Handle to the waveform-audio input device.</param>
+        /// <param name="pwh">WAVEHDR（wavehdr_tag）结构体指针</param>
+        /// <param name="cbwh">Size, in bytes, of the WAVEHDR structure.</param>
+        /// <remarks>
+        /// The lpData, dwBufferLength, and dwFlags members of the WAVEHDR structure must be set before calling this function (dwFlags must be zero).
+        /// </remarks>
+        /// <returns></returns>
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInPrepareHeader([In] IntPtr hwi, [In] IntPtr pwh, uint cbwh);
+
+        /// <summary>
+        /// The waveInAddBuffer function sends an input buffer to the given waveform-audio input device. When the buffer is filled, the application is notified.
+        /// 把准备好的缓冲区送给硬件
+        /// </summary>
+        /// <param name="hwi"></param>
+        /// <param name="pwh">waveHeader指针</param>
+        /// <param name="cbwh"></param>
+        /// <remarks>
+        /// When the buffer is filled, the WHDR_DONE bit is set in the dwFlags member of the WAVEHDR structure.
+        /// The buffer must be prepared with the waveInPrepareHeader function before it is passed to this function.
+        /// 在调用waveInAddBuffer之前必须调用waveInPrepareHeader函数
+        /// </remarks>
+        /// <returns></returns>
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInAddBuffer([In] IntPtr hwi, [In] IntPtr pwh, uint cbwh);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hwi"></param>
+        /// <param name="pwh">waveHeader指针</param>
+        /// <param name="cbwh"></param>
+        /// <returns></returns>
+        [DllImport(waveDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int waveInUnprepareHeader([In] IntPtr hwi, [In] IntPtr pwh, uint cbwh);
+
+        #endregion
+    }
+
     public static class Win32API
     {
         public const int ERROR_INSUFFICIENT_BUFFER = 122;
@@ -61,6 +292,19 @@ namespace DotNEToolkit
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
             public byte[] Data4;
         }
+
+        public const uint INFINITE = 0xFFFFFFFF;
+        public const uint WAIT_ABANDONED_0 = 0x00000080;
+        public const uint WAIT_OBJECT_0 = 0x00000000;
+        /// <summary>
+        /// 等待信号失败
+        /// </summary>
+        public const uint WAIT_FAILED = 0xFFFFFFFF;
+
+        /// <summary>
+        /// flags for wFormatTag field of WAVEFORMAT
+        /// </summary>
+        public const int WAVE_FORMAT_PCM = 1;
 
         public const int CBR_110 = 110;
         public const int CBR_300 = 300;
@@ -299,8 +543,96 @@ namespace DotNEToolkit
 
         #endregion
 
-        [DllImport("kernel32.dll")]
+        #region DirectSound
+
+        private const string dsoundDll = "dsound.dll";
+
+        public const uint DSBPN_OFFSETSTOP = 0xFFFFFFFF;
+        public const int DSCBSTART_LOOPING = 0x00000001;
+
+        /// <summary>
+        /// 创建一个DirectSoundCapture8接口
+        /// </summary>
+        /// <param name="pcGuidDevice"></param>
+        /// <param name="ppDSC8"></param>
+        /// <param name="pUnkOuter"></param>
+        /// <returns></returns>
+        [DllImport(dsoundDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern uint DirectSoundCaptureCreate8(IntPtr pcGuidDevice, out IntPtr ppDSC8, IntPtr pUnkOuter);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lpcGuidDevice">
+        /// Address of the GUID that identifies the sound device
+        /// DSDEVID_DefaultPlayback : System-wide default audio playback device. Equivalent to NULL. 
+        /// DSDEVID_DefaultVoicePlayback : Default voice playback device. 
+        /// </param>
+        /// <param name="ppDS8">Address of a variable to receive an IDirectSound8 interface pointer. </param>
+        /// <param name="pUnkOuter"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// 在创建IDirectSound8接口之后必须首先调用SetCooperativeLevel
+        /// </remarks>
+        [DllImport(dsoundDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern uint DirectSoundCreate8(IntPtr lpcGuidDevice, out IntPtr ppDS8, IntPtr pUnkOuter);
+
+        #endregion
+
+        #region Kernel32
+
+        private const string Kernel32Dll = "kernel32.dll";
+
+        [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr CreateEvent(IntPtr lpEventAttributes, [MarshalAs(UnmanagedType.Bool)] bool bManualReset, [MarshalAs(UnmanagedType.Bool)] bool bInitialState, string lpName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nCount">指定列表中的句柄数量  最大值为MAXIMUM_WAIT_OBJECTS（64）</param>
+        /// <param name="lpHandles">柄数组的指针。lpHandles为指定对象句柄组合中的第一个元素 HANDLE类型可以为（Event，Mutex，Process，Thread，Semaphore）数组</param>
+        /// <param name="bWaitAll">如果为TRUE，表示除非对象都发出信号，否则就一直等待下去；如果FALSE，表示任何对象发出信号即可</param>
+        /// <param name="dwMilliseconds">指定要等候的毫秒数。如设为零，表示立即返回。如指定常数INFINITE，则可根据实际情况无限等待下去</param>
+        /// <returns>
+        /// WAIT_ABANDONED_0：所有对象都发出消息，而且其中有一个或多个属于互斥体（一旦拥有它们的进程中止，就会发出信号）
+        /// WAIT_TIMEOUT：对象保持未发信号的状态，但规定的等待超时时间已经超过
+        /// WAIT_OBJECT_0：所有对象都发出信号，WAIT_OBJECT_0是微软定义的一个宏，你就把它看成一个数字就可以了。例如，WAIT_OBJECT_0 + 5的返回结果意味着列表中的第5个对象发出了信号
+        /// WAIT_IO_COMPLETION：（仅适用于WaitForMultipleObjectsEx）由于一个I/O完成操作已作好准备执行，所以造成了函数的返回
+        /// 返回WAIT_FAILED则表示函数执行失败，会设置GetLastError
+        /// </returns>
+        [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+        public static extern uint WaitForMultipleObjects(int nCount, IntPtr lpHandles, [MarshalAs(UnmanagedType.Bool)] bool bWaitAll, uint dwMilliseconds);
+
+        /// <summary>
+        /// 等待信号量
+        /// </summary>
+        /// <param name="evt"></param>
+        /// <param name="dwMilliseconds"></param>
+        /// <returns></returns>
+        [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+        public static extern uint WaitForSingleObject(IntPtr evt, uint dwMilliseconds);
+
+        /// <summary>
+        /// 重置信号量为无信号状态
+        /// </summary>
+        /// <param name="hEvent"></param>
+        /// <returns></returns>
+        [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ResetEvent(IntPtr hEvent);
+
+        [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetEvent(IntPtr hEvent);
+
+        [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool CloseHandle(IntPtr hObject);
+
+        [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
         public static extern int OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
+        #endregion
 
         public const int SWP_NOOWNERZORDER = 0x200;
         public const int SWP_NOREDRAW = 0x8;
