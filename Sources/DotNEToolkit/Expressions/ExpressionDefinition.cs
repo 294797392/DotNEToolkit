@@ -32,8 +32,8 @@ namespace DotNEToolkit.Expressions
         /// <summary>
         /// 入口类名
         /// </summary>
-        [JsonProperty("EntryClass")]
-        public string EntryClass { get; set; }
+        [JsonProperty("ClassName")]
+        public string ClassName { get; set; }
 
         /// <summary>
         /// 模块类别
@@ -50,7 +50,7 @@ namespace DotNEToolkit.Expressions
 
         public override string ToString()
         {
-            return string.Format("{0}:{1}:{2}:{3}", this.Name, this.Description, this.EntryClass, this.Category);
+            return string.Format("{0}:{1}:{2}:{3}", this.Name, this.Description, this.ClassName, this.Category);
         }
     }
 }

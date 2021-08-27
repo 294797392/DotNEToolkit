@@ -31,7 +31,7 @@ namespace DotNEToolkit.Media
             switch (engine)
             {
                 case AudioRecordType.DirectSound: return new DirectSoundRecord();
-                case AudioRecordType.WaveAPI: return new WaveAPIAudioRecord();
+                case AudioRecordType.WaveAPI: return new WaveAPIRecord();
 
                 default:
                     throw new NotImplementedException();

@@ -39,6 +39,14 @@ namespace DotNEToolkit.Modular
         public string MetadataID { get; set; }
 
         /// <summary>
+        /// 模块的完整类型名
+        /// 如果该值不为空，那么优先根据该值去创建实例
+        /// 如果该值为空，那么会根据MetadataID去创建实例
+        /// </summary>
+        [JsonProperty("ClassName")]
+        public string ClassName { get; set; }
+
+        /// <summary>
         /// 模块的标志位
         /// </summary>
         [JsonProperty("Flags")]

@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit.Media
 {
+    /// <summary>
+    /// DirectSound录音出来的数据是小尾端的数据
+    /// 无符号16位数据
+    /// 大尾端就是高位在低地址，小尾端就是低位在低地址。
+    /// </summary>
     public class DirectSoundRecord : AudioRecord
     {
         #region 类变量
@@ -105,6 +110,8 @@ namespace DotNEToolkit.Media
 
         public override int Start()
         {
+            base.Start();
+
             uint error = this.dscb8.Start(Win32API.DSCBSTART_LOOPING);
             if (error != DSERR.DS_OK)
             {
@@ -174,6 +181,8 @@ namespace DotNEToolkit.Media
             {
                 logger.ErrorFormat("停止录音失败, DSERR = {0}", error);
             }
+
+            base.Stop();
         }
 
         #endregion
@@ -229,7 +238,7 @@ namespace DotNEToolkit.Media
 
             IntPtr pdscb;
             Guid iid_dscb8;
-            if ((error = this.dsc8.CreateCaptureBuffer(ref this.dsbd, out pdscb, IntPtr.Zero)) != DSERR.DS_OK)
+            if ((error = this.dsc8.CreateCaptureBuffer(ref this.dsbd, out pdscb, IntPtr.Zero)) == DSERR.DS_OK)
             {
                 // 获取IDirectSoundCaptureBuffer8接口实例
                 iid_dscb8 = new Guid(InterfaceID.IID_IDirectSoundCaptureBuffer8);

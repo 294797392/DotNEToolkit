@@ -179,7 +179,7 @@ namespace DotNEToolkit
         }
 
 
-        public static int Write<TSource>(string jsonFile, TSource obj) 
+        public static int Write<TSource>(string jsonFile, TSource obj)
         {
             string jsonText = JsonConvert.SerializeObject(obj);
 
@@ -223,6 +223,52 @@ namespace DotNEToolkit
     /// </summary>
     public static class JSONDatabase
     {
+        private static string GenerateDbFile<T>()
+        {
+            return string.Format("{0}.json", typeof(T).Name.ToLower());
+        }
+
+        public static int Insert<T>(T obj)
+        {
+            return Insert<T>(GenerateDbFile<T>(), obj);
+        }
+
+        public static int Select<TSource>(Func<TSource, bool> predicate, out TSource item)
+        {
+            return Select<TSource>(GenerateDbFile<TSource>(), predicate, out item);
+        }
+
+        public static List<TSource> SelectAll<TSource>()
+        {
+            return SelectAll<TSource>(GenerateDbFile<TSource>());
+        }
+
+        public static List<TSource> SelectAll<TSource>(Func<TSource, bool> predicate)
+        {
+            return SelectAll<TSource>(GenerateDbFile<TSource>(), predicate);
+        }
+
+        public static int Delete<TSource>(Func<TSource, bool> predicate)
+        {
+            return Delete<TSource>(GenerateDbFile<TSource>(), predicate);
+        }
+
+        public static int Update<TSource>(Func<TSource, bool> predicate, TSource item)
+        {
+            return Update<TSource>(GenerateDbFile<TSource>(), predicate, item);
+        }
+
+        public static int SaveAll<TSource>(IEnumerable<TSource> items)
+        {
+            return SaveAll<TSource>(GenerateDbFile<TSource>(), items);
+        }
+
+        public static bool Exist<TSource>(Func<TSource, bool> predicate)
+        {
+            return Exist<TSource>(GenerateDbFile<TSource>(), predicate);
+        }
+
+
         /// <summary>
         /// 向一个集合里插入一条数据
         /// </summary>
@@ -242,7 +288,7 @@ namespace DotNEToolkit
             {
                 list = new List<T>();
             }
-            else 
+            else
             {
                 if (!JSONHelper.DeserializeJSONFile<List<T>>(jsonFile, out list))
                 {
@@ -278,10 +324,15 @@ namespace DotNEToolkit
             if (!JSONHelper.DeserializeJSONFile<List<TSource>>(jsonFile, out list))
             {
                 // 无效的JSON格式
-                return null;
+                return new List<TSource>();
             }
 
             return list;
+        }
+
+        public static List<TSource> SelectAll<TSource>(string jsonFile, Func<TSource, bool> predicate)
+        {
+            return SelectAll<TSource>(jsonFile).Where(predicate).ToList();
         }
 
         public static int Delete<TSource>(string jsonFile, Func<TSource, bool> predicate)
@@ -333,6 +384,75 @@ namespace DotNEToolkit
         public static int SaveAll<TSource>(string jsonFile, IEnumerable<TSource> items)
         {
             return JSONHelper.Write<List<TSource>>(jsonFile, new List<TSource>(items));
+        }
+
+        public static bool Exist<TSource>(string jsonFile, Func<TSource, bool> predicate)
+        {
+            TSource exist;
+            if (Select<TSource>(jsonFile, predicate, out exist) != DotNETCode.SUCCESS)
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    public class JSONDatabaseInstance
+    {
+        private string baseDir;
+
+        private JSONDatabaseInstance()
+        { }
+
+        public static JSONDatabaseInstance Create(string baseDir)
+        {
+            JSONDatabaseInstance database = new JSONDatabaseInstance()
+            {
+                baseDir = baseDir
+            };
+            return database;
+        }
+
+        private string GenerateDbFile<T>()
+        {
+            string fileName = string.Format("{0}.json", typeof(T).Name.ToLower());
+            return System.IO.Path.Combine(this.baseDir, fileName);
+        }
+
+        public int Insert<T>(T obj)
+        {
+            return JSONDatabase.Insert<T>(GenerateDbFile<T>(), obj);
+        }
+
+        public int Select<TSource>(Func<TSource, bool> predicate, out TSource item)
+        {
+            return JSONDatabase.Select<TSource>(GenerateDbFile<TSource>(), predicate, out item);
+        }
+
+        public List<TSource> SelectAll<TSource>()
+        {
+            return JSONDatabase.SelectAll<TSource>(GenerateDbFile<TSource>());
+        }
+
+        public int Delete<TSource>(Func<TSource, bool> predicate)
+        {
+            return JSONDatabase.Delete<TSource>(GenerateDbFile<TSource>(), predicate);
+        }
+
+        public int Update<TSource>(Func<TSource, bool> predicate, TSource item)
+        {
+            return JSONDatabase.Update<TSource>(GenerateDbFile<TSource>(), predicate, item);
+        }
+
+        public int SaveAll<TSource>(IEnumerable<TSource> items)
+        {
+            return JSONDatabase.SaveAll<TSource>(GenerateDbFile<TSource>(), items);
+        }
+
+        public bool Exist<TSource>(Func<TSource, bool> predicate)
+        {
+            return JSONDatabase.Exist<TSource>(GenerateDbFile<TSource>(), predicate);
         }
     }
 }

@@ -13,10 +13,16 @@ namespace DotNEToolkit.Modular
     [JsonObject("ModuleMetadata")]
     public sealed class ModuleMetadata
     {
+        /// <summary>
+        /// 元数据唯一标志符
+        /// </summary>
         [JsonProperty("TypeID")]
         public string ID { get; set; }
 
+        /// <summary>
+        /// 模块的完整类型名
+        /// </summary>
         [JsonProperty("EntryClass")]
-        public string EntryClass { get; set; }
+        public string ClassName { get; set; }
     }
 }

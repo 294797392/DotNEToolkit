@@ -39,7 +39,7 @@ namespace DotNEToolkit.Expressions
 
         private ExpressionBuilder()
         {
-            this.definitions = JSONHelper.DeserializeJSONFile<ExpressionDefinition>(AppDomain.CurrentDomain.BaseDirectory, "expressions.json");
+            this.definitions = JSONHelper.DeserializeJSONFile<ExpressionDefinition>(AppDomain.CurrentDomain.BaseDirectory, "*.exp.json");
             this.evaluators = new Dictionary<string, ExpressionEvaluator>();
         }
 
@@ -56,24 +56,16 @@ namespace DotNEToolkit.Expressions
         /// 计算表达式需要的上下文数据
         /// </param>
         /// <returns></returns>
-        public int Evaluate(string expression, IEvaluationContext ctx, out object result)
+        public object Evaluate(string expression, IEvaluationContext ctx)
         {
             string expr = expression.Substring(1);
             Expression exp = this.BuildExpressionTree(expression);
-            return this.EvaluateExpression(exp, ctx, out result);
+            return this.EvaluateExpression(exp, ctx);
         }
 
-        public int Evaluate<TResult>(string expression, IEvaluationContext ctx, out TResult result)
+        public TResult Evaluate<TResult>(string expression, IEvaluationContext ctx)
         {
-            result = default(TResult);
-
-            object o;
-            int rc = this.Evaluate(expression, ctx, out o);
-            if (rc == DotNETCode.SUCCESS)
-            {
-                result = (TResult)o;
-            }
-            return rc;
+            return (TResult)this.Evaluate(expression, ctx);
         }
 
         /// <summary>
@@ -255,10 +247,8 @@ namespace DotNEToolkit.Expressions
 
         #region 对表达式树进行求值
 
-        private int EvaluateExpression(Expression parent, IEvaluationContext context, out object result)
+        private object EvaluateExpression(Expression parent, IEvaluationContext context)
         {
-            result = null;
-
             foreach (Expression expression in parent.Children)
             {
                 switch (expression.State)
@@ -271,23 +261,13 @@ namespace DotNEToolkit.Expressions
                         {
                             if (expression.Children.Count > 0)
                             {
-                                object valueObject;
-                                int rc = this.EvaluateExpression(expression, context, out valueObject);
-                                if (rc != DotNETCode.SUCCESS)
-                                {
-                                    return rc;
-                                }
+                                object valueObject = this.EvaluateExpression(expression, context);
                                 parent.Parameters.Add(valueObject);
                                 break;
                             }
                             else
                             {
-                                object resultObject;
-                                int rc = this.GetEvaluator(expression.Name).Evaluate(expression, context, out resultObject);
-                                if (rc != DotNETCode.SUCCESS)
-                                {
-                                    return rc;
-                                }
+                                object resultObject = this.GetEvaluator(expression.Name).Evaluate(expression, context);
                                 parent.Parameters.Add(expression.Value);
                                 break;
                             }
@@ -298,7 +278,7 @@ namespace DotNEToolkit.Expressions
                 }
             }
 
-            return this.GetEvaluator(parent.Name).Evaluate(parent, context, out result);
+            return this.GetEvaluator(parent.Name).Evaluate(parent, context);
         }
 
         #endregion
@@ -317,7 +297,7 @@ namespace DotNEToolkit.Expressions
 
                 try
                 {
-                    evaluator = ConfigFactory<ExpressionEvaluator>.CreateInstance(expDef.EntryClass);
+                    evaluator = ConfigFactory<ExpressionEvaluator>.CreateInstance(expDef.ClassName);
                     evaluator.Name = expDef.Name;
                     evaluator.Description = expDef.Description;
                     evaluator.Category = expDef.Category;

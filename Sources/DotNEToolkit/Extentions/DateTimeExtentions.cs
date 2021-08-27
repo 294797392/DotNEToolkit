@@ -11,9 +11,5 @@ namespace DotNEToolkit.Extentions
     /// </summary>
     public static class DateTimeExtentions
     {
-        /// <summary>
-        /// 格式化成202008180927的格式
-        /// </summary>
-        public const string yyyyMMddhhmmss = "yyyyMMddhhmmss";
     }
 }

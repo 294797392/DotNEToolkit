@@ -50,9 +50,8 @@ namespace DotNEToolkit
         /// 释放单例对象占用的资源
         /// </summary>
         /// <returns></returns>
-        public virtual int Release()
+        public virtual void Release()
         {
-            return DotNETCode.SUCCESS;
         }
     }
 }

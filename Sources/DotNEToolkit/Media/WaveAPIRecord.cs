@@ -10,7 +10,7 @@ namespace DotNEToolkit.Media
     /// <summary>
     /// 使用waveIn API开发的录音程序
     /// </summary>
-    public class WaveAPIAudioRecord : AudioRecord
+    public class WaveAPIRecord : AudioRecord
     {
         #region 类变量
 
@@ -115,11 +115,12 @@ namespace DotNEToolkit.Media
 
         public override int Start()
         {
-            int code = waveIn.waveInStart(this.hwi);
-            if (code != MMSYSERR.MMSYSERR_NOERROR)
+            int code = base.Start();
+
+            if ((code = waveIn.waveInStart(this.hwi)) != MMSYSERR.MMSYSERR_NOERROR)
             {
                 logger.ErrorFormat("waveInStart失败, MMSYSERROR = {0}", code);
-                return DotNETCode.FAILED;
+                return DotNETCode.SYS_ERROR;
             }
 
             this.isRunning = true;
@@ -136,6 +137,8 @@ namespace DotNEToolkit.Media
             {
                 logger.ErrorFormat("waveInStop失败, MMSYSERROR = {0}", code);
             }
+
+            base.Stop();
         }
 
         #endregion
@@ -164,10 +167,10 @@ namespace DotNEToolkit.Media
                         this.NotifyDataReceived(buffer);
                     }
 
-                    int retValue = waveIn.waveInAddBuffer(hwi, this.free_pwh, (uint)this.whSize);
-                    if (retValue != MMSYSERR.MMSYSERR_NOERROR)
+                    int code = waveIn.waveInAddBuffer(hwi, this.free_pwh, (uint)this.whSize);
+                    if (code != MMSYSERR.MMSYSERR_NOERROR)
                     {
-                        logger.ErrorFormat("waveInAddBuffer失败, MMSYSERROR = {0}", retValue);
+                        logger.ErrorFormat("waveInAddBuffer失败, MMSYSERROR = {0}", code);
                     }
 
                     break;

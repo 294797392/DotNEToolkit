@@ -31,7 +31,7 @@ namespace DotNETClient
     public partial class MainWindow : Window
     {
         private ModuleFactory factory;
-        Process proc;
+
         private void Foreach(int v, object userData)
         {
             Console.WriteLine("开始运行:{0}", v);
@@ -55,14 +55,6 @@ namespace DotNETClient
         public MainWindow()
         {
             InitializeComponent();
-
-            proc = new Process();
-            proc.StartInfo = new ProcessStartInfo()
-            {
-                FileName = "FlyPRO.exe"
-            };
-            proc.Start();
-            proc.WaitForInputIdle();
         }
 
         private void T_callback1(tail arg1, tail.tail_event_type arg2, object arg3, object arg4)
@@ -82,7 +74,6 @@ namespace DotNETClient
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(Win32APIHelper.GetWindowText(proc.MainWindowHandle, 275, 433));
         }
     }
 }

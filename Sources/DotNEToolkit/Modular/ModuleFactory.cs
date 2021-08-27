@@ -29,11 +29,6 @@ namespace DotNEToolkit.Modular
         #region 公开事件
 
         /// <summary>
-        /// 当某个模块的状态发生改变的时候触发
-        /// </summary>
-        public event Action<ModuleFactory, IModuleInstance, ModuleStatus> ModuleStatusChanged;
-
-        /// <summary>
         /// 当所有模块都加载完成的时候触发
         /// 只有在异步加载模块的时候才会触发
         /// </summary>
@@ -93,7 +88,7 @@ namespace DotNEToolkit.Modular
         {
             int code = DotNETCode.SUCCESS;
 
-            this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.Initializing);
+            this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Initializing);
 
             try
             {
@@ -102,7 +97,7 @@ namespace DotNEToolkit.Modular
                 if ((code = moduleInst.Initialize(moduleInst.Definition.InputParameters)) != DotNETCode.SUCCESS)
                 {
                     moduleInst.Status = ModuleStatus.InitializeFailed;
-                    this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.InitializeFailed);
+                    this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.InitializeFailed);
                     logger.WarnFormat("初始化模块失败, module = {0}, code = {1}, {2}", moduleInst.Name, code, DotNETCode.GetMessage(code));
                     return code;
                 }
@@ -110,14 +105,14 @@ namespace DotNEToolkit.Modular
                 logger.InfoFormat("模块初始化成功, module = {0}", moduleInst.Name);
 
                 moduleInst.Status = ModuleStatus.Initialized;
-                this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.Initialized);
+                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Initialized);
 
                 return DotNETCode.SUCCESS;
             }
             catch (Exception ex)
             {
                 moduleInst.Status = ModuleStatus.InitializeException;
-                this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.InitializeException);
+                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.InitializeException);
                 logger.Error("初始化模块异常", ex);
                 return DotNETCode.UNKNOWN_EXCEPTION;
             }
@@ -161,27 +156,38 @@ namespace DotNEToolkit.Modular
         {
             instance = null;
 
-            ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == moduleDef.MetadataID);
-            if (metadata == null)
+            // 优先加载ClassName
+            string className = moduleDef.ClassName;
+
+            // 如果ClassName不存在，那么根据MetadataID寻找ClassName
+            if (string.IsNullOrEmpty(className))
             {
-                logger.ErrorFormat("客户端不存在模块:{0}", moduleDef);
-                return DotNETCode.MODULE_NOT_FOUND;
+                ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == moduleDef.MetadataID);
+                if (metadata == null)
+                {
+                    logger.ErrorFormat("客户端不存在模块:{0}", moduleDef);
+                    return DotNETCode.MODULE_NOT_FOUND;
+                }
+
+                className = metadata.ClassName;
             }
-            else
+
+            // 开始加载实例
+            try
             {
-                try
-                {
-                    instance = ConfigFactory<ModuleBase>.CreateInstance(metadata.EntryClass);
-                    instance.Definition = moduleDef;
-                    instance.Factory = this;
-                    instance.PublishEvent += this.Module_PublishEvent;
-                    return DotNETCode.SUCCESS;
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("加载模块异常, {0}, {1}", moduleDef, ex);
-                    return DotNETCode.UNKNOWN_EXCEPTION;
-                }
+                instance = ConfigFactory<ModuleBase>.CreateInstance(className);
+                instance.Definition = moduleDef;
+                instance.Factory = this;
+                instance.PublishEvent += this.ModuleInstance_PublishEvent;
+
+                logger.DebugFormat("加载模块成功, {0}", moduleDef.Name);
+
+                return DotNETCode.SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("加载模块异常, {0}, {1}", moduleDef, ex);
+                return DotNETCode.UNKNOWN_EXCEPTION;
             }
         }
 
@@ -313,7 +319,7 @@ namespace DotNEToolkit.Modular
 
             if ((code = this.CreateModuleInstance(module, out moduleInst)) != DotNETCode.SUCCESS)
             {
-                return code;    
+                return code;
             }
 
             if ((code = moduleInst.Initialize(module.InputParameters)) != DotNETCode.SUCCESS)
@@ -350,7 +356,7 @@ namespace DotNEToolkit.Modular
 
             try
             {
-                moduleInst.PublishEvent -= this.Module_PublishEvent;
+                moduleInst.PublishEvent -= this.ModuleInstance_PublishEvent;
                 moduleInst.Release();
                 this.ModuleList.Remove(moduleInst);
             }
@@ -392,29 +398,13 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 根据类型ID创建一个模块实例
         /// </summary>
-        /// <typeparam name="TModuleInstance"></typeparam>
-        /// <param name="metadataID">要创建的模块的类型ID</param>
+        /// <param name="definition">模块定义</param>
         /// <returns></returns>
         public TModuleInstance CreateInstance<TModuleInstance>(ModuleDefinition definition) where TModuleInstance : ModuleBase
         {
-            ModuleMetadata type = this.metadataList.FirstOrDefault(minfo => minfo.ID == definition.MetadataID);
-            if (type == null)
-            {
-                return default(TModuleInstance);
-            }
-
-            try
-            {
-                TModuleInstance module = ConfigFactory<TModuleInstance>.CreateInstance(type.EntryClass);
-                module.Factory = this;
-                module.Definition = definition;
-                return module;
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("创建模块实例异常, {0}, {1}", type, ex);
-                return default(TModuleInstance);
-            }
+            ModuleBase moduleInst;
+            return this.CreateModuleInstance(definition, out moduleInst) == DotNETCode.SUCCESS ?
+                (TModuleInstance)moduleInst : default(TModuleInstance);
         }
 
         /// <summary>
@@ -431,7 +421,7 @@ namespace DotNEToolkit.Modular
                 return false;
             }
 
-            Type t = Type.GetType(metadata.EntryClass);
+            Type t = Type.GetType(metadata.ClassName);
             if (t.IsSubclassOf(baseType))
             {
                 return true;
@@ -444,20 +434,17 @@ namespace DotNEToolkit.Modular
 
         #endregion
 
-        private void NotifyModuleStatusChanged(IModuleInstance module, ModuleStatus status)
-        {
-            if (this.ModuleStatusChanged != null)
-            {
-                this.ModuleStatusChanged(this, module, status);
-            }
-        }
-
-        private void Module_PublishEvent(IModuleInstance module, string eventCode, object eventParams)
+        private void NotifyModuleEvent(IModuleInstance moduleInst, string eventCode, object eventParams)
         {
             if (this.ModuleEvent != null)
             {
-                this.ModuleEvent(this, module, eventCode, eventParams);
+                this.ModuleEvent(this, moduleInst, eventCode, eventParams);
             }
+        }
+
+        private void ModuleInstance_PublishEvent(IModuleInstance module, string eventCode, object eventParams)
+        {
+            this.NotifyModuleEvent(module, eventCode, eventParams);
         }
     }
 }

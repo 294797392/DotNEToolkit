@@ -61,6 +61,16 @@ namespace DotNEToolkit
         /// </summary>
         public const int READ_TIMEOUT = 8;
 
+        /// <summary>
+        /// 打开文件失败
+        /// </summary>
+        public const int OPEN_FILE_FAILED = 9;
+
+        /// <summary>
+        /// 调用API失败
+        /// </summary>
+        public const int SYS_ERROR = 10;
+
         #region 100 - 200 ModuleFactory
 
         public const int MODULE_NOT_FOUND = 100;

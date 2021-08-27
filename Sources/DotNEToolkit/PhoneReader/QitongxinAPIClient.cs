@@ -24,7 +24,7 @@ namespace DotNEToolkit.PhoneReader
             List<KeyValuePair<string, string>> headers = new List<KeyValuePair<string, string>>();
             headers.Add(new KeyValuePair<string, string>("Authorization", string.Format("APPCODE {0}", APPCode)));
 
-            byte[] bytes = HttpUtility.Post(uri, headers);
+            byte[] bytes = HttpClient.Post(uri, headers);
             string json = Encoding.UTF8.GetString(bytes);
 
             JToken token = JsonConvert.DeserializeObject(json) as JToken;

@@ -69,7 +69,10 @@
     <Compile Include="Android\AdbWinApi.cs" />
     <Compile Include="Android\AndroidDevice.cs" />
     <Compile Include="Android\AndroidDevices.cs" />
+    <Compile Include="Bytes.cs" />
     <Compile Include="CLSID.cs" />
+    <Compile Include="Crypto\CRC16.cs" />
+    <Compile Include="DateTimeFormat.cs" />
     <Compile Include="DirectSound\DS3DALG.cs" />
     <Compile Include="DirectSound\DSBCAPS.cs" />
     <Compile Include="DirectSound\DSBFREQUENCY.cs" />
@@ -95,8 +98,16 @@
     <Compile Include="DirectSound\IDirectSoundNotify8.cs" />
     <Compile Include="DirectSound\WAVEFORMATEX.cs" />
     <Compile Include="InterfaceID.cs" />
+    <Compile Include="Media\AudioPlay.cs" />
+    <Compile Include="Media\AudioPlayFactory.cs" />
     <Compile Include="Media\AudioRecordFactory.cs" />
-    <Compile Include="Media\WaveAPIAudioRecord.cs" />
+    <Compile Include="Media\Audio.cs" />
+    <Compile Include="Media\DirectSoundPlay.cs" />
+    <Compile Include="Media\WaveAPIPlay.cs" />
+    <Compile Include="Media\WaveAPIRecord.cs" />
+    <Compile Include="Modbus\ModbusRTUClient.cs" />
+    <Compile Include="Network\NetworkUtility.cs" />
+    <Compile Include="Numberics.cs" />
     <Compile Include="PInvoke.cs" />
     <Compile Include="Media\AudioRecord.cs" />
     <Compile Include="Media\DirectSoundRecord.cs" />
@@ -156,7 +167,7 @@
     <Compile Include="Extentions\EnumExtensions.cs" />
     <Compile Include="Extentions\StreamExtentions.cs" />
     <Compile Include="Extentions\SocketExtentions.cs" />
-    <Compile Include="HttpUtility.cs" />
+    <Compile Include="HttpClient.cs" />
     <Compile Include="INIReader.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="linux\tail.cs" />
@@ -233,7 +244,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="DatabaseSvc\RequestDemo.json" />
-    <None Include="Expressions\expression.json" />
+    <None Include="Expressions\generic.exp.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Expressions\readme.md" />
     <None Include="Modular\ModuleMetadata.json" />
     <None Include="Modular\ModuleFactoryDescription.json" />

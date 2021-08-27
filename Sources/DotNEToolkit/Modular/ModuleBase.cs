@@ -154,6 +154,11 @@ namespace DotNEToolkit.Modular
             }
         }
 
+        protected void PubMessage(string message, params object[] param)
+        {
+            this.PubEvent(ModuleEvent.MessageEvent, string.Format(message, param));
+        }
+
         #endregion
     }
 }

@@ -9,11 +9,16 @@ namespace DotNEToolkit.Media
     {
         #region 类变量
 
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("VLCPlayer");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("MPKernelVLC");
 
         #endregion
 
         #region MediaPlayer
+
+        public override int Open(string uri)
+        {
+            throw new NotImplementedException();
+        }
 
         public override void Close()
         {
@@ -31,11 +36,6 @@ namespace DotNEToolkit.Media
         }
 
         public override int GetDuration()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int Open(string uri)
         {
             throw new NotImplementedException();
         }

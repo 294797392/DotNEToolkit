@@ -28,5 +28,17 @@ namespace DotNEToolkit
 
             return structPtr;
         }
+
+        /// <summary>
+        /// 释放用StructureToPtr函数分配的结构体指针
+        /// </summary>
+        /// <param name="structPtr">要释放的指针</param>
+        public static void FreeStructurePtr(IntPtr structPtr)
+        {
+            if (structPtr != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(structPtr);
+            }
+        }
     }
 }

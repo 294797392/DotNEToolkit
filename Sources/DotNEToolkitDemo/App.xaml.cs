@@ -19,6 +19,7 @@ namespace DotNETClient
     {
         static App()
         {
+
         }
     }
 }

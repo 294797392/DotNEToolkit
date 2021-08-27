@@ -25,7 +25,7 @@ namespace DotNEToolkit.PhoneReader
 
             string uri = string.Format(URI, number);
 
-            byte[] bytes = HttpUtility.GetData(uri, headers);
+            byte[] bytes = HttpClient.GetData(uri, headers);
             string json = Encoding.UTF8.GetString(bytes);
 
             JToken token = JsonConvert.DeserializeObject(json) as JToken;

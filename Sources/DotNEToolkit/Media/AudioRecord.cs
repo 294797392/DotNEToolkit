@@ -1,12 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace DotNEToolkit.Media
 {
+    /// <summary>
+    /// 一个录制PCM音频的录音机
+    /// </summary>
     public abstract class AudioRecord
     {
+        #region 类变量
+
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("AudioRecord");
+
+        #endregion
+
         #region 事件处理器
 
         /// <summary>
@@ -23,6 +33,16 @@ namespace DotNEToolkit.Media
 
         #region 实例变量
 
+        /// <summary>
+        /// 要保存的音频文件路径
+        /// </summary>
+        private string filePath;
+
+        /// <summary>
+        /// 保存的音频流文件
+        /// </summary>
+        private FileStream fileStream;
+
         #endregion
 
         #region 属性
@@ -30,7 +50,7 @@ namespace DotNEToolkit.Media
         /// <summary>
         /// 采样通道数
         /// </summary>
-        public int Channel { get; set; }
+        public short Channel { get; set; }
 
         /// <summary>
         /// 采样率
@@ -40,7 +60,7 @@ namespace DotNEToolkit.Media
         /// <summary>
         /// 每个采样大小是16位
         /// </summary>
-        public int BitsPerSample { get; set; }
+        public short BitsPerSample { get; set; }
 
         /// <summary>
         /// 块对齐, 每个采样的字节数
@@ -87,6 +107,12 @@ namespace DotNEToolkit.Media
             {
                 this.DataReceived(this, audioData);
             }
+
+            if (this.fileStream != null)
+            {
+                //logger.DebugFormat("写入PCM数据, 大小 = {0}", audioData.Length);
+                this.fileStream.Write(audioData, 0, audioData.Length);
+            }
         }
 
         protected void NotifyFailed(int code)
@@ -101,9 +127,51 @@ namespace DotNEToolkit.Media
 
         #region 抽象方法
 
-        public abstract int Start();
+        public virtual int Start()
+        {
+            if (!string.IsNullOrEmpty(this.filePath))
+            {
+                if (File.Exists(this.filePath))
+                {
+                    File.Delete(this.filePath);
+                }
 
-        public abstract void Stop();
+                try
+                {
+                    this.fileStream = File.Open(this.filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("创建录音文件异常", ex);
+                    return DotNETCode.OPEN_FILE_FAILED;
+                }
+            }
+
+            return DotNETCode.SUCCESS;
+        }
+
+        public virtual void Stop()
+        {
+            if (this.fileStream != null)
+            {
+                this.fileStream.Flush();
+                this.fileStream.Close();
+                this.fileStream.Dispose();
+            }
+        }
+
+        #endregion
+
+        #region 公开接口
+
+        /// <summary>
+        /// 设置录音文件的保存路径
+        /// </summary>
+        /// <param name="filePath"></param>
+        public void SetRecordFile(string filePath)
+        {
+            this.filePath = filePath;
+        }
 
         #endregion
     }

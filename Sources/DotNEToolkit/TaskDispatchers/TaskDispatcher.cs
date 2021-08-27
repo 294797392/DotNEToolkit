@@ -265,7 +265,7 @@ namespace DotNEToolkit.TaskDispatchers
 
                 // 解析参数表达式
                 IDictionary inputParams;
-                if ((rc = ExpressionUtility.EvaluateExpressions(taskDef.InputParameters, this.EvaluationContext, out inputParams)) != DotNETCode.SUCCESS)
+                if ((inputParams = ExpressionUtility.EvaluateExpressions(taskDef.InputParameters, this.EvaluationContext)) == null)
                 {
                     this.ProcessTaskStatusChanged(WorkflowStatus.FAIL, task);
                     logger.ErrorFormat("计算输入参数表达式失败, 运行任务失败, code = {0}, {1}", rc, DotNETCode.GetMessage(rc));

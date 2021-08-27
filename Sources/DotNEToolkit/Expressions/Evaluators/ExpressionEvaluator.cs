@@ -46,29 +46,27 @@ namespace DotNEToolkit.Expressions.Evaluators
         /// <param name="context"></param>
         /// <param name="result">表达式计算后的结果</param>
         /// <returns>计算表达式是否成功</returns>
-        public int Evaluate(Expression expression, IEvaluationContext context, out object result)
+        public object Evaluate(Expression expression, IEvaluationContext context)
         {
-            result = null;
-
             if (this.MinimalParameters > 0)
             {
                 // 检查参数个数是否匹配
                 if (expression.Parameters.Count != this.MinimalParameters)
                 {
                     logger.ErrorFormat("表达式参数个数不匹配, 最小个数:{0}, 实际个数:{1}", this.MinimalParameters, expression.Parameters.Count);
-                    return DotNETCode.INVALID_PARAMS;
+                    return null;
                 }
 
                 // 检查参数是否有空值
                 if (expression.Parameters.Exists(v => v == null))
                 {
                     logger.ErrorFormat("表达式参数出现空引用");
-                    return DotNETCode.INVALID_PARAMS;
+                    return null;
                 }
             }
 
             // 开始真正计算表达式
-            return this.EvaluateCore(expression, context, out result);
+            return this.EvaluateCore(expression, context);
         }
 
         /// <summary>
@@ -76,8 +74,7 @@ namespace DotNEToolkit.Expressions.Evaluators
         /// 子类必须实现该类
         /// </summary>
         /// <returns></returns>
-        internal abstract int EvaluateCore(Expression expression, IEvaluationContext context, out object result);
-
+        protected abstract object EvaluateCore(Expression expression, IEvaluationContext context);
 
         protected void PubMessage(string message, params object[] param)
         {
