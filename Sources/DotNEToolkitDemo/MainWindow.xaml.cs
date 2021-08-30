@@ -1,5 +1,4 @@
 using DotNEToolkit;
-using DotNEToolkit.Excels;
 using DotNEToolkit.linux;
 using DotNEToolkit.Modular;
 using DotNEToolkitDemo;

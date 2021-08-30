@@ -66,9 +66,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Android\AdbWinApi.cs" />
-    <Compile Include="Android\AndroidDevice.cs" />
-    <Compile Include="Android\AndroidDevices.cs" />
     <Compile Include="Bytes.cs" />
     <Compile Include="CLSID.cs" />
     <Compile Include="Crypto\CRC16.cs" />
@@ -124,30 +121,8 @@
     <Compile Include="DataAccess\DbHelper.cs" />
     <Compile Include="DataAccess\DbManager.cs" />
     <Compile Include="DataAccess\DbManagerBase.cs" />
-    <Compile Include="DatabaseSvc\Attributes\ColumnAttribute.cs" />
-    <Compile Include="DatabaseSvc\Attributes\DatabaseAttribute.cs" />
-    <Compile Include="DatabaseSvc\Attributes\TableAttribute.cs" />
-    <Compile Include="DatabaseSvc\DatabaseClientRequest.cs" />
-    <Compile Include="DatabaseSvc\DatabaseClient.cs" />
-    <Compile Include="DatabaseSvc\DatabaseSVCHost.cs" />
-    <Compile Include="DatabaseSvc\DatabaseSVConfig.cs" />
-    <Compile Include="DatabaseSvc\DatabaseSVCType.cs" />
-    <Compile Include="DatabaseSvc\HTTPDatabaseSVCHost.cs" />
-    <Compile Include="DatabaseSvc\Internals\InternalColumn.cs" />
-    <Compile Include="DatabaseSvc\Internals\InternalTable.cs" />
-    <Compile Include="DatabaseSvc\SQLBuilders\AbstractSQLBuilder.cs" />
-    <Compile Include="DatabaseSvc\WCFDatabaseSVCHost.cs" />
     <Compile Include="DataModels\ModelBase.cs" />
     <Compile Include="DelegateUtility.cs" />
-    <Compile Include="Excels\Attributes\ExcelColumnAttribute.cs" />
-    <Compile Include="Excels\IExcelRow.cs" />
-    <Compile Include="Excels\ReadOptions.cs" />
-    <Compile Include="Excels\ExcelCell.cs" />
-    <Compile Include="Excels\ExcelCellTypes.cs" />
-    <Compile Include="Excels\ExcelRow.cs" />
-    <Compile Include="Excels\Excel.cs" />
-    <Compile Include="Excels\ExcelSheet.cs" />
-    <Compile Include="Excels\ExcelVersions.cs" />
     <Compile Include="Expressions\IEvaluationContext.cs" />
     <Compile Include="Expressions\Evaluators\ExpressionEvaluator.cs" />
     <Compile Include="Expressions\Expression.cs" />
@@ -219,38 +194,19 @@
     <Compile Include="SDK\libvlc.cs" />
     <Compile Include="SingletonObject.cs" />
     <Compile Include="StreamUtility.cs" />
-    <Compile Include="TaskDispatchers\Repetitions.cs" />
-    <Compile Include="TaskDispatchers\WorkflowTask.cs" />
-    <Compile Include="TaskDispatchers\TaskDefinition.cs" />
-    <Compile Include="TaskDispatchers\TaskFlags.cs" />
-    <Compile Include="TaskDispatchers\TaskQueue.cs" />
-    <Compile Include="TaskDispatchers\TaskQueueFactory.cs" />
-    <Compile Include="TaskDispatchers\WorkflowStatus.cs" />
-    <Compile Include="TaskDispatchers\TaskTrigger.cs" />
-    <Compile Include="TaskDispatchers\WaitableTask.cs" />
-    <Compile Include="TaskDispatchers\TaskDispatcher.cs" />
-    <Compile Include="TaskDispatchers\TaskDispatcherEvent.cs" />
-    <Compile Include="TaskDispatchers\TaskEvent.cs" />
     <Compile Include="Win32API.cs" />
     <Compile Include="WindowScanner.cs" />
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TaskDispatchers\Attributes\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Bindings\binding.json" />
-    <None Include="DatabaseSvc\DatabaseSvc.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="DatabaseSvc\RequestDemo.json" />
     <None Include="Expressions\generic.exp.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Expressions\readme.md" />
     <None Include="Modular\ModuleMetadata.json" />
     <None Include="Modular\ModuleFactoryDescription.json" />
-    <None Include="TaskDispatchers\readme.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

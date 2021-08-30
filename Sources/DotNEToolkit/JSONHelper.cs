@@ -435,6 +435,11 @@ namespace DotNEToolkit
             return JSONDatabase.SelectAll<TSource>(GenerateDbFile<TSource>());
         }
 
+        public List<TSource> SelectAll<TSource>(Func<TSource, bool> predicate)
+        {
+            return JSONDatabase.SelectAll<TSource>(GenerateDbFile<TSource>(), predicate);
+        }
+
         public int Delete<TSource>(Func<TSource, bool> predicate)
         {
             return JSONDatabase.Delete<TSource>(GenerateDbFile<TSource>(), predicate);

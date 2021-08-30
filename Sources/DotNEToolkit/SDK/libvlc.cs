@@ -9,6 +9,8 @@ namespace DotNEToolkit.SDK
 {
     public static class libvlc
     {
+        private const string libvlcDll = "libvlc.dll";
+
         public enum libvlc_state_t
         {
             libvlc_NothingSpecial = 0,
@@ -21,43 +23,43 @@ namespace DotNEToolkit.SDK
             libvlc_Error
         }
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern libvlc_state_t libvlc_media_get_state(IntPtr p_md);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_new(int argc, IntPtr argv);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_new_location(IntPtr vlcptr, string url);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_release(IntPtr mediaPtr);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_player_new_from_media(IntPtr media_ptr);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_player_release(IntPtr mediaPlayerPtr);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern int libvlc_media_player_play(IntPtr player_ptr);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern int libvlc_media_player_stop(IntPtr player_ptr);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_player_new(IntPtr vlcPtr);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void libvlc_media_player_set_hwnd(IntPtr player_ptr, IntPtr drawable);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_new_path(IntPtr vlcPtr, string uri);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_player_set_media(IntPtr mediaPlayerPtr, IntPtr mediaPtr);
 
-        [DllImport("libvlc.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void libvlc_video_set_mouse_input(IntPtr mediaPlayerPtr, uint on);
 
 

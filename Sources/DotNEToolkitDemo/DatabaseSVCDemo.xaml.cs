@@ -1,4 +1,3 @@
-using DotNEToolkit.DatabaseSvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +21,7 @@ namespace DotNETClient
     {
         #region 字段
 
-        private DatabaseSVCHost svchost;
+        //private DatabaseSVCHost svchost;
 
         #endregion
 
@@ -48,9 +47,9 @@ namespace DotNETClient
 
         private void ButtonStartService_Click(object sender, RoutedEventArgs e)
         {
-            this.svchost = DatabaseSVCHost.Create(DatabaseSVCType.WCF);
-            this.svchost.Initialize();
-            this.svchost.Start();
+            //this.svchost = DatabaseSVCHost.Create(DatabaseSVCType.WCF);
+            //this.svchost.Initialize();
+            //this.svchost.Start();
         }
     }
 }

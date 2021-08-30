@@ -10,6 +10,12 @@ namespace DotNEToolkit
     /// </summary>
     public static class Bytes
     {
+        /// <summary>
+        /// 对两个字节数组进行比较操作
+        /// </summary>
+        /// <param name="array1">要比较的第一个字节数组</param>
+        /// <param name="array2">要比较的第二个字节数组</param>
+        /// <returns>每个字节是否相等</returns>
         public static bool Compare(byte[] array1, byte[] array2)
         {
             if (array1.Length != array2.Length)
