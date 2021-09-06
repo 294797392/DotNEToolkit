@@ -132,7 +132,6 @@
     <Compile Include="Expressions\ExpressionOperators.cs" />
     <Compile Include="Expressions\ExpressionState.cs" />
     <Compile Include="Expressions\ExpressionTypes.cs" />
-    <Compile Include="Expressions\ExpressionUtility.cs" />
     <Compile Include="Expressions\ParserContext.cs" />
     <Compile Include="Expressions\ParserState.cs" />
     <Compile Include="Expressions\ParserStateMaps.cs" />

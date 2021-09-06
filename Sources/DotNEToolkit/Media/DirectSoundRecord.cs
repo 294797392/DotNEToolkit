@@ -1,11 +1,13 @@
 ﻿using DotNEToolkit.DirectSound;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static DotNEToolkit.Win32API;
 
 namespace DotNEToolkit.Media
 {
@@ -16,6 +18,19 @@ namespace DotNEToolkit.Media
     /// </summary>
     public class DirectSoundRecord : AudioRecord
     {
+        internal class DirectSoundAudioDevice : AudioDevice
+        {
+            /// <summary>
+            /// 设备的GUID
+            /// </summary>
+            public GUID ID { get; internal set; }
+
+            public override string ToString()
+            {
+                return this.Name;
+            }
+        }
+
         #region 类变量
 
         private static log4net.ILog logger = log4net.LogManager.GetLogger("DirectSoundCapture");
@@ -55,11 +70,11 @@ namespace DotNEToolkit.Media
 
         #endregion
 
-        #region AudioCapture
+        #region AudioRecord
 
-        public override int Initialize()
+        public override int Initialize(IDictionary parameters)
         {
-            base.Initialize();
+            base.Initialize(parameters);
 
             if (!this.CreateIDirectSoundCapture8())
             {
@@ -185,9 +200,36 @@ namespace DotNEToolkit.Media
             base.Stop();
         }
 
+        public override List<AudioDevice> GetAudioDevices()
+        {
+            List<AudioDevice> devices = new List<AudioDevice>();
+            Win32API.DirectSoundCaptureEnumerate(this.EnumerateAudioDeviceCallback, devices);
+            return devices;
+        }
+
         #endregion
 
         #region 实例方法
+
+        private bool EnumerateAudioDeviceCallback(IntPtr lpGuid, string lpcstrDescription, string lpcstrModule, object lpContext)
+        {
+            if (lpGuid == IntPtr.Zero)
+            {
+
+            }
+            else
+            {
+                List<AudioDevice> devices = lpContext as List<AudioDevice>;
+                GUID guid = (GUID)Marshal.PtrToStructure(lpGuid, typeof(GUID));
+                DirectSoundAudioDevice device = new DirectSoundAudioDevice()
+                {
+                    ID = guid,
+                    Name = lpcstrDescription
+                };
+                devices.Add(device);
+            }
+            return true;
+        }
 
         private bool CreateIDirectSoundCapture8()
         {

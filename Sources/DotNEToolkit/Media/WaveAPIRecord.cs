@@ -1,5 +1,6 @@
 ﻿using DotNEToolkit.DirectSound;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -41,9 +42,9 @@ namespace DotNEToolkit.Media
 
         #region AudioRecord
 
-        public override int Initialize()
+        public override int Initialize(IDictionary parameters)
         {
-            base.Initialize();
+            base.Initialize(parameters);
 
             #region waveInOpen
 
@@ -139,6 +140,11 @@ namespace DotNEToolkit.Media
             }
 
             base.Stop();
+        }
+
+        public override List<AudioDevice> GetAudioDevices()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

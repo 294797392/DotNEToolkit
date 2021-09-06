@@ -1,4 +1,8 @@
-﻿using System;
+﻿using DotNEToolkit.Bindings;
+using DotNEToolkit.Modular;
+using DotNEToolkit.Modular.Attributes;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,9 +11,25 @@ using System.Text;
 namespace DotNEToolkit.Media
 {
     /// <summary>
+    /// 表示一个声卡设备
+    /// </summary>
+    public abstract class AudioDevice
+    {
+        /// <summary>
+        /// 声卡设备的显示名字
+        /// </summary>
+        public string Name { get; internal set; }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
+    }
+
+    /// <summary>
     /// 一个录制PCM音频的录音机
     /// </summary>
-    public abstract class AudioRecord
+    public abstract class AudioRecord : ModuleBase
     {
         #region 类变量
 
@@ -50,16 +70,19 @@ namespace DotNEToolkit.Media
         /// <summary>
         /// 采样通道数
         /// </summary>
+        [BindableProperty(2)]
         public short Channel { get; set; }
 
         /// <summary>
         /// 采样率
         /// </summary>
+        [BindableProperty(44100)]
         public int SamplesPerSec { get; set; }
 
         /// <summary>
         /// 每个采样大小是16位
         /// </summary>
+        [BindableProperty(16)]
         public short BitsPerSample { get; set; }
 
         /// <summary>
@@ -84,22 +107,23 @@ namespace DotNEToolkit.Media
 
         public AudioRecord()
         {
-            this.Channel = 2;
-            this.SamplesPerSec = 44100;
-            this.BitsPerSample = 16;
         }
 
         #endregion
 
-        #region 实例方法
+        #region ModuleBase
 
-        public virtual int Initialize()
+        public override int Initialize(IDictionary parameters)
         {
+            base.Initialize(parameters);
+
             return DotNETCode.SUCCESS;
         }
 
-        public virtual void Release()
-        { }
+        public override void Release()
+        {
+            base.Release();
+        }
 
         protected void NotifyDataReceived(byte[] audioData)
         {
@@ -127,6 +151,11 @@ namespace DotNEToolkit.Media
 
         #region 抽象方法
 
+        /// <summary>
+        /// 开始录音
+        /// </summary>
+        /// <returns></returns>
+        [ModuleAction]
         public virtual int Start()
         {
             if (!string.IsNullOrEmpty(this.filePath))
@@ -150,6 +179,10 @@ namespace DotNEToolkit.Media
             return DotNETCode.SUCCESS;
         }
 
+        /// <summary>
+        /// 停止录音
+        /// </summary>
+        [ModuleAction]
         public virtual void Stop()
         {
             if (this.fileStream != null)
@@ -160,6 +193,13 @@ namespace DotNEToolkit.Media
             }
         }
 
+        /// <summary>
+        /// 枚举系统里所有的录音设备（可以录音的声卡）
+        /// </summary>
+        /// <returns></returns>
+        [ModuleAction]
+        public abstract List<AudioDevice> GetAudioDevices();
+
         #endregion
 
         #region 公开接口
@@ -168,6 +208,7 @@ namespace DotNEToolkit.Media
         /// 设置录音文件的保存路径
         /// </summary>
         /// <param name="filePath"></param>
+        [ModuleAction]
         public void SetRecordFile(string filePath)
         {
             this.filePath = filePath;

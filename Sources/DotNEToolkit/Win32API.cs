@@ -577,6 +577,26 @@ namespace DotNEToolkit
         [DllImport(dsoundDll, CallingConvention = CallingConvention.StdCall)]
         public static extern uint DirectSoundCreate8(IntPtr lpcGuidDevice, out IntPtr ppDS8, IntPtr pUnkOuter);
 
+        /// <summary>
+        /// 注意：第一个被枚举出来的设备永远都是Primary Sound Driver（主声音捕获设备），所以一般情况下都会忽略第一个设备。主声音捕获设备的意思就是当前用户选择的录音设备。
+        /// The first device enumerated is always called the Primary Sound Driver, and the lpGUID parameter of the callback is NULL. This device represents the preferred playback device set by the user in Control Panel
+        /// </summary>
+        /// <param name="lpGuid">Address of the GUID that identifies the device being enumerated, or NULL for the primary device. This value can be passed to the DirectSoundCreate8 or DirectSoundCaptureCreate8 function to create a device object for that driver.</param>
+        /// <param name="lpcstrDescription">Address of a null-terminated string that provides a textual description of the DirectSound device.</param>
+        /// <param name="lpcstrModule">Address of a null-terminated string that specifies the module name of the DirectSound driver corresponding to this device.</param>
+        /// <param name="lpContext">Address of application-defined data. This is the pointer passed to DirectSoundEnumerate or DirectSoundCaptureEnumerate as the lpContext parameter.</param>
+        /// <returns>Returns TRUE to continue enumerating drivers, or FALSE to stop.</returns>
+        public delegate bool DSEnumCallback(IntPtr lpGuid, string lpcstrDescription, string lpcstrModule, object lpContext);
+
+        /// <summary>
+        /// DirectSound枚举声音捕获设备的接口
+        /// </summary>
+        /// <param name="lpDSEnumCallback">枚举回调</param>
+        /// <param name="lpContext">上下文信息</param>
+        /// <returns></returns>
+        [DllImport(dsoundDll, CallingConvention = CallingConvention.StdCall)]
+        public static extern uint DirectSoundCaptureEnumerate(DSEnumCallback lpDSEnumCallback, object lpContext);
+
         #endregion
 
         #region Kernel32

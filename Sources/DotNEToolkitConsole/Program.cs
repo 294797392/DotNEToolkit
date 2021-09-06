@@ -59,10 +59,16 @@ namespace DotNEToolkitConsole
             //File.WriteAllText("1.txt", data);
 
             AudioRecord record = AudioRecordFactory.Create(AudioRecordType.DirectSound);
-            record.SetRecordFile("out.pcm");
-            record.DataReceived += Record_DataReceived;
-            record.Initialize();
-            record.Start();
+            List<AudioDevice> deviceList = record.GetAudioDevices();
+            foreach (AudioDevice device in deviceList)
+            {
+                Console.WriteLine(device);
+            }
+
+            //record.SetRecordFile("out.pcm");
+            //record.DataReceived += Record_DataReceived;
+            //record.Initialize();
+            //record.Start();
 
             Console.ReadLine();
         }
