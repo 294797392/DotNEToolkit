@@ -4,9 +4,9 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 
-namespace DotNEToolkit.Network
+namespace DotNEToolkit
 {
-    public static class NetworkUtility
+    public static class Networks
     {
         /// <summary>
         /// 获取所有网卡的MAC地址

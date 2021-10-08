@@ -58,17 +58,32 @@ namespace DotNEToolkitConsole
 
             //File.WriteAllText("1.txt", data);
 
-            AudioRecord record = AudioRecordFactory.Create(AudioRecordType.DirectSound);
-            List<AudioDevice> deviceList = record.GetAudioDevices();
-            foreach (AudioDevice device in deviceList)
-            {
-                Console.WriteLine(device);
-            }
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
 
-            //record.SetRecordFile("out.pcm");
-            //record.DataReceived += Record_DataReceived;
-            //record.Initialize();
-            //record.Start();
+            //DirectSoundPlay Player = new DirectSoundPlay();
+            //int code = Player.Initialize(parameters);
+            //if (code != DotNEToolkit.DotNETCode.SUCCESS)
+            //{
+            //    Console.WriteLine("初始化DirectSoundPlay失败");
+            //}
+            //while (true)
+            //{
+            //    Player.PlayFile("out.pcm");
+            //    System.Threading.Thread.Sleep(1000);
+            //}
+
+            //Dictionary<string, object> parameters1 = new Dictionary<string, object>();
+            ////parameters1["Channel"] = 1;
+            ////parameters1["SamplesPerSec"] = 16000;
+            //DirectSoundRecord Record = new DirectSoundRecord();
+            //Record.Initialize(parameters1);
+            //Record.SetRecordFile("out.pcm");
+            //Record.Start();
+
+            byte[] alaw = File.ReadAllBytes("audio");
+            byte[] pcm = G711.Alaw2PCM(alaw);
+            File.WriteAllBytes("pcm", pcm);
+            Console.WriteLine("转换成功");
 
             Console.ReadLine();
         }

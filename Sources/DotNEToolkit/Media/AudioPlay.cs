@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DotNEToolkit.Bindings;
+using DotNEToolkit.Modular;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,23 +10,26 @@ namespace DotNEToolkit.Media
     /// <summary>
     /// 一个简单的PCM播放器
     /// </summary>
-    public abstract class AudioPlay
+    public abstract class AudioPlay : ModuleBase
     {
         #region 属性
 
         /// <summary>
         /// 采样通道数
         /// </summary>
+        [BindableProperty(2)]
         public short Channel { get; set; }
 
         /// <summary>
         /// 采样率
         /// </summary>
+        [BindableProperty(44100)]
         public int SamplesPerSec { get; set; }
 
         /// <summary>
         /// 每个采样大小是16位
         /// </summary>
+        [BindableProperty(16)]
         public short BitsPerSample { get; set; }
 
         /// <summary>
@@ -47,21 +52,18 @@ namespace DotNEToolkit.Media
 
         public AudioPlay()
         {
-            this.Channel = 2;
-            this.SamplesPerSec = 44100;
-            this.BitsPerSample = 16;
         }
 
-        /// <summary>
-        /// 打开播放器
-        /// </summary>
-        /// <returns></returns>
-        public abstract int Open();
+        ///// <summary>
+        ///// 打开播放器
+        ///// </summary>
+        ///// <returns></returns>
+        //public abstract int Open();
 
-        /// <summary>
-        /// 关闭播放器
-        /// </summary>
-        public abstract void Close();
+        ///// <summary>
+        ///// 关闭播放器
+        ///// </summary>
+        //public abstract void Close();
 
         /// <summary>
         /// 播放一个音频文件

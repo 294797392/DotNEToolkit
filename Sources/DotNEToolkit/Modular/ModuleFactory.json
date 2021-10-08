@@ -3,7 +3,7 @@
         {
             "ID": "",
             "Name": "",
-            "TypeID": "",
+            "MetadataID": "",
             "InputParameters": {
                 "PropertyName": "PropertyValue"
             }

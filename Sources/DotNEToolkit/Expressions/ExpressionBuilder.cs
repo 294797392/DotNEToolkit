@@ -326,9 +326,6 @@ namespace DotNEToolkit.Expressions
 
         #endregion
 
-
-
-
         /// <summary>
         /// 对source里的所有的键值对进行表达式计算操作，并把计算后的值存储到一个新的集合里并返回
         /// </summary>
@@ -338,7 +335,7 @@ namespace DotNEToolkit.Expressions
         public static IDictionary Evaluate(IDictionary source, IEvaluationContext context)
         {
             string json = JsonConvert.SerializeObject(source);
-            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+            IDictionary result = JsonConvert.DeserializeObject<IDictionary>(json);
 
             IEnumerator enumerator = source.Keys.GetEnumerator();
 
@@ -350,12 +347,11 @@ namespace DotNEToolkit.Expressions
                 // 这里只处理字符串类型的参数
                 if (value is string)
                 {
-                    string value_string = value.ToString();
+                    string svalue = value.ToString();
 
-                    if (ExpressionBuilder.Instance.IsExpression(value_string))
+                    if (ExpressionBuilder.Instance.IsExpression(svalue))
                     {
-                        object v = ExpressionBuilder.Instance.Evaluate(value_string, context);
-                        result[key.ToString()] = value;
+                        result[key] = ExpressionBuilder.Instance.Evaluate(svalue, context);
                     }
                 }
                 else

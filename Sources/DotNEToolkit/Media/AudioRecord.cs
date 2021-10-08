@@ -63,6 +63,11 @@ namespace DotNEToolkit.Media
         /// </summary>
         private FileStream fileStream;
 
+        /// <summary>
+        /// 当前正在使用的声卡设备
+        /// </summary>
+        protected AudioDevice usedDevice;
+
         #endregion
 
         #region 属性
@@ -212,6 +217,15 @@ namespace DotNEToolkit.Media
         public void SetRecordFile(string filePath)
         {
             this.filePath = filePath;
+        }
+
+        /// <summary>
+        /// 设置录音程序使用的声卡
+        /// </summary>
+        /// <param name="device"></param>
+        public void SetAudioDevice(AudioDevice device)
+        {
+            this.usedDevice = device;
         }
 
         #endregion

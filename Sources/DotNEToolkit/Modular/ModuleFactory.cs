@@ -12,13 +12,13 @@ namespace DotNEToolkit.Modular
     /// 模块工厂
     /// 自动识别modules.*.json的文件为模块元数据文件
     /// 
-    /// ModuleFactory从模块元数据文件里根据TypeID去查找对应模块的EntryClass
+    /// ModuleFactory从模块元数据文件里根据MetadataID去查找对应模块的ClassName
     /// </summary>
     public class ModuleFactory
     {
         private const string ModuleMetadataFilePattern = "modules.*.json";
 
-        private static readonly string DefaultDescriptionFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ModuleFactoryDescription.json");
+        private static readonly string DefaultDescriptionFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ModuleFactory.json");
 
         #region 类变量
 
@@ -152,9 +152,9 @@ namespace DotNEToolkit.Modular
             });
         }
 
-        private int CreateModuleInstance(ModuleDefinition moduleDef, out ModuleBase instance)
+        private int CreateModuleInstance(ModuleDefinition moduleDef, out ModuleBase moduleInst)
         {
-            instance = null;
+            moduleInst = null;
 
             // 优先加载ClassName
             string className = moduleDef.ClassName;
@@ -175,10 +175,10 @@ namespace DotNEToolkit.Modular
             // 开始加载实例
             try
             {
-                instance = ConfigFactory<ModuleBase>.CreateInstance(className);
-                instance.Definition = moduleDef;
-                instance.Factory = this;
-                instance.PublishEvent += this.ModuleInstance_PublishEvent;
+                moduleInst = ConfigFactory<ModuleBase>.CreateInstance(className);
+                moduleInst.Definition = moduleDef;
+                moduleInst.Factory = this;
+                moduleInst.PublishEvent += this.ModuleInstance_PublishEvent;
 
                 logger.DebugFormat("加载模块成功, {0}", moduleDef.Name);
 
@@ -208,7 +208,6 @@ namespace DotNEToolkit.Modular
             {
                 return null;
             }
-
             return CreateFactory(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)));
         }
 
@@ -290,6 +289,11 @@ namespace DotNEToolkit.Modular
             this.InitializeModulesAsync(this.ModuleList, interval);
         }
 
+        /// <summary>
+        /// 同步加载一组组件，加载失败会直接返回，不会尝试重新加载
+        /// </summary>
+        /// <param name="modules">要加载的模块列表</param>
+        /// <returns>是否加载成功</returns>
         public int SetupModules(IEnumerable<ModuleDefinition> modules)
         {
             int code = DotNETCode.SUCCESS;

@@ -12,9 +12,16 @@ using System.Text;
 
 namespace DotNEToolkit.Modular
 {
+    /// <summary>
+    /// 表示一个抽象的模块
+    /// </summary>
     public abstract class ModuleBase : IModuleInstance
     {
+        #region 类变量
+
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ModuleBase");
+
+        #endregion
 
         #region 公开事件
 
@@ -125,6 +132,11 @@ namespace DotNEToolkit.Modular
                 if (property.PropertyType.Name == "String")
                 {
                     property.SetValue(this, value, null);
+                }
+                else if (property.PropertyType.IsEnum)
+                {
+                    object o = Enum.Parse(property.PropertyType, value.ToString());
+                    property.SetValue(this, o, null);
                 }
                 else
                 {

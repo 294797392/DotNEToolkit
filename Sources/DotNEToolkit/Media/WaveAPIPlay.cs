@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,14 +8,14 @@ namespace DotNEToolkit.Media
 {
     public class WaveAPIPlay : AudioPlay
     {
-        public override void Close()
+        public override int Initialize(IDictionary parameters)
         {
-            throw new NotImplementedException();
+            return base.Initialize(parameters);
         }
 
-        public override int Open()
+        public override void Release()
         {
-            throw new NotImplementedException();
+            base.Release();
         }
 
         public override int PlayFile(string fileURI)

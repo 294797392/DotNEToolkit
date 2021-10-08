@@ -74,8 +74,8 @@ namespace DotNEToolkit.Media
                 // 计算每个声道的dbFS
                 // https://blog.csdn.net/u010538116/article/details/80762816
                 // https://www.zhihu.com/question/22502766
-                //db.Add(20 * Math.Log10(avgLeft / 32767));
-                //db.Add(20 * Math.Log10(avgRight / 32767));
+                // db.Add(20 * Math.Log10(avgLeft / 32767));
+                // db.Add(20 * Math.Log10(avgRight / 32767));
                 double left_dbFS = 20 * Math.Log10(avgLeft / 32767);
                 double right_dbFS = 20 * Math.Log10(avgRight / 32767);
 

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
+// 所有的Win32API用头文件名字给类命名
+
 namespace DotNEToolkit
 {
     public static class Win32APIHelper
@@ -717,5 +719,100 @@ namespace DotNEToolkit
 
         //[DllImport("Advapi32.dll")]
         //public static extern int CreateProcessAsUser(IntPtr ProcessHandle, int DesiredAccess, out IntPtr TokenHandle);
+    }
+
+    /// <summary>
+    /// WinUser.h
+    /// </summary>
+    public static class WinUser
+    {
+        private const string User32Dll = "User32.dll";
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct DEV_BROADCAST_HDR
+        {
+            public int dbch_size;
+            public int dbch_devicetype;
+            public int dbch_reserved;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct DEV_BROADCAST_DEVICEINTERFACE
+        {
+            public int dbcc_size;
+            public int dbcc_devicetype;
+            public int dbcc_reserved;
+            public Win32API.GUID dbcc_classguid;
+            public IntPtr dbcc_name;
+        }
+
+        public const int DEVICE_NOTIFY_WINDOW_HANDLE = 0x00000000;
+        public const int DEVICE_NOTIFY_SERVICE_HANDLE = 0x00000001;
+        public const int DEVICE_NOTIFY_ALL_INTERFACE_CLASSES = 0x00000004;
+
+        public const int WM_DEVICECHANGE = 0x0219;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hRecipient"></param>
+        /// <param name="NotificationFilter"></param>
+        /// <param name="Flags">
+        /// DEVICE_NOTIFY_ALL_INTERFACE_CLASSES：Notifies the recipient of device interface events for all device interface classes. (The dbcc_classguid member is ignored.)This value can be used only if the dbch_devicetype member is DBT_DEVTYP_DEVICEINTERFACE.
+        /// </param>
+        /// <returns></returns>
+        [DllImport(User32Dll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr RegisterDeviceNotification(IntPtr hRecipient, IntPtr NotificationFilter, int Flags);
+
+        /// <summary>
+        /// Closes the specified device notification handle.
+        /// </summary>
+        /// <param name="Handle">Device notification handle returned by the RegisterDeviceNotification function.</param>
+        /// <returns></returns>
+        [DllImport(User32Dll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool UnregisterDeviceNotification(IntPtr Handle);
+    }
+
+    /// <summary>
+    /// Dbt.h
+    /// </summary>
+    public static class Dbt
+    {
+        public const int DBT_DEVTYP_OEM = 0x00000000;
+        public const int DBT_DEVTYP_DEVNODE = 0x00000001;
+        public const int DBT_DEVTYP_VOLUME = 0x00000002;
+        public const int DBT_DEVTYP_PORT = 0x00000003;
+        public const int DBT_DEVTYP_NET = 0x00000004;
+        public const int DBT_DEVTYP_DEVICEINTERFACE = 0x00000005;
+        public const int DBT_DEVTYP_HANDLE = 0x00000006;
+
+        public const int DBT_DEVICEARRIVAL = 0x8000;  // system detected a new device
+        public const int DBT_DEVICEQUERYREMOVE = 0x8001;  // wants to remove, may fail
+        public const int DBT_DEVICEQUERYREMOVEFAILED = 0x8002;  // removal aborted
+        public const int DBT_DEVICEREMOVEPENDING = 0x8003;  // about to remove, still avail.
+        public const int DBT_DEVICEREMOVECOMPLETE = 0x8004;  // device is gone
+        public const int DBT_DEVICETYPESPECIFIC = 0x8005;  // type specific event
+
+        public const int DBT_DEVNODES_CHANGED = 0x0007;
+    }
+
+    /// <summary>
+    /// SetupAPI.h
+    /// </summary>
+    public static class SetupAPI
+    {
+        private const string SetupAPIDll = "SetupAPI.dll";
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SP_DEVINFO_DATA
+        {
+            public int cbSize;
+            public Win32API.GUID ClassGuid;
+            public int DevInst;
+            public int Reserved;
+        }
+
+        [DllImport(SetupAPIDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr SetupDiGetClassDevs([In] Guid ClassGuid, [In] string Enumerator, [In] IntPtr hwndParent, int Flags);
     }
 }

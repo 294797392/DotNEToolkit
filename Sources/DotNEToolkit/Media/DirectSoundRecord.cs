@@ -91,7 +91,7 @@ namespace DotNEToolkit.Media
                 return DotNETCode.FAILED;
             }
 
-            logger.InfoFormat("DirectSoundCapture初始化成功");
+            logger.InfoFormat("DirectSoundRecord初始化成功");
 
             return DotNETCode.SUCCESS;
         }

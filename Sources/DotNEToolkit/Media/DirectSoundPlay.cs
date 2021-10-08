@@ -1,5 +1,6 @@
 ﻿using DotNEToolkit.DirectSound;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace DotNEToolkit.Media
 
         private static log4net.ILog logger = log4net.LogManager.GetLogger("DirectSoundPlay");
 
-        private const int BUFFER_NUM = 3;
+        private const int NotifyEvents = 3;
 
         #endregion
 
@@ -43,19 +44,22 @@ namespace DotNEToolkit.Media
 
         #region AudioPlay
 
-        public override int Open()
+        public override int Initialize(IDictionary parameters)
         {
+            base.Initialize(parameters);
+
             if ((this.CreateIDirectSound8() &&
                 this.CreateSecondaryBuffer() &&
                 this.CreateBufferNotifications()))
             {
+                logger.InfoFormat("DirectSoundPlay初始化成功");
                 return DotNETCode.SUCCESS;
             }
 
             return DotNETCode.FAILED;
         }
 
-        public override void Close()
+        public override void Release()
         {
             Marshal.FreeHGlobal(this.pwfx_free);
             Marshal.Release(this.pdsb8);
@@ -79,6 +83,8 @@ namespace DotNEToolkit.Media
             }
             this.notifyHwnd_close = null;
             this.rgdsbpn = null;
+
+            base.Release();
         }
 
         public override int PlayFile(string fileURI)
@@ -107,7 +113,7 @@ namespace DotNEToolkit.Media
                 return DotNETCode.SYS_ERROR;
             }
 
-            uint offset = (uint)BUFFER_NUM;
+            uint offset = (uint)this.BufferSize;
 
             while (true)
             {
@@ -115,21 +121,22 @@ namespace DotNEToolkit.Media
                 if (this.fileStream.Read(buffer, 0, buffer.Length) == 0)
                 {
                     this.CloseFile();
+                    this.dsb8.Stop();
                     logger.InfoFormat("文件播放完毕, 退出");
                     return DotNETCode.SUCCESS;
                 }
 
                 IntPtr lpHandles = Marshal.UnsafeAddrOfPinnedArrayElement(this.notifyHwnd_close, 0);
 
-                uint notifyIdx = Win32API.WaitForMultipleObjects(BUFFER_NUM, lpHandles, false, Win32API.INFINITE);
-                if ((notifyIdx >= Win32API.WAIT_OBJECT_0) && (notifyIdx <= Win32API.WAIT_OBJECT_0 + BUFFER_NUM))
+                uint notifyIdx = Win32API.WaitForMultipleObjects(NotifyEvents, lpHandles, false, Win32API.INFINITE);
+                if ((notifyIdx >= Win32API.WAIT_OBJECT_0) && (notifyIdx <= Win32API.WAIT_OBJECT_0 + NotifyEvents))
                 {
                     if (this.WriteDataToBuffer(offset, buffer))
                     {
                     }
 
                     offset += (uint)this.BufferSize;
-                    offset %= (uint)(this.BufferSize * BUFFER_NUM);
+                    offset %= (uint)(this.BufferSize * NotifyEvents);
 
                     //Console.WriteLine("dwOffset = {0}, offset = {1}", this.rgdsbpn[notifyIdx].dwOffset, offset);
                 }
@@ -139,6 +146,7 @@ namespace DotNEToolkit.Media
 
                     logger.ErrorFormat("等待信号失败, 退出播放, LastWin32Error = {0}", winErr);
 
+                    this.dsb8.Stop();
                     this.CloseFile();
 
                     return DotNETCode.SYS_ERROR;
@@ -195,7 +203,7 @@ namespace DotNEToolkit.Media
                 dwFlags = DSBCAPS.DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS.DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS.DSBCAPS_GLOBALFOCUS | DSBCAPS.DSBCAPS_CTRLVOLUME,
                 lpwfxFormat = this.pwfx_free,
                 guid3DAlgorithm = new Win32API.GUID(),
-                dwBufferBytes = this.BufferSize * BUFFER_NUM,
+                dwBufferBytes = this.BufferSize * NotifyEvents,
                 dwReserved = 0
             };
 
@@ -237,17 +245,17 @@ namespace DotNEToolkit.Media
                     return false;
                 }
 
-                this.rgdsbpn = new DSBPOSITIONNOTIFY[BUFFER_NUM];
-                this.notifyHwnd_close = new IntPtr[BUFFER_NUM];
-                for (int idx = 0; idx < BUFFER_NUM; idx++)
+                this.rgdsbpn = new DSBPOSITIONNOTIFY[NotifyEvents];
+                this.notifyHwnd_close = new IntPtr[NotifyEvents];
+                for (int idx = 0; idx < NotifyEvents; idx++)
                 {
                     IntPtr pHandle = Win32API.CreateEvent(IntPtr.Zero, false, false, null);
                     this.notifyHwnd_close[idx] = pHandle;
-                    this.rgdsbpn[idx].dwOffset = (uint)(BUFFER_NUM * idx);
+                    this.rgdsbpn[idx].dwOffset = (uint)(this.BufferSize * idx);
                     this.rgdsbpn[idx].hEventNotify = pHandle;
                 }
 
-                if ((error = dsNotify8.SetNotificationPositions(BUFFER_NUM, Marshal.UnsafeAddrOfPinnedArrayElement(rgdsbpn, 0))) != DSERR.DS_OK)
+                if ((error = dsNotify8.SetNotificationPositions(NotifyEvents, Marshal.UnsafeAddrOfPinnedArrayElement(rgdsbpn, 0))) != DSERR.DS_OK)
                 {
                     logger.WarnFormat("SetNotificationPositions失败, DSERROR = {0}", error);
                     return false;

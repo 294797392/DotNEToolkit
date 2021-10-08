@@ -6,13 +6,29 @@ using System.Text;
 
 namespace DotNEToolkit
 {
-    public static class ProcessUtility
+    /// <summary>
+    /// 提供进程相关的帮助函数
+    /// </summary>
+    public static class Processes
     {
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("ProcessUtility");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("Processes");
 
-        public static void StartProcessAsUser()
+        /// <summary>
+        /// 清空某个进程里的输出缓冲区里的数据
+        /// </summary>
+        /// <param name="proc">要清空的进程</param>
+        public static void ClearExisting(Process proc)
         {
-            
+            if (!proc.StartInfo.RedirectStandardOutput)
+            {
+                return;
+            }
+
+            int peeked = -1;
+            while ((peeked = proc.StandardOutput.Peek()) != -1)
+            {
+                proc.StandardOutput.Read();
+            }
         }
 
         /// <summary>

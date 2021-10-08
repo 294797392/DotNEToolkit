@@ -57,9 +57,9 @@ namespace DotNEToolkit
         public const int WRITE_FAILED = 7;
 
         /// <summary>
-        /// 读数据超时
+        /// 操作超时
         /// </summary>
-        public const int READ_TIMEOUT = 8;
+        public const int TIMEOUT = 8;
 
         /// <summary>
         /// 打开文件失败
@@ -112,7 +112,7 @@ namespace DotNEToolkit
                 case DotNETCode.FILE_NOT_FOUND: return "文件不存在";
                 case DotNETCode.READ_FAILED: return "读取数据失败";
                 case DotNETCode.WRITE_FAILED: return "写数据失败";
-                case DotNETCode.READ_TIMEOUT: return "读取数据超时";
+                case DotNETCode.TIMEOUT: return "操作超时";
 
                 default:
                     return "未知错误码";
