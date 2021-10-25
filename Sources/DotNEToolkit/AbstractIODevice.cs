@@ -59,6 +59,8 @@ namespace DotNEToolkit
 
         #endregion
 
+        #region 公开接口
+
         /// <summary>
         /// 读取bytes大小的数据
         /// </summary>
@@ -104,10 +106,14 @@ namespace DotNEToolkit
 
             return DotNETCode.SUCCESS;
         }
+
+        #endregion
     }
 
     public static class AbstractIODeviceExtension
     {
+        private const int DefaultTimeout = 30000;
+
         public static int ReadMatches(this AbstractIODevice device, string match, int timeout, out string line)
         {
             line = null;
@@ -134,26 +140,10 @@ namespace DotNEToolkit
 
             return DotNETCode.TIMEOUT;
         }
+
+        public static int ReadMatches(this AbstractIODevice device, string match, out string line)
+        {
+            return ReadMatches(device, match, DefaultTimeout, out line);
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

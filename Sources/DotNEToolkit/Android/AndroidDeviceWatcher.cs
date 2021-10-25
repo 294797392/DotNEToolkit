@@ -23,7 +23,7 @@ namespace DotNEToolkit.Android
     {
         #region 类变量
 
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("AndroidDeviceMonitor");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("AndroidDeviceWatcher");
 
         private static readonly Win32API.GUID ANDROID_USB_CLASS_ID = new Win32API.GUID()
         {
