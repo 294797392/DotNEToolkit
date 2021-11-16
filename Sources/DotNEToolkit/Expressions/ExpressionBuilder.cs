@@ -40,7 +40,7 @@ namespace DotNEToolkit.Expressions
 
         private ExpressionBuilder()
         {
-            this.definitions = JSONHelper.DeserializeJSONFile<ExpressionDefinition>(AppDomain.CurrentDomain.BaseDirectory, "*.exp.json");
+            this.definitions = JSONHelper.ParseDirectory<ExpressionDefinition>(AppDomain.CurrentDomain.BaseDirectory, "*.exp.json");
             this.evaluators = new Dictionary<string, ExpressionEvaluator>();
         }
 

@@ -2,11 +2,40 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 
 namespace DotNEToolkit
 {
+    public enum IODeviceTypes
+    {
+        /// <summary>
+        /// 串口通信设备
+        /// </summary>
+        SerialPort,
+
+        /// <summary>
+        /// TCP通信设备
+        /// </summary>
+        TcpClient
+    }
+
+    public static class IODeviceFactory
+    {
+        public static AbstractIODevice Create(IODeviceTypes type)
+        {
+            switch (type)
+            {
+                case IODeviceTypes.SerialPort:
+                    return new SerialPortIODevice();
+
+                default:
+                    throw new NotImplementedException(string.Format("没实现{0}的IO设备", type));
+            }
+        }
+    }
+
     public abstract class AbstractIODevice : ModuleBase
     {
         #region 类变量
@@ -32,30 +61,30 @@ namespace DotNEToolkit
         #region 抽象接口
 
         /// <summary>
-        /// 判断IO设备是否已连接
+        /// 判断IO设备是否已经打开
         /// </summary>
         /// <returns></returns>
-        public abstract bool IsConnected();
+        public abstract bool IsOpened();
 
         /// <summary>
-        /// 连接IO设备
+        /// 打开一个IO设备
         /// </summary>
         /// <returns></returns>
-        public abstract int Connect();
+        public abstract int Open();
 
         /// <summary>
-        /// 与IO设备断开连接
+        /// 关闭IO设备
         /// </summary>
         /// <returns></returns>
-        public abstract int Disconnect();
-
-        protected abstract int ReadBytes(byte[] bytes, int offset, int count);
-
-        protected abstract int WriteBytes(byte[] bytes, int offset, int count);
+        public abstract int Close();
 
         public abstract int ReadLine(out string line);
 
         public abstract int WriteLine(string line);
+
+        protected abstract int ReadBytes(byte[] bytes, int offset, int count);
+
+        protected abstract int WriteBytes(byte[] bytes, int offset, int count);
 
         #endregion
 
@@ -105,6 +134,54 @@ namespace DotNEToolkit
             }
 
             return DotNETCode.SUCCESS;
+        }
+
+        #endregion
+    }
+
+    public class SerialPortIODevice : AbstractIODevice
+    {
+        #region 实例变量
+
+        private SerialPort serialPort;
+
+        #endregion
+
+        #region AbstractIODevice
+
+        public override int Close()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool IsOpened()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int Open()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int ReadLine(out string line)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int WriteLine(string line)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int ReadBytes(byte[] bytes, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int WriteBytes(byte[] bytes, int offset, int count)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

@@ -203,11 +203,7 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public static ModuleFactory CreateFactory(string descFile)
         {
-            ModuleFactoryDescription description;
-            if (!JSONHelper.DeserializeJSONFile(descFile, out description))
-            {
-                return null;
-            }
+            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(descFile);
             return CreateFactory(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)));
         }
 

@@ -62,8 +62,6 @@ namespace DotNEToolkit.SDK
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void libvlc_video_set_mouse_input(IntPtr mediaPlayerPtr, uint on);
 
-
-
         /// <summary>
         /// 封装libvlc的快速播放逻辑，传递一个窗口句柄即可
         /// 带自动重连功能

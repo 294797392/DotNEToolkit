@@ -69,15 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractIODevice.cs" />
-    <Compile Include="Android\AdbWinApi.cs" />
-    <Compile Include="Android\AndroidDevice.cs" />
-    <Compile Include="Android\AndroidDeviceWatcher.cs" />
-    <Compile Include="Android\WatcherForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Android\WatcherForm.Designer.cs">
-      <DependentUpon>WatcherForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Bytes.cs" />
     <Compile Include="CLSID.cs" />
     <Compile Include="Crypto\CRC16.cs" />

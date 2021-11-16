@@ -38,18 +38,6 @@ namespace DotNEToolkit
             return result;
         }
 
-        public static IEnumerable<T> ParseFiles<T>(IEnumerable<string> filesPaths)
-        {
-            List<T> result = new List<T>();
-
-            foreach (string filePath in filesPaths)
-            {
-                result.AddRange(JSONHelper.ParseFile<List<T>>(filePath));
-            }
-
-            return result;
-        }
-
         public static TResult Parse<TResult>(string jsonText)
         {
             if (string.IsNullOrEmpty(jsonText))
@@ -76,129 +64,85 @@ namespace DotNEToolkit
 
         /// <summary>
         /// 把一个json文件序列化成C#对象
+        /// 该函数不会对异常做处理，异常由调用者截获并处理
+        /// 如果该函数对异常做处理，那么调用者可能不知道出现异常的详细原因
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="jsonFile"></param>
+        /// <typeparam name="TResult">要序列化成的对象类型</typeparam>
+        /// <param name="jsonFile">要序列化的json文件的路径</param>
         /// <returns>如果序列化失败，那么返回空</returns>
         public static TResult ParseFile<TResult>(string jsonFile)
         {
-            if (!File.Exists(jsonFile))
-            {
-                return default(TResult);
-            }
-
-            string json = string.Empty;
-
-            try
-            {
-                json = File.ReadAllText(jsonFile);
-
-                return JsonConvert.DeserializeObject<TResult>(json);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(string.Format("解析JSON异常, json = {0}", json), ex);
-                return default(TResult);
-            }
+            string json = File.ReadAllText(jsonFile);
+            return JsonConvert.DeserializeObject<TResult>(json);
         }
 
-        public static bool TryParseFile<TResult>(string jsonFile, out TResult result)
-        {
-            result = ParseFile<TResult>(jsonFile);
-            return result != null;
-        }
-
-
-
-
-        public static IEnumerable<T> DeserializeJSONFile<T>(string searchDir, string pattern)
+        public static IEnumerable<T> ParseFiles<T>(IEnumerable<string> filesPaths)
         {
             List<T> result = new List<T>();
 
-            IEnumerable<string> expressionFiles = Directory.EnumerateFiles(searchDir, pattern, SearchOption.AllDirectories);
-
-            foreach (string filePath in expressionFiles)
+            foreach (string filePath in filesPaths)
             {
-                List<T> definitions;
-                if (JSONHelper.DeserializeJSONFile<List<T>>(filePath, out definitions))
-                {
-                    result.AddRange(definitions);
-                }
+                result.AddRange(JSONHelper.ParseFile<List<T>>(filePath));
             }
 
             return result;
         }
 
-        public static bool DeserializeJSONFile<T>(string jsonFile, JsonSerializerSettings settings, out T obj)
+        /// <summary>
+        /// 把一个json文件序列化成C#对象
+        /// 该函数会对异常做处理
+        /// 注意，如果该函数返回false，那么调用者可能不知道出现异常的详细原因
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="jsonFile"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static bool TryParseFile<TResult>(string jsonFile, out TResult result)
         {
-            obj = default(T);
+            result = default(TResult);
+
             if (string.IsNullOrEmpty(jsonFile))
             {
+                logger.ErrorFormat("TryParseFile失败, 文件路径为空");
                 return false;
             }
 
             if (!File.Exists(jsonFile))
             {
+                logger.ErrorFormat("TryParseFile失败, 文件不存在, {0}", jsonFile);
                 return false;
             }
 
             try
             {
-                string content = File.ReadAllText(jsonFile);
-                if (settings == null)
+                string json = File.ReadAllText(jsonFile);
+                result = JsonConvert.DeserializeObject<TResult>(json);
+                if (result == null)
                 {
-                    settings = new JsonSerializerSettings();
+                    logger.ErrorFormat("TryParseFile, 转换后的对象为null");
+                    return false;
                 }
-                obj = JsonConvert.DeserializeObject<T>(content, settings);
+
+                return true;
             }
             catch (Exception ex)
             {
-                logger.Error(string.Format("DeserializeJSONFile异常, {0}", jsonFile), ex);
+                logger.ErrorFormat("TryParseFile异常, {0}, {1}", jsonFile, ex);
                 return false;
             }
-            return true;
-        }
-
-        public static bool DeserializeJSONFile<T>(string jsonFile, out T obj)
-        {
-            return DeserializeJSONFile<T>(jsonFile, null, out obj);
         }
 
         /// <summary>
-        /// 把JSON文件转换成一个对象
-        /// 如果转换失败，那么返回deafultValue
+        /// 把一个C#对象序列化成JSON格式并写入到一个文件里
+        /// 该函数不会返回错误码，由调用者去截取异常并处理
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TSource"></typeparam>
         /// <param name="jsonFile"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public static T DeserializeJSONFile<T>(string jsonFile, T defaultValue)
-        {
-            T result;
-            return JSONHelper.DeserializeJSONFile<T>(jsonFile, out result) ? result : defaultValue;
-        }
-
-
-        public static int Write<TSource>(string jsonFile, TSource obj)
+        /// <param name="obj"></param>
+        public static void WriteFile<TSource>(string jsonFile, TSource obj)
         {
             string jsonText = JsonConvert.SerializeObject(obj);
-
-            try
-            {
-                File.WriteAllText(jsonFile, jsonText);
-
-                return DotNETCode.SUCCESS;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                logger.Error("保存JSON数据异常", ex);
-                return DotNETCode.FILE_PERMISSION_ERROR;
-            }
-            catch (Exception ex)
-            {
-                logger.Error("保存JSON数据异常", ex);
-                return DotNETCode.FILE_WRITE_FAILED;
-            }
+            File.WriteAllText(jsonFile, jsonText);
         }
 
         public static List<T> JArray2List<T>(this IDictionary toConvert, string key)
@@ -228,14 +172,14 @@ namespace DotNEToolkit
             return string.Format("{0}.json", typeof(T).Name.ToLower());
         }
 
-        public static int Insert<T>(T obj)
+        public static void Insert<T>(T obj)
         {
-            return Insert<T>(GenerateDbFile<T>(), obj);
+            Insert<T>(GenerateDbFile<T>(), obj);
         }
 
-        public static int Select<TSource>(Func<TSource, bool> predicate, out TSource item)
+        public static TSource Select<TSource>(Func<TSource, bool> predicate)
         {
-            return Select<TSource>(GenerateDbFile<TSource>(), predicate, out item);
+            return Select<TSource>(GenerateDbFile<TSource>(), predicate);
         }
 
         public static List<TSource> SelectAll<TSource>()
@@ -248,9 +192,9 @@ namespace DotNEToolkit
             return SelectAll<TSource>(GenerateDbFile<TSource>(), predicate);
         }
 
-        public static int Delete<TSource>(Func<TSource, bool> predicate)
+        public static void Delete<TSource>(Func<TSource, bool> predicate)
         {
-            return Delete<TSource>(GenerateDbFile<TSource>(), predicate);
+            Delete<TSource>(GenerateDbFile<TSource>(), predicate);
         }
 
         public static int Update<TSource>(Func<TSource, bool> predicate, TSource item)
@@ -258,9 +202,9 @@ namespace DotNEToolkit
             return Update<TSource>(GenerateDbFile<TSource>(), predicate, item);
         }
 
-        public static int SaveAll<TSource>(IEnumerable<TSource> items)
+        public static void SaveAll<TSource>(IEnumerable<TSource> items)
         {
-            return SaveAll<TSource>(GenerateDbFile<TSource>(), items);
+            SaveAll<TSource>(GenerateDbFile<TSource>(), items);
         }
 
         public static bool Exist<TSource>(Func<TSource, bool> predicate)
@@ -276,58 +220,22 @@ namespace DotNEToolkit
         /// <param name="jsonFile">json文件路径</param>
         /// <param name="obj">要插入的元素的实例</param>
         /// <returns></returns>
-        public static int Insert<T>(string jsonFile, T obj)
+        public static void Insert<T>(string jsonFile, T item)
         {
-            if (obj == null)
-            {
-                return DotNETCode.INVALID_PARAMS;
-            }
-
-            List<T> list;
-            if (!File.Exists(jsonFile))
-            {
-                list = new List<T>();
-            }
-            else
-            {
-                if (!JSONHelper.DeserializeJSONFile<List<T>>(jsonFile, out list))
-                {
-                    // 无效的JSON格式
-                    return DotNETCode.JSON_INVALID_FORMAT;
-                }
-            }
-
-            list.Add(obj);
-
-            return JSONHelper.Write<List<T>>(jsonFile, list);
+            List<T> list = JSONHelper.Parse<List<T>>(jsonFile);
+            list.Add(item);
+            JSONHelper.WriteFile<List<T>>(jsonFile, list);
         }
 
-        public static int Select<TSource>(string jsonFile, Func<TSource, bool> predicate, out TSource item)
+        public static TSource Select<TSource>(string jsonFile, Func<TSource, bool> predicate)
         {
-            item = default(TSource);
-
-            List<TSource> list;
-            if (!JSONHelper.DeserializeJSONFile<List<TSource>>(jsonFile, out list))
-            {
-                // 无效的JSON格式
-                return DotNETCode.JSON_INVALID_FORMAT;
-            }
-
-            item = list.FirstOrDefault(predicate);
-
-            return item == null ? DotNETCode.FAILED : DotNETCode.SUCCESS;
+            List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile);
+            return list.FirstOrDefault(predicate);
         }
 
         public static List<TSource> SelectAll<TSource>(string jsonFile)
         {
-            List<TSource> list;
-            if (!JSONHelper.DeserializeJSONFile<List<TSource>>(jsonFile, out list))
-            {
-                // 无效的JSON格式
-                return new List<TSource>();
-            }
-
-            return list;
+            return JSONHelper.ParseFile<List<TSource>>(jsonFile);
         }
 
         public static List<TSource> SelectAll<TSource>(string jsonFile, Func<TSource, bool> predicate)
@@ -335,32 +243,21 @@ namespace DotNEToolkit
             return SelectAll<TSource>(jsonFile).Where(predicate).ToList();
         }
 
-        public static int Delete<TSource>(string jsonFile, Func<TSource, bool> predicate)
+        public static void Delete<TSource>(string jsonFile, Func<TSource, bool> predicate)
         {
-            List<TSource> list;
-            if (!JSONHelper.DeserializeJSONFile<List<TSource>>(jsonFile, out list))
-            {
-                // 无效的JSON格式
-                return DotNETCode.JSON_INVALID_FORMAT;
-            }
-
+            List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile);
             TSource toDelete = list.FirstOrDefault(predicate);
             if (toDelete != null)
             {
                 list.Remove(toDelete);
             }
 
-            return JSONHelper.Write<List<TSource>>(jsonFile, list);
+            JSONHelper.WriteFile<List<TSource>>(jsonFile, list);
         }
 
         public static int Update<TSource>(string jsonFile, Func<TSource, bool> predicate, TSource item)
         {
-            List<TSource> list;
-            if (!JSONHelper.DeserializeJSONFile<List<TSource>>(jsonFile, out list))
-            {
-                // 无效的JSON格式
-                return DotNETCode.JSON_INVALID_FORMAT;
-            }
+            List<TSource> list = JSONHelper.Parse<List<TSource>>(jsonFile);
 
             TSource exist = list.FirstOrDefault(predicate);
             if (exist == null)
@@ -371,6 +268,8 @@ namespace DotNEToolkit
             int index = list.IndexOf(exist);
             list.Remove(exist);
             list.Insert(index, item);
+
+            JSONHelper.WriteFile<List<TSource>>(jsonFile, list);
             return DotNETCode.SUCCESS;
         }
 
@@ -381,20 +280,26 @@ namespace DotNEToolkit
         /// <param name="jsonFile"></param>
         /// <param name="items"></param>
         /// <returns></returns>
-        public static int SaveAll<TSource>(string jsonFile, IEnumerable<TSource> items)
+        public static void SaveAll<TSource>(string jsonFile, IEnumerable<TSource> items)
         {
-            return JSONHelper.Write<List<TSource>>(jsonFile, new List<TSource>(items));
+            JSONHelper.WriteFile<List<TSource>>(jsonFile, new List<TSource>(items));
         }
 
         public static bool Exist<TSource>(string jsonFile, Func<TSource, bool> predicate)
         {
-            TSource exist;
-            if (Select<TSource>(jsonFile, predicate, out exist) != DotNETCode.SUCCESS)
-            {
-                return false;
-            }
+            TSource exist = Select<TSource>(jsonFile, predicate);
+            return exist != null;
+        }
+    }
 
-            return true;
+    [AttributeUsage(AttributeTargets.Class)]
+    public class JSONDBNameAttribute : Attribute
+    {
+        public string Name { get; private set; }
+
+        public JSONDBNameAttribute(string name)
+        {
+            this.Name = name;
         }
     }
 
@@ -416,18 +321,19 @@ namespace DotNEToolkit
 
         private string GenerateDbFile<T>()
         {
-            string fileName = string.Format("{0}.json", typeof(T).Name.ToLower());
+            JSONDBNameAttribute dbName = Reflections.GetClassAttribute<JSONDBNameAttribute, T>();
+            string fileName = dbName == null ? string.Format("{0}.json", typeof(T).Name) : dbName.Name;
             return System.IO.Path.Combine(this.baseDir, fileName);
         }
 
-        public int Insert<T>(T obj)
+        public void Insert<T>(T obj)
         {
-            return JSONDatabase.Insert<T>(GenerateDbFile<T>(), obj);
+            JSONDatabase.Insert<T>(GenerateDbFile<T>(), obj);
         }
 
-        public int Select<TSource>(Func<TSource, bool> predicate, out TSource item)
+        public TSource Select<TSource>(Func<TSource, bool> predicate)
         {
-            return JSONDatabase.Select<TSource>(GenerateDbFile<TSource>(), predicate, out item);
+            return JSONDatabase.Select<TSource>(GenerateDbFile<TSource>(), predicate);
         }
 
         public List<TSource> SelectAll<TSource>()
@@ -440,9 +346,9 @@ namespace DotNEToolkit
             return JSONDatabase.SelectAll<TSource>(GenerateDbFile<TSource>(), predicate);
         }
 
-        public int Delete<TSource>(Func<TSource, bool> predicate)
+        public void Delete<TSource>(Func<TSource, bool> predicate)
         {
-            return JSONDatabase.Delete<TSource>(GenerateDbFile<TSource>(), predicate);
+            JSONDatabase.Delete<TSource>(GenerateDbFile<TSource>(), predicate);
         }
 
         public int Update<TSource>(Func<TSource, bool> predicate, TSource item)
@@ -450,9 +356,9 @@ namespace DotNEToolkit
             return JSONDatabase.Update<TSource>(GenerateDbFile<TSource>(), predicate, item);
         }
 
-        public int SaveAll<TSource>(IEnumerable<TSource> items)
+        public void SaveAll<TSource>(IEnumerable<TSource> items)
         {
-            return JSONDatabase.SaveAll<TSource>(GenerateDbFile<TSource>(), items);
+            JSONDatabase.SaveAll<TSource>(GenerateDbFile<TSource>(), items);
         }
 
         public bool Exist<TSource>(Func<TSource, bool> predicate)

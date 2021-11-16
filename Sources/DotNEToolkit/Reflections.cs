@@ -39,6 +39,24 @@ namespace DotNEToolkit
             return result;
         }
 
+        /// <summary>
+        /// 获取某个类上的自定义特性
+        /// </summary>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <typeparam name="TClass"></typeparam>
+        /// <returns></returns>
+        public static TAttribute GetClassAttribute<TAttribute, TClass>()
+        {
+            Type t = typeof(TClass);
+            object[] attributes = t.GetCustomAttributes(typeof(TAttribute), true);
+            if (attributes == null || attributes.Length == 0)
+            {
+                return default(TAttribute);
+            }
+
+            return (TAttribute)attributes[0];
+        }
+
         ///// <summary>
         ///// 获取集合里的元素的类型
         ///// </summary>
@@ -56,19 +74,19 @@ namespace DotNEToolkit
         //    {
         //        // 是数组类型, 数组类型先转List
 
-            //        // 不能在原有实例上修改，要先创建一个全新的实例
-            //        object copy = Activator.CreateInstance(fieldType);
+        //        // 不能在原有实例上修改，要先创建一个全新的实例
+        //        object copy = Activator.CreateInstance(fieldType);
 
-            //        // 调用ToList，变成一个集合
-            //        copy.GetType().GetMethod("ToList").Invoke(copy, null);
+        //        // 调用ToList，变成一个集合
+        //        copy.GetType().GetMethod("ToList").Invoke(copy, null);
 
-            //        return copy.GetType().GetGenericArguments()[0];
-            //    }
-            //    else
-            //    {
-            //        // 其他的暂时不支持
-            //        throw new NotImplementedException();
-            //    }
-            //}
+        //        return copy.GetType().GetGenericArguments()[0];
+        //    }
+        //    else
+        //    {
+        //        // 其他的暂时不支持
+        //        throw new NotImplementedException();
+        //    }
+        //}
     }
 }
