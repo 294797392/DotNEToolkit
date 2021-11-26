@@ -11,6 +11,11 @@ namespace DotNEToolkit.Expressions
     public class Expression
     {
         /// <summary>
+        /// 父节点
+        /// </summary>
+        public Expression Parent { get; set; }
+
+        /// <summary>
         /// 表达式名字
         /// </summary>
         public string Name { get; set; }
@@ -51,11 +56,6 @@ namespace DotNEToolkit.Expressions
         /// </summary>
         public ExpressionState State { get; set; }
 
-        /// <summary>
-        /// 表达式类型
-        /// </summary>
-        public ExpressionTypes Type { get; set; }
-
         public Expression()
         {
             this.Children = new List<Expression>();
@@ -65,12 +65,7 @@ namespace DotNEToolkit.Expressions
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            foreach (object o in this.Parameters)
-            {
-                builder.Append(o);
-            }
-            return string.Format("{0}, {1}, {2}", this.Name, this.ExpressionText, builder.ToString());
+            return string.Format("{0} = {1}", this.Name, this.Value);
         }
     }
 }

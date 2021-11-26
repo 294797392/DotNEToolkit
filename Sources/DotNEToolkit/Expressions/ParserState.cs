@@ -10,21 +10,22 @@ namespace DotNEToolkit.Expressions
         /// <summary>
         /// 初始状态
         /// </summary>
-        IDLE,
+        Ground,
 
         /// <summary>
-        /// 当前是解析的数据为字符串
+        /// 当前状态是函数参数状态
         /// </summary>
-        String,
+        ParamFunction,
 
         /// <summary>
-        /// 当前解析的数据是表达式
+        /// 当前是字符串类型的参数
         /// </summary>
-        Expression,
+        ParamString,
 
         /// <summary>
-        /// 当前解析的数据是宏定义
+        /// 参数结束的状态
+        /// 用该状态判断是进入函数模式继续解析还是进入Ground模式
         /// </summary>
-        MarcoDefinition,
+        ParamEnd
     }
 }

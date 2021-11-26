@@ -76,18 +76,6 @@ namespace DotNEToolkit
             return JsonConvert.DeserializeObject<TResult>(json);
         }
 
-        public static IEnumerable<T> ParseFiles<T>(IEnumerable<string> filesPaths)
-        {
-            List<T> result = new List<T>();
-
-            foreach (string filePath in filesPaths)
-            {
-                result.AddRange(JSONHelper.ParseFile<List<T>>(filePath));
-            }
-
-            return result;
-        }
-
         /// <summary>
         /// 把一个json文件序列化成C#对象
         /// 该函数会对异常做处理

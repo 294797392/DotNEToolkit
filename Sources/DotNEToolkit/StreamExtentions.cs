@@ -37,5 +37,25 @@ namespace DotNEToolkit.Extentions
 
             return result;
         }
+
+        public static int ReadFull(this Stream stream, byte[] bytes)
+        {
+            long left = bytes.Length;
+            int readed = 0;
+
+            while (left > 0)
+            {
+                int readLen = left > BufferSize ? BufferSize : (int)left;
+                int size = stream.Read(bytes, readed, readLen);
+                if (size == 0)
+                {
+                    return readed;
+                }
+                readed += size;
+                left -= readed;
+            }
+
+            return readed;
+        }
     }
 }

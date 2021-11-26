@@ -36,12 +36,6 @@ namespace DotNEToolkit.Expressions
         public string ClassName { get; set; }
 
         /// <summary>
-        /// 模块类别
-        /// </summary>
-        [JsonProperty("Category")]
-        public ExpressionCategories Category { get; set; }
-
-        /// <summary>
         /// 表达式最少要拥有多少个参数才能计算
         /// 如果在计算的时候小于这个值，那么就返回计算失败
         /// </summary>
@@ -50,7 +44,7 @@ namespace DotNEToolkit.Expressions
 
         public override string ToString()
         {
-            return string.Format("{0}:{1}:{2}:{3}", this.Name, this.Description, this.ClassName, this.Category);
+            return string.Format("{0}:{1}:{2}", this.Name, this.Description, this.ClassName);
         }
     }
 }

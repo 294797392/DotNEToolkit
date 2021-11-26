@@ -1,4 +1,5 @@
 ﻿using DotNEToolkit.Crypto;
+using DotNEToolkit.Expressions;
 using DotNEToolkit.Media;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,15 @@ namespace DotNEToolkitConsole
         static void Main(string[] args)
         {
             InitializeLog4net();
+
+            ExpressionParser parser = new ExpressionParser();
+
+            DateTime start = DateTime.Now;
+            Expression expression = parser.BuildExpressionTree("b('1','2'), c('3'), d(e('1'))");
+            double time = (DateTime.Now - start).TotalMilliseconds;
+            Console.WriteLine(time);
+
+            Console.ReadLine();
 
             //byte[] data = CRC.CRC16(new byte[] { 0x01, 0x02, 0x00, 0x00, 0x00, 0x04 });
 

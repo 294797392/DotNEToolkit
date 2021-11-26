@@ -69,8 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractIODevice.cs" />
-    <Compile Include="Bytes.cs" />
-    <Compile Include="CLSID.cs" />
     <Compile Include="Crypto\CRC16.cs" />
     <Compile Include="DateTimeFormat.cs" />
     <Compile Include="DeviceWatcher.cs" />
@@ -98,7 +96,7 @@
     <Compile Include="DirectSound\IDirectSoundCaptureBuffer8.cs" />
     <Compile Include="DirectSound\IDirectSoundNotify8.cs" />
     <Compile Include="DirectSound\WAVEFORMATEX.cs" />
-    <Compile Include="InterfaceID.cs" />
+    <Compile Include="Colors.cs" />
     <Compile Include="Media\AudioPlay.cs" />
     <Compile Include="Media\AudioPlayFactory.cs" />
     <Compile Include="Media\AudioRecordFactory.cs" />
@@ -131,20 +129,14 @@
     <Compile Include="Expressions\Evaluators\ExpressionEvaluator.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionBuilder.cs" />
-    <Compile Include="Expressions\ExpressionCategories.cs" />
     <Compile Include="Expressions\ExpressionDefinition.cs" />
-    <Compile Include="Expressions\ExpressionOperators.cs" />
     <Compile Include="Expressions\ExpressionState.cs" />
-    <Compile Include="Expressions\ExpressionTypes.cs" />
-    <Compile Include="Expressions\ParserContext.cs" />
     <Compile Include="Expressions\ParserState.cs" />
-    <Compile Include="Expressions\ParserStateMaps.cs" />
-    <Compile Include="Expressions\ParserStateProcessor.cs" />
-    <Compile Include="Extentions\BytesExtentions.cs" />
-    <Compile Include="Extentions\DirectoryExtentions.cs" />
-    <Compile Include="Extentions\EnumExtensions.cs" />
-    <Compile Include="Extentions\StreamExtentions.cs" />
-    <Compile Include="Extentions\SocketExtentions.cs" />
+    <Compile Include="BytesExtentions.cs" />
+    <Compile Include="DirectoryExtentions.cs" />
+    <Compile Include="EnumExtensions.cs" />
+    <Compile Include="StreamExtentions.cs" />
+    <Compile Include="SocketExtentions.cs" />
     <Compile Include="HttpClient.cs" />
     <Compile Include="INIReader.cs" />
     <Compile Include="Keyboard.cs" />
@@ -162,8 +154,8 @@
     <Compile Include="Modular\ModuleFlags.cs" />
     <Compile Include="Modular\ModuleStatus.cs" />
     <Compile Include="Modular\ModuleMetadata.cs" />
-    <Compile Include="Extentions\DateTimeExtentions.cs" />
-    <Compile Include="Extentions\CollectionExtentions.cs" />
+    <Compile Include="DateTimeExtentions.cs" />
+    <Compile Include="CollectionExtentions.cs" />
     <Compile Include="Internals\Confguration.cs" />
     <Compile Include="JSONHelper.cs" />
     <Compile Include="MouseScanner.cs" />

@@ -17,11 +17,6 @@ namespace DotNEToolkit.Expressions.Evaluators
         public event Action<object, string> Message;
 
         /// <summary>
-        /// 表达式的类型
-        /// </summary>
-        public ExpressionCategories Category { get; set; }
-
-        /// <summary>
         /// 表达式的名字
         /// </summary>
         public string Name { get; set; }

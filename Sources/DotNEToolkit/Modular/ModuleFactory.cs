@@ -10,9 +10,11 @@ namespace DotNEToolkit.Modular
 {
     /// <summary>
     /// 模块工厂
-    /// 自动识别modules.*.json的文件为模块元数据文件
     /// 
-    /// ModuleFactory从模块元数据文件里根据MetadataID去查找对应模块的ClassName
+    /// 功能描述：
+    ///     模块工厂通过读取JSON配置文件，加载JSON配置文件里的所有模块并提供接口获取某个模块
+    ///     自动识别modules.*.json的文件为模块元数据文件
+    ///     ModuleFactory从模块元数据文件里根据MetadataID去查找对应模块的ClassName
     /// </summary>
     public class ModuleFactory
     {
@@ -217,11 +219,9 @@ namespace DotNEToolkit.Modular
         /// </summary>
         /// <param name="initialModules">要初始化的模块实例</param>
         /// <returns></returns>
-        public static ModuleFactory CreateFactory(IEnumerable<ModuleDefinition> initialModules, IEnumerable<string> metadataFiles = null)
+        public static ModuleFactory CreateFactory(IEnumerable<ModuleDefinition> initialModules)
         {
             ModuleFactory factory = new ModuleFactory();
-
-            factory.RegisterMetadata(metadataFiles);
 
             foreach (ModuleDefinition moduleDef in initialModules)
             {
@@ -238,20 +238,6 @@ namespace DotNEToolkit.Modular
         public static ModuleFactory CreateFactory()
         {
             return new ModuleFactory();
-        }
-
-        /// <summary>
-        /// 注册一组组件元数据
-        /// </summary>
-        /// <param name="moduleFiles">要加载的类型文件列表</param>
-        public void RegisterMetadata(IEnumerable<string> metaFiles)
-        {
-            if (metaFiles == null)
-            {
-                return;
-            }
-
-            this.metadataList.AddRange(JSONHelper.ParseFiles<ModuleMetadata>(metaFiles));
         }
 
         /// <summary>
