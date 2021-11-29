@@ -10,6 +10,8 @@ namespace DotNEToolkit.Expressions
     /// </summary>
     public enum ExpressionTypes
     {
+        None,
+
         /// <summary>
         /// 宏定义
         /// </summary>
@@ -23,6 +25,11 @@ namespace DotNEToolkit.Expressions
         /// <summary>
         /// 函数表达式
         /// </summary>
-        Function
+        Function,
+
+        /// <summary>
+        /// 表达式是一个属性访问符
+        /// </summary>
+        Property
     }
 }

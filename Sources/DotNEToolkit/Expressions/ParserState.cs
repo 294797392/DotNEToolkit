@@ -23,9 +23,17 @@ namespace DotNEToolkit.Expressions
         ParamString,
 
         /// <summary>
-        /// 参数结束的状态
-        /// 用该状态判断是进入函数模式继续解析还是进入Ground模式
+        /// 对象成员状态
+        /// 对象的成员有如下机种状态：
+        /// 1. 属性，以逗号结尾
+        /// 2. 函数，以左括号开头，右括号结尾
+        /// 3. 数组，以左中括号开头，右中括号结尾
         /// </summary>
-        ParamEnd
+        ParamMemberAccess,
+        
+        /// <summary>
+        /// 参数结束状态
+        /// </summary>
+        ParamTermination
     }
 }

@@ -16,14 +16,14 @@ namespace DotNEToolkit.Expressions
         public Expression Parent { get; set; }
 
         /// <summary>
+        /// 表达式类型
+        /// </summary>
+        public ExpressionTypes Type { get; set; }
+
+        /// <summary>
         /// 表达式名字
         /// </summary>
         public string Name { get; set; }
-
-        /// <summary>
-        /// 表达式的内容
-        /// </summary>
-        public string ExpressionText { get; set; }
 
         /// <summary>
         /// 表达式参数列表
@@ -41,15 +41,15 @@ namespace DotNEToolkit.Expressions
         /// </summary>
         public List<Expression> Children { get; private set; }
 
-        /// <summary>
-        /// 表达式的起始索引
-        /// </summary>
-        public int StartIndex { get; set; }
+        ///// <summary>
+        ///// 表达式的起始索引
+        ///// </summary>
+        //public int StartIndex { get; set; }
 
-        /// <summary>
-        /// 表达式的结束索引
-        /// </summary>
-        public int EndIndex { get; set; }
+        ///// <summary>
+        ///// 表达式的结束索引
+        ///// </summary>
+        //public int EndIndex { get; set; }
 
         /// <summary>
         /// 表达式状态

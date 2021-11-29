@@ -29,16 +29,14 @@ namespace DotNEToolkitConsole
             }
         }
 
+
         static void Main(string[] args)
         {
             InitializeLog4net();
 
-            ExpressionParser parser = new ExpressionParser();
-
-            DateTime start = DateTime.Now;
-            Expression expression = parser.BuildExpressionTree("b('1','2'), c('3'), d(e('1'))");
-            double time = (DateTime.Now - start).TotalMilliseconds;
-            Console.WriteLine(time);
+            TestExpressionBuilder testExpressionBuilder = new TestExpressionBuilder();
+            //testExpressionBuilder.TestBuild();
+            testExpressionBuilder.TestProperty();
 
             Console.ReadLine();
 
