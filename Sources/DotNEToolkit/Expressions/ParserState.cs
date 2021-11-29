@@ -23,17 +23,27 @@ namespace DotNEToolkit.Expressions
         ParamString,
 
         /// <summary>
-        /// 对象成员状态
+        /// 字符串参数结束状态
+        /// </summary>
+        ParamTermination,
+
+        /// <summary>
+        /// 成员访问状态入口，当出现了'.'符号的时候就会进入这个状态
         /// 对象的成员有如下机种状态：
         /// 1. 属性，以逗号结尾
         /// 2. 函数，以左括号开头，右括号结尾
         /// 3. 数组，以左中括号开头，右中括号结尾
         /// </summary>
-        ParamMemberAccess,
-        
+        AccessMemberEntry,
+
+        ///// <summary>
+        ///// 访问属性
+        ///// </summary>
+        //AccessProperty
+
         /// <summary>
-        /// 参数结束状态
+        /// 语法错误状态
         /// </summary>
-        ParamTermination
+        GrammarError
     }
 }

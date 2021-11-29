@@ -14,22 +14,17 @@ namespace DotNEToolkit.Expressions.Evaluators
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ExpressionEvaluator");
 
-        public event Action<object, string> Message;
-
-        /// <summary>
-        /// 表达式的名字
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// 表达式的描述
-        /// </summary>
-        public string Description { get; set; }
-
         /// <summary>
         /// 最少要多少个参数
         /// </summary>
-        public int MinimalParameters { get; set; }
+        internal int MinimalParameters { get; set; }
+
+        /// <summary>
+        /// 外部模块用来判断表达式是否执行成功的标志
+        /// 如果执行不成功，那么立即停止表达式求值
+        /// 如果执行成功，那么继续对子表达式或者父表达式进行求值
+        /// </summary>
+        internal bool Success { get; set; }
 
         /// <summary>
         /// 计算表达式
@@ -52,12 +47,13 @@ namespace DotNEToolkit.Expressions.Evaluators
                     return null;
                 }
 
-                // 检查参数是否有空值
-                if (expression.Parameters.Exists(v => v == null))
-                {
-                    logger.ErrorFormat("表达式参数出现空引用");
-                    return null;
-                }
+                //// 有可能某个表达式计算出来的参数值就是NULL，而并不是表达式计算错误导致的
+                //// 所以这里不检查空值，由外部通过Success属性进行判断表达式是否计算成功
+                //if (expression.Parameters.Exists(v => v == null))
+                //{
+                //    logger.ErrorFormat("表达式参数出现空引用");
+                //    return null;
+                //}
             }
 
             // 开始真正计算表达式
@@ -70,14 +66,5 @@ namespace DotNEToolkit.Expressions.Evaluators
         /// </summary>
         /// <returns></returns>
         protected abstract object EvaluateCore(Expression expression, IEvaluationContext context);
-
-        protected void PubMessage(string message, params object[] param)
-        {
-            if (this.Message != null)
-            {
-                string msg = string.Format(message, param);
-                this.Message(this, msg);
-            }
-        }
     }
 }

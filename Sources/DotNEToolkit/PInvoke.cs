@@ -12,10 +12,12 @@ namespace DotNEToolkit
     public static class PInvoke
     {
         /// <summary>
-        /// 结构体转byte数组, 不会释放内存
+        /// 结构体转byte数组
+        /// 注意，该函数会从非托管空间开辟内存
+        /// 在指针不用的时候需要调用FreeStructurePtr释放内存
         /// </summary>
         /// <param name="structObj">要转换的结构体</param>
-        /// <returns>转换后的byte数组</returns>
+        /// <returns>指向结构体的指针</returns>
         public static IntPtr StructureToPtr(object structObj)
         {
             int size = Marshal.SizeOf(structObj);

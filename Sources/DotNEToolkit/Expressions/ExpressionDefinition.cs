@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DotNEToolkit.Modular;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,33 +8,15 @@ using System.Text;
 namespace DotNEToolkit.Expressions
 {
     /// <summary>
-    /// 表达式类型定义
+    /// 表达式求值程序定义
     /// </summary>
-    public class ExpressionDefinition
+    public class ExpressionDefinition : ModuleDefinition
     {
-        /// <summary>
-        /// 模块名字
-        /// </summary>
-        [JsonProperty("Name")]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// 表达式描述
-        /// </summary>
-        [JsonProperty("Description")]
-        public string Description { get; set; }
-
         /// <summary>
         /// 表达式语法
         /// </summary>
         [JsonProperty("Syntax")]
         public string Syntax { get; set; }
-
-        /// <summary>
-        /// 入口类名
-        /// </summary>
-        [JsonProperty("ClassName")]
-        public string ClassName { get; set; }
 
         /// <summary>
         /// 表达式最少要拥有多少个参数才能计算

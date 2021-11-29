@@ -9,11 +9,18 @@ using System.Text;
 
 namespace DotNEToolkit.Expressions
 {
+    /// <summary>
+    /// 表达式解析器
+    /// 1. 把表达式字符串解析为一个树形结构
+    /// 2. 对树形结构进行求值计算
+    /// </summary>
     public class ExpressionParser
     {
         #region 类变量
 
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ExpressionParser");
+
+        private static readonly string DefaultDefinitionFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "generic.exp.json");
 
         #endregion
 
@@ -21,11 +28,6 @@ namespace DotNEToolkit.Expressions
 
         private ParserState state;
         private StringEnumerator enumerator;
-
-        /// <summary>
-        /// 当前解析的字符的索引位置
-        /// </summary>
-        private int charIndex;
 
         private string paramter = string.Empty;
 
@@ -42,6 +44,11 @@ namespace DotNEToolkit.Expressions
         private Expression root;
         private Expression exp;
 
+        /// <summary>
+        /// 缓存所有的表达式计算器
+        /// </summary>
+        private Dictionary<string, ExpressionEvaluator> evaluators;
+        private List<ExpressionDefinition> definitions;
 
         #endregion
 
@@ -49,6 +56,8 @@ namespace DotNEToolkit.Expressions
 
         public ExpressionParser()
         {
+            this.evaluators = new Dictionary<string, ExpressionEvaluator>();
+            this.InitializeDefinitions();
         }
 
         #endregion
@@ -99,11 +108,16 @@ namespace DotNEToolkit.Expressions
             this.ActionClear();
         }
 
-        private void EnterParamMemberState(Expression currentParent)
+        private void EnterAccessMemberEntry(Expression currentParent)
         {
             this.exp = currentParent;
-            this.state = ParserState.ParamMemberAccess;
+            this.state = ParserState.AccessMemberEntry;
             this.ActionClear();
+        }
+
+        private void EnterGrammarErrorState()
+        {
+            this.state = ParserState.GrammarError;
         }
 
         #endregion
@@ -208,6 +222,26 @@ namespace DotNEToolkit.Expressions
             return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9';
         }
 
+        /// <summary>
+        /// 判断字符是否是访问数组成员
+        /// </summary>
+        /// <param name="ch"></param>
+        /// <returns></returns>
+        private bool IsAccessArrayIndicator(char ch)
+        {
+            return ch == '[';
+        }
+
+        /// <summary>
+        /// 判断字符是否是访问函数成员
+        /// </summary>
+        /// <param name="ch"></param>
+        /// <returns></returns>
+        private bool IsAccessFunctionIndicator(char ch)
+        {
+            return ch == '(';
+        }
+
         #region Dispatch
 
         private Expression DispatchParamString(string param, Expression parent)
@@ -242,14 +276,29 @@ namespace DotNEToolkit.Expressions
             return expression;
         }
 
-        private Expression DispatchParamMember(string property, Expression parent)
+        private Expression DispatchAccessProperty(string property, Expression parent)
         {
             Expression expression = new Expression()
             {
                 Name = property,
                 State = ExpressionState.WaitEvaluation,
                 Parent = parent,
-                Type = ExpressionTypes.Property,
+                Type = ExpressionTypes.AccessProperty,
+            };
+
+            parent.Children.Add(expression);
+
+            return expression;
+        }
+
+        private Expression DispatchAccessArray(string key, Expression parent)
+        {
+            Expression expression = new Expression()
+            {
+                Name = key,
+                State = ExpressionState.WaitEvaluation,
+                Parent = parent,
+                Type = ExpressionTypes.AccessArray
             };
 
             parent.Children.Add(expression);
@@ -291,7 +340,7 @@ namespace DotNEToolkit.Expressions
             }
             else
             {
-                logger.WarnFormat("EventGround未处理的字符 = {0}", ch);
+                logger.WarnFormat("EventGround未处理的字符 = {0}, 位置 = {1}", ch, this.enumerator.CharPosition);
             }
         }
 
@@ -318,81 +367,27 @@ namespace DotNEToolkit.Expressions
                 Expression expression = this.DispatchParamFunction(this.paramter, parent);
                 this.EnterGroundState(expression);
             }
-            else if (this.IsParamStringIndicator(ch))
-            {
-                // 出现了单引号，说明是一个字符串参数，跳转到字符串参数状态
-                this.EnterParamStringState();
-            }
             else
             {
-                logger.WarnFormat("EventParamFunction未处理的字符 = {0}, 索引 = {1}", ch, this.charIndex);
+                logger.WarnFormat("EventParamFunction未处理的字符 = {0}, 位置 = {1}", ch, this.enumerator.CharPosition);
             }
         }
 
         private void EventParamString(char ch, Expression parent)
         {
-            if (this.IsParamStringValid(ch))
+            if (this.IsParamStringIndicator(ch))
             {
                 // 在字符串参数状态下又出现了'，说明是字符串参数结束了，返回函数状态
-                if (this.IsParamStringIndicator(ch))
-                {
-                    Expression expression = this.DispatchParamString(this.paramter, parent);
-                    this.EnterParamTermination(expression);
-                }
-                else
-                {
-                    this.ActionCollect(ch);
-                }
-            }
-            else
-            {
-                logger.WarnFormat("EventParamString未处理的字符, {0}, 索引 = {1}", ch, this.charIndex);
-                //this.ActionCollect(ch);
-            }
-        }
-
-        private void EventParamMember(char ch, Expression parent)
-        {
-            if (this.IsSpace(ch))
-            {
-                this.ActionIgnore(ch);
-            }
-            else if (this.IsParamSplitter(ch))
-            {
-                // 出现了逗号，说明成员访问结束
-                this.DispatchParamMember(this.paramter, parent);
-
-                Expression expression = this.LookupFunctionParent(parent);
-                this.EnterGroundState(expression);
-            }
-            else if (this.IsParamEndIndicator(ch))
-            {
-                // 出现了右括号，说明函数结束了
-                this.DispatchParamMember(this.paramter, parent);
-
-                this.rightBracket++;
-
-                // 直接跳转到参数结束状态去处理
-                Expression expression = this.LookupFunctionParent(parent);
+                Expression expression = this.DispatchParamString(this.paramter, parent);
                 this.EnterParamTermination(expression);
             }
-            else if (this.IsMemberEntryIndicator(ch))
+            else if (this.IsParamStringValid(ch))
             {
-                // 属性参数状态下又出现了一个点，那么说明是访问属性的属性
-                // 先创建一个对于上一个属性的表达式节点，然后继续按照属性参数状态解析
-                Expression expression = this.DispatchParamMember(this.paramter, parent);
-
-                // 把父节点设置为属性节点
-                this.EnterParamMemberState(expression);
-            }
-            else if (this.IsParamMemberValid(ch))
-            {
-                // 出现的是成员字符串，收集起来
                 this.ActionCollect(ch);
             }
             else
             {
-                logger.WarnFormat("EventParamMember未处理的字符, {0}, 索引 = {1}", ch, this.charIndex);
+                logger.WarnFormat("EventParamString未处理的字符, {0}, 位置 = {1}", ch, this.enumerator.CharPosition);
             }
         }
 
@@ -437,15 +432,93 @@ namespace DotNEToolkit.Expressions
             }
             else if (this.IsMemberEntryIndicator(ch))
             {
-                this.EnterParamMemberState(parent);
+                this.EnterAccessMemberEntry(parent);
             }
             else
             {
-                logger.WarnFormat("EventParamTermination未处理的字符, {0}, 索引 = {1}", ch, this.charIndex);
+                logger.WarnFormat("EventParamTermination未处理的字符, {0}, 位置 = {1}", ch, this.enumerator.CharPosition);
             }
         }
 
+        private void EventAccessMemberEntry(char ch, Expression parent)
+        {
+            if (this.IsSpace(ch))
+            {
+                this.ActionIgnore(ch);
+            }
+            //else if (this.IsAccessArrayIndicator(ch))
+            //{
+            //    string key;
+            //    if (this.enumerator.MoveNext(']', out key))
+            //    {
+            //        this.DispatchAccessArray(key, parent);
+            //    }
+            //    else
+            //    {
+            //        // 没找到数组结束符，那么说明语法错误
+            //        this.EnterGrammarErrorState();
+            //    }
+            //}
+            //else if (this.IsAccessFunctionIndicator(ch))
+            //{
+            //    // 目前只支持访问没有参数的函数
+            //    string param;
+            //    if (this.enumerator.MoveNext(')', out param) && string.IsNullOrEmpty(param))
+            //    {
+            //    }
+            //    else
+            //    {
+            //        // 语法错误
+            //        this.EnterGrammarErrorState();
+            //    }
+            //}
+            else if (this.IsParamSplitter(ch))
+            {
+                // 出现了逗号，说明成员访问结束
+                this.DispatchAccessProperty(this.paramter, parent);
+
+                Expression expression = this.LookupFunctionParent(parent);
+                this.EnterGroundState(expression);
+            }
+            else if (this.IsParamEndIndicator(ch))
+            {
+                // 出现了右括号，说明函数结束了
+                this.DispatchAccessProperty(this.paramter, parent);
+
+                this.rightBracket++;
+
+                // 直接跳转到参数结束状态去处理
+                Expression expression = this.LookupFunctionParent(parent);
+                this.EnterParamTermination(expression);
+            }
+            else if (this.IsMemberEntryIndicator(ch))
+            {
+                // 属性参数状态下又出现了一个点，那么说明是访问属性的属性
+                // 先创建一个对于上一个属性的表达式节点，然后继续按照属性参数状态解析
+                Expression expression = this.DispatchAccessProperty(this.paramter, parent);
+
+                // 把父节点设置为属性节点
+                this.EnterAccessMemberEntry(expression);
+            }
+            else if (this.IsParamMemberValid(ch))
+            {
+                // 出现的是成员字符串，收集起来
+                this.ActionCollect(ch);
+            }
+            else
+            {
+                logger.WarnFormat("EventParamMember未处理的字符, {0}, 位置 = {1}", ch, this.enumerator.CharPosition);
+            }
+        }
+
+        private void EventGrammarError(char ch)
+        {
+
+        }
+
         #endregion
+
+        #region 公开接口
 
         /// <summary>
         /// 构造表达式树形列表
@@ -462,12 +535,9 @@ namespace DotNEToolkit.Expressions
             this.exp = this.root = new Expression();
             this.state = ParserState.Ground;
             this.enumerator = new StringEnumerator(text);
-            this.charIndex = 0;
 
             while (this.enumerator.MoveNext())
             {
-                this.charIndex++;
-
                 char ch = this.enumerator.Current;
 
                 switch (this.state)
@@ -490,15 +560,21 @@ namespace DotNEToolkit.Expressions
                             break;
                         }
 
-                    case ParserState.ParamMemberAccess:
-                        {
-                            this.EventParamMember(ch, this.exp);
-                            break;
-                        }
-
                     case ParserState.ParamTermination:
                         {
                             this.EventParamTermination(ch, this.exp);
+                            break;
+                        }
+
+                    case ParserState.AccessMemberEntry:
+                        {
+                            this.EventAccessMemberEntry(ch, this.exp);
+                            break;
+                        }
+
+                    case ParserState.GrammarError:
+                        {
+                            this.EventGrammarError(ch);
                             break;
                         }
 
@@ -508,13 +584,122 @@ namespace DotNEToolkit.Expressions
                 }
             }
 
-            if (this.state == ParserState.ParamMemberAccess && !string.IsNullOrEmpty(this.paramter))
+            if (this.state == ParserState.AccessMemberEntry && !string.IsNullOrEmpty(this.paramter))
             {
-                this.DispatchParamMember(this.paramter, this.exp);
+                this.DispatchAccessProperty(this.paramter, this.exp);
             }
 
             return this.root;
         }
+
+        /// <summary>
+        /// 对表达式树进行求值
+        /// 从树形结构的儿子节点递归计算表达式的值，直到把根节点的值计算出来
+        /// </summary>
+        /// <param name="parent">要计算的表达式根节点/param>
+        /// <paramref name="context">计算表达式的时候需要的额外数据</paramref>
+        /// <returns></returns>
+        public object Evaluate(Expression parent, IEvaluationContext context)
+        {
+            foreach (Expression expression in parent.Children)
+            {
+                switch (expression.State)
+                {
+                    case ExpressionState.HasEvaluation:
+                        parent.Parameters.Add(expression.Value);
+                        break;
+
+                    case ExpressionState.WaitEvaluation:
+                        {
+                            if (expression.Children.Count > 0)
+                            {
+                                // 有子节点，先计算子节点
+                                object result = this.Evaluate(expression, context);
+                                parent.Parameters.Add(result);
+                                break;
+                            }
+                            else
+                            {
+                                // 没有子节点，直接计算
+                                object result = this.EvaluateExpression(expression, context);
+                                parent.Parameters.Add(result);
+                                break;
+                            }
+                        }
+
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+
+            return this.EvaluateExpression(parent, context);
+        }
+
+        #endregion
+
+        #region 实例方法
+
+        private void InitializeDefinitions()
+        {
+            logger.InfoFormat("开始加载表达式定义文件, {0}", DefaultDefinitionFile);
+
+            try
+            {
+                this.definitions = JSONHelper.ParseFile<List<ExpressionDefinition>>(DefaultDefinitionFile);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("加载表达式定义文件异常", ex);
+                this.definitions = new List<ExpressionDefinition>();
+            }
+
+            logger.InfoFormat("当前系统里注册的表达式总数 = {0}", this.definitions.Count);
+        }
+
+        /// <summary>
+        /// 根据表达式名字获取表达式求值程序的实例
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private ExpressionEvaluator GetEvaluator(string name)
+        {
+            ExpressionEvaluator evaluator;
+            if (!this.evaluators.TryGetValue(name, out evaluator))
+            {
+                ExpressionDefinition expDef = this.definitions.FirstOrDefault(def => def.Name == name);
+                if (expDef == null)
+                {
+                    logger.ErrorFormat("不存在{0}的求值程序", name);
+                    return null;
+                }
+
+                try
+                {
+                    evaluator = ConfigFactory<ExpressionEvaluator>.CreateInstance(expDef.ClassName);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(string.Format("实例化{0}求值程序异常", name), ex);
+                    return null;
+                }
+
+                this.evaluators[name] = evaluator;
+            }
+            return evaluator;
+        }
+
+        /// <summary>
+        /// 计算指定表达式的值
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        private object EvaluateExpression(Expression expression, IEvaluationContext context)
+        {
+            ExpressionEvaluator evaluator = this.GetEvaluator(expression.Name);
+            return evaluator == null ? null : evaluator.Evaluate(expression, context);
+        }
+
+        #endregion
     }
 }
 

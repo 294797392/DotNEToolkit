@@ -98,7 +98,8 @@
     <Compile Include="DirectSound\WAVEFORMATEX.cs" />
     <Compile Include="Colors.cs" />
     <Compile Include="Expressions\ExpressionTypes.cs" />
-    <Compile Include="Expressions\StringEnumerator.cs" />
+    <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
+    <Compile Include="StringEnumerator.cs" />
     <Compile Include="Media\AudioPlay.cs" />
     <Compile Include="Media\AudioPlayFactory.cs" />
     <Compile Include="Media\AudioRecordFactory.cs" />
@@ -169,6 +170,13 @@
     <Compile Include="Reflections.cs" />
     <Compile Include="SDK\libvlc.cs" />
     <Compile Include="SingletonObject.cs" />
+    <Compile Include="TcpFramework\IDataResolver.cs" />
+    <Compile Include="TcpFramework\NetEvent.cs" />
+    <Compile Include="TcpFramework\Session.cs" />
+    <Compile Include="TcpFramework\SessionManager.cs" />
+    <Compile Include="TcpFramework\SocketAsyncEventArgsPool.cs" />
+    <Compile Include="TcpFramework\TcpCli.cs" />
+    <Compile Include="TcpFramework\TcpSvr.cs" />
     <Compile Include="Win32API.cs" />
     <Compile Include="WindowScanner.cs" />
     <Compile Include="XmlHelper.cs" />

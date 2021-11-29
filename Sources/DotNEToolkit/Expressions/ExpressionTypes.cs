@@ -30,6 +30,16 @@ namespace DotNEToolkit.Expressions
         /// <summary>
         /// 表达式是一个属性访问符
         /// </summary>
-        Property
+        AccessProperty,
+
+        /// <summary>
+        /// 数组访问符
+        /// </summary>
+        AccessArray,
+
+        /// <summary>
+        /// 访问函数的表达式
+        /// </summary>
+        AccessFunction
     }
 }
