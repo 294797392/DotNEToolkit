@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace DotNEToolkit.Expressions
@@ -293,35 +294,30 @@ namespace DotNEToolkit.Expressions
             return expression;
         }
 
-        private Expression DispatchAccessProperty(string property, Expression parent)
+        private void DispatchAccessProperty(string property, Expression parent)
         {
-            Expression expression = new Expression()
+            AccessMemberProperty amp = new AccessMemberProperty()
             {
-                Name = property,
-                State = ExpressionState.WaitEvaluation,
-                Parent = parent,
-                Type = ExpressionTypes.AccessProperty
+                Name = property
             };
 
-            parent.Children.Add(expression);
-
-            return expression;
+            parent.AccessMembers.Add(amp);
         }
 
-        private Expression DispatchAccessArray(string key, Expression parent)
-        {
-            Expression expression = new Expression()
-            {
-                Name = key,
-                State = ExpressionState.WaitEvaluation,
-                Parent = parent,
-                Type = ExpressionTypes.AccessArray
-            };
+        //private Expression DispatchAccessArray(string key, Expression parent)
+        //{
+        //    Expression expression = new Expression()
+        //    {
+        //        Name = key,
+        //        State = ExpressionState.WaitEvaluation,
+        //        Parent = parent,
+        //        Type = ExpressionTypes.AccessArray
+        //    };
 
-            parent.Children.Add(expression);
+        //    parent.Children.Add(expression);
 
-            return expression;
-        }
+        //    return expression;
+        //}
 
         #endregion
 
@@ -494,7 +490,6 @@ namespace DotNEToolkit.Expressions
                 // 出现了逗号，说明成员访问结束，此时要跳转到基态去处理下一个参数
                 this.DispatchAccessProperty(this.paramter, parent);
 
-                //Expression expression = this.LookupFunctionParent(parent);
                 this.EnterGroundState(parent);
             }
             else if (this.IsParamEndIndicator(ch))
@@ -505,17 +500,16 @@ namespace DotNEToolkit.Expressions
                 this.rightBracket++;
 
                 // 直接跳转到参数结束状态去处理
-                //Expression expression = this.LookupFunctionParent(parent);
                 this.EnterParamTermination(parent);
             }
             else if (this.IsAccessMemberEntryIndicator(ch))
             {
                 // 属性参数状态下又出现了一个点，那么说明是访问属性的属性
                 // 先创建一个对于上一个属性的表达式节点，然后继续按照属性参数状态解析
-                Expression expression = this.DispatchAccessProperty(this.paramter, parent);
+                this.DispatchAccessProperty(this.paramter, parent);
 
                 // 把父节点设置为属性节点
-                this.EnterAccessMemberEntry(expression);
+                this.EnterAccessMemberEntry(parent);
             }
             else if (this.IsParamMemberValid(ch))
             {
@@ -615,7 +609,7 @@ namespace DotNEToolkit.Expressions
         /// </summary>
         /// <param name="parent">要计算的表达式根节点/param>
         /// <paramref name="context">计算表达式的时候需要的额外数据</paramref>
-        /// <returns></returns>
+        /// <returns>返回null则表示失败，否则成功</returns>
         public object Evaluate(Expression parent, IEvaluationContext context)
         {
             foreach (Expression expression in parent.Children)
@@ -753,11 +747,84 @@ namespace DotNEToolkit.Expressions
         /// 计算指定表达式的值
         /// </summary>
         /// <param name="expression"></param>
+        /// <param name="code">
+        /// 表达式计算的返回值，0表示成功，非0表示失败，失败的错误码由调用者定义
+        /// </param>
         /// <returns></returns>
         private object EvaluateExpression(Expression expression, IEvaluationContext context)
         {
+            // 获取到表达式求值程序的实例
             ExpressionEvaluator evaluator = this.GetEvaluator(expression.Name);
-            return evaluator == null ? null : evaluator.Evaluate(expression, context);
+            if (evaluator == null)
+            {
+                return null;
+            }
+
+            // 首先计算表达式
+            object result = evaluator.Evaluate(expression, context);
+            if (result == null)
+            {
+                return null;
+            }
+
+            // 判断是否有AccessMember，如果有则计算
+            if (expression.AccessMembers.Count == 0)
+            {
+                return result;
+            }
+
+            return this.InvokeAccessMembers(expression.AccessMembers, result);
+        }
+
+        private object InvokeAccessMembers(IEnumerable<AccessMember> members, object value)
+        {
+            object objectToAccess = value;
+
+            foreach (AccessMember member in members)
+            {
+                switch (member.Type)
+                {
+                    case MemberTypes.Property:
+                        {
+                            objectToAccess = this.InvokeAccessPropertyMember(member.Name, objectToAccess);
+                            break;
+                        }
+
+                    default:
+                        // 遇到了没实现的成员访问，直接退出
+                        logger.ErrorFormat("未实现的AccessMember, {0}", member);
+                        return null;
+                }
+
+                if (objectToAccess == null)
+                {
+                    return null;
+                }
+            }
+
+            return objectToAccess;
+        }
+
+        /// <summary>
+        /// 访问某个对象的属性，返回属性值
+        /// </summary>
+        /// <param name="amp"></param>
+        /// <param name="source">要访问的对象</param>
+        /// <returns>
+        /// 返回null则表示失败，否则成功
+        /// </returns>
+        private object InvokeAccessPropertyMember(string propertyName, object objectToAccess)
+        {
+            Type t = objectToAccess.GetType();
+
+            // TODO：反射做缓存处理
+            PropertyInfo property = t.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+            if (property == null)
+            {
+                return null;
+            }
+
+            return property.GetValue(objectToAccess, null);
         }
 
         #endregion

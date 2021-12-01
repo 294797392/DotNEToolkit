@@ -20,13 +20,6 @@ namespace DotNEToolkit.Expressions.Evaluators
         internal int MinimalParameters { get; set; }
 
         /// <summary>
-        /// 外部模块用来判断表达式是否执行成功的标志
-        /// 如果执行不成功，那么立即停止表达式求值
-        /// 如果执行成功，那么继续对子表达式或者父表达式进行求值
-        /// </summary>
-        internal bool Success { get; set; }
-
-        /// <summary>
         /// 计算表达式
         /// 这个函数会对表达式进行一些计算前的校验操作，比如参数是不是合法..etc..
         /// 真正计算表达式的逻辑在EvaluateCore函数里
@@ -34,7 +27,9 @@ namespace DotNEToolkit.Expressions.Evaluators
         /// </summary>
         /// <param name="expression"></param>
         /// <param name="context"></param>
-        /// <returns>计算表达式是否成功</returns>
+        /// <returns>
+        /// 返回null则表示失败，否则成功
+        /// </returns>
         public object Evaluate(Expression expression, IEvaluationContext context)
         {
             if (this.MinimalParameters > 0)
@@ -46,13 +41,11 @@ namespace DotNEToolkit.Expressions.Evaluators
                     return null;
                 }
 
-                //// 有可能某个表达式计算出来的参数值就是NULL，而并不是表达式计算错误导致的
-                //// 所以这里不检查空值，由外部通过Success属性进行判断表达式是否计算成功
-                //if (expression.Parameters.Exists(v => v == null))
-                //{
-                //    logger.ErrorFormat("表达式参数出现空引用");
-                //    return null;
-                //}
+                if (expression.Parameters.Exists(v => v == null))
+                {
+                    logger.ErrorFormat("表达式参数出现空引用");
+                    return null;
+                }
             }
 
             // 开始真正计算表达式

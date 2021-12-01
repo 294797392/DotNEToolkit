@@ -32,14 +32,19 @@ namespace DotNEToolkit.Expressions
         public List<object> Parameters { get; private set; }
 
         /// <summary>
+        /// 子表达式
+        /// </summary>
+        public List<Expression> Children { get; private set; }
+
+        /// <summary>
         /// 表达式的值
         /// </summary>
         public object Value { get; set; }
 
         /// <summary>
-        /// 子表达式
+        /// 存储要访问的成员信息
         /// </summary>
-        public List<Expression> Children { get; private set; }
+        public List<AccessMember> AccessMembers { get; private set; }
 
         ///// <summary>
         ///// 表达式的起始索引
@@ -61,6 +66,7 @@ namespace DotNEToolkit.Expressions
             this.Children = new List<Expression>();
             this.State = ExpressionState.WaitEvaluation;
             this.Parameters = new List<object>();
+            this.AccessMembers = new List<AccessMember>();
         }
 
         public override string ToString()

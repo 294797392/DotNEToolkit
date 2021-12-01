@@ -97,7 +97,9 @@
     <Compile Include="DirectSound\IDirectSoundNotify8.cs" />
     <Compile Include="DirectSound\WAVEFORMATEX.cs" />
     <Compile Include="Colors.cs" />
+    <Compile Include="Expressions\AccessMember.cs" />
     <Compile Include="Expressions\ExpressionTypes.cs" />
+    <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
     <Compile Include="StringEnumerator.cs" />
     <Compile Include="Media\AudioPlay.cs" />
@@ -131,7 +133,7 @@
     <Compile Include="Expressions\IEvaluationContext.cs" />
     <Compile Include="Expressions\Evaluators\ExpressionEvaluator.cs" />
     <Compile Include="Expressions\Expression.cs" />
-    <Compile Include="Expressions\ExpressionBuilder.cs" />
+    <Compile Include="Expressions\ExpressionParser.cs" />
     <Compile Include="Expressions\ExpressionDefinition.cs" />
     <Compile Include="Expressions\ExpressionState.cs" />
     <Compile Include="Expressions\ParserState.cs" />
@@ -187,7 +189,6 @@
     <None Include="Expressions\predefined.exp.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Expressions\readme.md" />
     <None Include="Modular\ModuleMetadata.json" />
     <None Include="Modular\ModuleFactory.json" />
   </ItemGroup>
