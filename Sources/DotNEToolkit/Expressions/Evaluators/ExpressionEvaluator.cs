@@ -34,7 +34,6 @@ namespace DotNEToolkit.Expressions.Evaluators
         /// </summary>
         /// <param name="expression"></param>
         /// <param name="context"></param>
-        /// <param name="result">表达式计算后的结果</param>
         /// <returns>计算表达式是否成功</returns>
         public object Evaluate(Expression expression, IEvaluationContext context)
         {

@@ -184,7 +184,7 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="Bindings\binding.json" />
-    <None Include="Expressions\generic.exp.json">
+    <None Include="Expressions\predefined.exp.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Expressions\readme.md" />

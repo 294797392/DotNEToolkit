@@ -13,6 +13,8 @@ namespace DotNEToolkit.Expressions
     /// 表达式解析器
     /// 1. 把表达式字符串解析为一个树形结构
     /// 2. 对树形结构进行求值计算
+    /// 
+    /// 在进行表达式求值的时候，会优先使用系统里预定义的表达式求值程序
     /// </summary>
     public class ExpressionParser
     {
@@ -20,11 +22,16 @@ namespace DotNEToolkit.Expressions
 
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ExpressionParser");
 
-        private static readonly string DefaultDefinitionFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "generic.exp.json");
+        private static readonly string PredefinedDefinitionFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predefined.exp.json");
 
         #endregion
 
         #region 实例变量
+
+        /// <summary>
+        /// 用户定义的表达式配置文件路径
+        /// </summary>
+        private string userDefinedFile;
 
         private ParserState state;
         private StringEnumerator enumerator;
@@ -47,17 +54,27 @@ namespace DotNEToolkit.Expressions
         /// <summary>
         /// 缓存所有的表达式计算器
         /// </summary>
-        private Dictionary<string, ExpressionEvaluator> evaluators;
-        private List<ExpressionDefinition> definitions;
+        private Dictionary<string, ExpressionEvaluator> preDefinedEvas;
+        private List<ExpressionDefinition> preDefines;
+
+        private Dictionary<string, ExpressionEvaluator> userDefinedEvas;
+        private List<ExpressionDefinition> userDefines;
 
         #endregion
 
         #region 构造方法
 
-        public ExpressionParser()
+        /// <summary>
+        /// ExpressionParser构造方法
+        /// </summary>
+        /// <param name="exprFile">要加载的表达式求值程序JSON配置文件，配置文件格式请参考Expressions/predefined.exp.json</param>
+        public ExpressionParser(string exprFile = null)
         {
-            this.evaluators = new Dictionary<string, ExpressionEvaluator>();
-            this.InitializeDefinitions();
+            this.preDefinedEvas = new Dictionary<string, ExpressionEvaluator>();
+            this.userDefinedEvas = new Dictionary<string, ExpressionEvaluator>();
+
+            this.preDefines = this.LoadDefinitions(PredefinedDefinitionFile);
+            this.userDefines = this.LoadDefinitions(exprFile);
         }
 
         #endregion
@@ -127,17 +144,17 @@ namespace DotNEToolkit.Expressions
         /// </summary>
         /// <param name="current"></param>
         /// <returns></returns>
-        private Expression LookupFunctionParent(Expression expression)
-        {
-            Expression current = expression.Parent;
+        //private Expression LookupFunctionParent(Expression expression)
+        //{
+        //    Expression current = expression.Parent;
 
-            while (current != null && current.Type != ExpressionTypes.Function)
-            {
-                current = current.Parent;
-            }
+        //    while (current != null && current.Type != ExpressionTypes.Function)
+        //    {
+        //        current = current.Parent;
+        //    }
 
-            return current;
-        }
+        //    return current;
+        //}
 
         /// <summary>
         /// 判断是否是空格，如果是空格那么忽略掉
@@ -207,7 +224,7 @@ namespace DotNEToolkit.Expressions
         /// </summary>
         /// <param name="ch"></param>
         /// <returns></returns>
-        private bool IsMemberEntryIndicator(char ch)
+        private bool IsAccessMemberEntryIndicator(char ch)
         {
             return ch == '.';
         }
@@ -283,7 +300,7 @@ namespace DotNEToolkit.Expressions
                 Name = property,
                 State = ExpressionState.WaitEvaluation,
                 Parent = parent,
-                Type = ExpressionTypes.AccessProperty,
+                Type = ExpressionTypes.AccessProperty
             };
 
             parent.Children.Add(expression);
@@ -430,7 +447,7 @@ namespace DotNEToolkit.Expressions
             {
                 this.EnterGroundState(parent);
             }
-            else if (this.IsMemberEntryIndicator(ch))
+            else if (this.IsAccessMemberEntryIndicator(ch))
             {
                 this.EnterAccessMemberEntry(parent);
             }
@@ -474,11 +491,11 @@ namespace DotNEToolkit.Expressions
             //}
             else if (this.IsParamSplitter(ch))
             {
-                // 出现了逗号，说明成员访问结束
+                // 出现了逗号，说明成员访问结束，此时要跳转到基态去处理下一个参数
                 this.DispatchAccessProperty(this.paramter, parent);
 
-                Expression expression = this.LookupFunctionParent(parent);
-                this.EnterGroundState(expression);
+                //Expression expression = this.LookupFunctionParent(parent);
+                this.EnterGroundState(parent);
             }
             else if (this.IsParamEndIndicator(ch))
             {
@@ -488,10 +505,10 @@ namespace DotNEToolkit.Expressions
                 this.rightBracket++;
 
                 // 直接跳转到参数结束状态去处理
-                Expression expression = this.LookupFunctionParent(parent);
-                this.EnterParamTermination(expression);
+                //Expression expression = this.LookupFunctionParent(parent);
+                this.EnterParamTermination(parent);
             }
-            else if (this.IsMemberEntryIndicator(ch))
+            else if (this.IsAccessMemberEntryIndicator(ch))
             {
                 // 属性参数状态下又出现了一个点，那么说明是访问属性的属性
                 // 先创建一个对于上一个属性的表达式节点，然后继续按照属性参数状态解析
@@ -606,25 +623,29 @@ namespace DotNEToolkit.Expressions
                 switch (expression.State)
                 {
                     case ExpressionState.HasEvaluation:
-                        parent.Parameters.Add(expression.Value);
-                        break;
+                        {
+                            parent.Parameters.Add(expression.Value);
+                            break;
+                        }
 
                     case ExpressionState.WaitEvaluation:
                         {
+                            object result = null;
+
                             if (expression.Children.Count > 0)
                             {
                                 // 有子节点，先计算子节点
-                                object result = this.Evaluate(expression, context);
-                                parent.Parameters.Add(result);
-                                break;
+                                result = this.Evaluate(expression, context);
                             }
                             else
                             {
                                 // 没有子节点，直接计算
-                                object result = this.EvaluateExpression(expression, context);
-                                parent.Parameters.Add(result);
-                                break;
+                                result = this.EvaluateExpression(expression, context);
                             }
+
+                            parent.Parameters.Add(result);
+
+                            break;
                         }
 
                     default:
@@ -639,21 +660,69 @@ namespace DotNEToolkit.Expressions
 
         #region 实例方法
 
-        private void InitializeDefinitions()
+        /// <summary>
+        /// 从指定的表达式定义列表和表达式求值程序池里查找一个表达式求值程序
+        /// 如果从表达式列表里找到了，那么反射实例化该表达式求值程序并把求值程序实例缓存到求值程序池里
+        /// </summary>
+        /// <param name="name">要查找的表达式的名字</param>
+        /// <param name="exprDefines">表达式定义列表</param>
+        /// <param name="evaluators">求值程序池</param>
+        /// <returns></returns>
+        private ExpressionEvaluator TryGetEvaluator(string name, List<ExpressionDefinition> exprDefines, Dictionary<string, ExpressionEvaluator> evaluators)
         {
-            logger.InfoFormat("开始加载表达式定义文件, {0}", DefaultDefinitionFile);
+            ExpressionEvaluator evaluator;
+            if (!evaluators.TryGetValue(name, out evaluator))
+            {
+                ExpressionDefinition exprDefine = exprDefines.FirstOrDefault(def => def.Name == name);
+                if (exprDefine == null)
+                {
+                    return null;
+                }
+
+                try
+                {
+                    evaluator = ConfigFactory<ExpressionEvaluator>.CreateInstance(exprDefine.ClassName);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(string.Format("实例化{0}求值程序异常", name), ex);
+                    return null;
+                }
+
+                evaluators[name] = evaluator;
+            }
+            return evaluator;
+        }
+
+        /// <summary>
+        /// 从给定的路径加载一个表达式定义列表
+        /// </summary>
+        /// <param name="exprFile">要加载的表达式定义文件路径</param>
+        /// <returns></returns>
+        private List<ExpressionDefinition> LoadDefinitions(string exprFile)
+        {
+            List<ExpressionDefinition> result = new List<ExpressionDefinition>();
+
+            logger.InfoFormat("开始加载表达式定义文件, {0}", exprFile);
+
+            if (!File.Exists(exprFile))
+            {
+                logger.WarnFormat("表达式定义文件不存在...");
+                return result;
+            }
 
             try
             {
-                this.definitions = JSONHelper.ParseFile<List<ExpressionDefinition>>(DefaultDefinitionFile);
+                result = JSONHelper.ParseFile<List<ExpressionDefinition>>(exprFile);
             }
             catch (Exception ex)
             {
                 logger.Error("加载表达式定义文件异常", ex);
-                this.definitions = new List<ExpressionDefinition>();
             }
 
-            logger.InfoFormat("当前系统里注册的表达式总数 = {0}", this.definitions.Count);
+            logger.InfoFormat("表达式数量 = {0}", result.Count);
+
+            return result;
         }
 
         /// <summary>
@@ -663,29 +732,21 @@ namespace DotNEToolkit.Expressions
         /// <returns></returns>
         private ExpressionEvaluator GetEvaluator(string name)
         {
-            ExpressionEvaluator evaluator;
-            if (!this.evaluators.TryGetValue(name, out evaluator))
+            ExpressionEvaluator evaluator = null;
+
+            // 首先查找系统预定义的表达式求值程序，如果存在则直接返回
+            if ((evaluator = this.TryGetEvaluator(name, this.preDefines, this.preDefinedEvas)) != null)
             {
-                ExpressionDefinition expDef = this.definitions.FirstOrDefault(def => def.Name == name);
-                if (expDef == null)
-                {
-                    logger.ErrorFormat("不存在{0}的求值程序", name);
-                    return null;
-                }
-
-                try
-                {
-                    evaluator = ConfigFactory<ExpressionEvaluator>.CreateInstance(expDef.ClassName);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(string.Format("实例化{0}求值程序异常", name), ex);
-                    return null;
-                }
-
-                this.evaluators[name] = evaluator;
+                return evaluator;
             }
-            return evaluator;
+
+            // 没查到预定义表达式求值程序，那么查找用户定义的表达式求值程序
+            if ((evaluator = this.TryGetEvaluator(name, this.userDefines, this.userDefinedEvas)) != null)
+            {
+                return evaluator;
+            }
+
+            return null;
         }
 
         /// <summary>
