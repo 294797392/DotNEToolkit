@@ -52,6 +52,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestExpressionBuilder.cs" />
+    <Compile Include="TestStringEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotNEToolkit\DotNEToolkit.csproj">

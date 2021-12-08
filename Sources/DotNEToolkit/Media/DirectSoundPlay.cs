@@ -195,7 +195,7 @@ namespace DotNEToolkit.Media
                 wFormatTag = Win32API.WAVE_FORMAT_PCM
             };
 
-            this.pwfx_free = PInvoke.StructureToPtr(this.wfx);
+            this.pwfx_free = Marshals.StructureToPtr(this.wfx);
 
             this.dsbd = new DSBUFFERDESC()
             {

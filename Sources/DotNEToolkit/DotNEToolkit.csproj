@@ -101,6 +101,7 @@
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
+    <Compile Include="Log4net.cs" />
     <Compile Include="StringEnumerator.cs" />
     <Compile Include="Media\AudioPlay.cs" />
     <Compile Include="Media\AudioPlayFactory.cs" />
@@ -113,7 +114,7 @@
     <Compile Include="Modbus\ModbusRTUClient.cs" />
     <Compile Include="Networks.cs" />
     <Compile Include="Numberics.cs" />
-    <Compile Include="PInvoke.cs" />
+    <Compile Include="Marshals.cs" />
     <Compile Include="Media\AudioRecord.cs" />
     <Compile Include="Media\DirectSoundRecord.cs" />
     <Compile Include="Bindings\BindableBase.cs" />

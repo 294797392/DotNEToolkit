@@ -9,7 +9,7 @@ namespace DotNEToolkit
     /// <summary>
     /// 提供PInvoke的公共函数
     /// </summary>
-    public static class PInvoke
+    public static class Marshals
     {
         /// <summary>
         /// 结构体转byte数组
