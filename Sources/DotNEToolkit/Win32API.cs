@@ -282,6 +282,20 @@ namespace DotNEToolkit
 
     public static class Win32API
     {
+        public static class Kernel32
+        {
+            private const string Kernel32Dll = "kernel32.dll";
+
+            [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+            public static extern IntPtr LoadLibrary(string lpLibFileName);
+
+            [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+            public static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
+
+            [DllImport(Kernel32Dll, CallingConvention = CallingConvention.StdCall)]
+            public static extern bool FreeLibrary(IntPtr hModule);
+        }
+
         public const int ERROR_INSUFFICIENT_BUFFER = 122;
         public const int ERROR_NO_MORE_ITEMS = 259;
 

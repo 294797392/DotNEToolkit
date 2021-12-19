@@ -650,6 +650,18 @@ namespace DotNEToolkit.Expressions
             return this.EvaluateExpression(parent, context);
         }
 
+        public object Evaluate(string expression, IEvaluationContext context)
+        {
+            Expression tree = this.BuildExpressionTree(expression);
+            if (tree == null)
+            {
+                // 如果表达式树解析失败则直接返回输入的表达式
+                return expression;
+            }
+
+            return this.Evaluate(tree, context);
+        }
+
         #endregion
 
         #region 实例方法

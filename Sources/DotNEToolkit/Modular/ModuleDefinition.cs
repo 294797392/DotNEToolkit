@@ -85,6 +85,16 @@ namespace DotNEToolkit.Modular
             this.Flags |= (uint)flag;
         }
 
+        /// <summary>
+        /// 克隆一份输入参数
+        /// </summary>
+        /// <returns></returns>
+        public IDictionary CloneInputParameters()
+        {
+            string json = JsonConvert.SerializeObject(this.InputParameters);
+            return JsonConvert.DeserializeObject<IDictionary>(json);
+        }
+
         public override string ToString()
         {
             return string.Format("{0}:{1}", this.MetadataID, this.Name);

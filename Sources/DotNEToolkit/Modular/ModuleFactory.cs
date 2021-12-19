@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotNEToolkit.Modular.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -154,45 +155,6 @@ namespace DotNEToolkit.Modular
             });
         }
 
-        private int CreateModuleInstance(ModuleDefinition moduleDef, out ModuleBase moduleInst)
-        {
-            moduleInst = null;
-
-            // 优先加载ClassName
-            string className = moduleDef.ClassName;
-
-            // 如果ClassName不存在，那么根据MetadataID寻找ClassName
-            if (string.IsNullOrEmpty(className))
-            {
-                ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == moduleDef.MetadataID);
-                if (metadata == null)
-                {
-                    logger.ErrorFormat("客户端不存在模块:{0}", moduleDef);
-                    return DotNETCode.MODULE_NOT_FOUND;
-                }
-
-                className = metadata.ClassName;
-            }
-
-            // 开始加载实例
-            try
-            {
-                moduleInst = ConfigFactory<ModuleBase>.CreateInstance(className);
-                moduleInst.Definition = moduleDef;
-                moduleInst.Factory = this;
-                moduleInst.PublishEvent += this.ModuleInstance_PublishEvent;
-
-                logger.DebugFormat("加载模块成功, {0}", moduleDef.Name);
-
-                return DotNETCode.SUCCESS;
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("加载模块异常, {0}, {1}", moduleDef, ex);
-                return DotNETCode.UNKNOWN_EXCEPTION;
-            }
-        }
-
         #endregion
 
         #region 公开接口
@@ -254,16 +216,9 @@ namespace DotNEToolkit.Modular
                 return;
             }
 
-            foreach (ModuleDefinition moduleDef in initialModules)
+            foreach (ModuleDefinition module in initialModules)
             {
-                ModuleBase moduleInst;
-
-                int code = this.CreateModuleInstance(moduleDef, out moduleInst);
-                if (code != DotNETCode.SUCCESS)
-                {
-                    // TODO：初始化模块失败..
-                    continue;
-                }
+                ModuleBase moduleInst = this.CreateModule<ModuleBase>(module);
 
                 this.ModuleList.Add(moduleInst);
             }
@@ -299,17 +254,12 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public int SetupModule(ModuleDefinition module)
         {
-            ModuleBase moduleInst;
+            ModuleBase moduleInst = this.CreateModule<ModuleBase>(module);
 
-            int code = DotNETCode.SUCCESS;
-
-            if ((code = this.CreateModuleInstance(module, out moduleInst)) != DotNETCode.SUCCESS)
+            int code = moduleInst.Initialize(module.InputParameters);
+            if (code != DotNETCode.SUCCESS)
             {
-                return code;
-            }
-
-            if ((code = moduleInst.Initialize(module.InputParameters)) != DotNETCode.SUCCESS)
-            {
+                logger.DebugFormat("模块加载失败, 错误码:{0}", code);
                 return code;
             }
 
@@ -323,6 +273,40 @@ namespace DotNEToolkit.Modular
             return this.ModuleList.OfType<TModuleInstance>().ToList();
         }
 
+        /// <summary>
+        /// 根据模块定义创建一个模块实例
+        /// </summary>
+        /// <param name="module">模块定义</param>
+        /// <returns></returns>
+        public TModule CreateModule<TModule>(ModuleDefinition module) where TModule : ModuleBase
+        {
+            // 优先加载ClassName
+            string className = module.ClassName;
+
+            // 如果ClassName不存在，那么根据MetadataID寻找ClassName
+            if (string.IsNullOrEmpty(className))
+            {
+                ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == module.MetadataID);
+                if (metadata == null)
+                {
+                    logger.ErrorFormat("客户端不存在模块:{0}", module);
+                    throw new ModuleNotFoundException(module);
+                }
+
+                className = metadata.ClassName;
+            }
+
+            // 开始加载实例
+            TModule moduleInst = ConfigFactory<TModule>.CreateInstance(className);
+            moduleInst.Definition = module;
+            moduleInst.Factory = this;
+            moduleInst.PublishEvent += this.ModuleInstance_PublishEvent;
+
+            logger.DebugFormat("加载模块成功, {0}", module.Name);
+
+            return moduleInst;
+        }
+
         public bool ContainsModule(string moduleID)
         {
             return this.ModuleList.Exists(m => m.ID == moduleID);
@@ -332,7 +316,7 @@ namespace DotNEToolkit.Modular
         /// 删除并释放某个模块
         /// </summary>
         /// <param name="moduleID"></param>
-        public void RemoveModule(string moduleID)
+        public void ReleaseModule(string moduleID)
         {
             IModuleInstance moduleInst = this.ModuleList.FirstOrDefault(v => v.ID == moduleID);
             if (moduleInst == null)
@@ -379,18 +363,6 @@ namespace DotNEToolkit.Modular
         public TModuleInstance LookupModule<TModuleInstance>() where TModuleInstance : IModuleInstance
         {
             return this.ModuleList.OfType<TModuleInstance>().FirstOrDefault();
-        }
-
-        /// <summary>
-        /// 根据类型ID创建一个模块实例
-        /// </summary>
-        /// <param name="definition">模块定义</param>
-        /// <returns></returns>
-        public TModuleInstance CreateInstance<TModuleInstance>(ModuleDefinition definition) where TModuleInstance : ModuleBase
-        {
-            ModuleBase moduleInst;
-            return this.CreateModuleInstance(definition, out moduleInst) == DotNETCode.SUCCESS ?
-                (TModuleInstance)moduleInst : default(TModuleInstance);
         }
 
         /// <summary>

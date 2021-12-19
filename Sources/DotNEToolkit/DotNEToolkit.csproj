@@ -68,7 +68,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractIODevice.cs" />
     <Compile Include="Crypto\CRC16.cs" />
     <Compile Include="DateTimeFormat.cs" />
     <Compile Include="DeviceWatcher.cs" />
@@ -102,6 +101,7 @@
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
     <Compile Include="Log4net.cs" />
+    <Compile Include="Modular\Exceptions\ModuleNotFoundException.cs" />
     <Compile Include="StringEnumerator.cs" />
     <Compile Include="Media\AudioPlay.cs" />
     <Compile Include="Media\AudioPlayFactory.cs" />
@@ -111,7 +111,6 @@
     <Compile Include="Media\G711.cs" />
     <Compile Include="Media\WaveAPIPlay.cs" />
     <Compile Include="Media\WaveAPIRecord.cs" />
-    <Compile Include="Modbus\ModbusRTUClient.cs" />
     <Compile Include="Networks.cs" />
     <Compile Include="Numberics.cs" />
     <Compile Include="Marshals.cs" />
