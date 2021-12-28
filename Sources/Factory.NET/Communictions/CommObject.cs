@@ -11,7 +11,7 @@ namespace Factory.NET.Communictions
     /// <summary>
     /// 通信对象模型
     /// </summary>
-    public abstract class CommunicationObject : ModuleBase
+    public abstract class CommObject : ModuleBase
     {
         #region 类变量
 
@@ -51,15 +51,28 @@ namespace Factory.NET.Communictions
         /// 关闭IO设备
         /// </summary>
         /// <returns></returns>
-        public abstract int Close();
+        public abstract void Close();
 
-        public abstract int ReadLine(out string line);
+        public abstract string ReadLine();
 
-        public abstract int WriteLine(string line);
+        public abstract void WriteLine(string line);
 
+        /// <summary>
+        /// 从通信设备里读取一段数据
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="offset"></param>
+        /// <param name="count"></param>
+        /// <returns>读取的字节数</returns>
         protected abstract int ReadBytes(byte[] bytes, int offset, int count);
 
-        protected abstract int WriteBytes(byte[] bytes, int offset, int count);
+        /// <summary>
+        /// 向通信设备里写入一段数据
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="offset"></param>
+        /// <param name="count"></param>
+        protected abstract void WriteBytes(byte[] bytes, int offset, int count);
 
         #endregion
 
@@ -95,20 +108,23 @@ namespace Factory.NET.Communictions
         /// <returns></returns>
         public bool WriteBytes(byte[] bytes)
         {
-            int total = bytes.Length;
-            int writed = 0;
-            while (writed != total)
-            {
-                int size = this.WriteBytes(bytes, writed, total - writed);
-                if (size == -1)
-                {
-                    return false;
-                }
-                writed += size;
-                logger.DebugFormat("写入的字节数 = {0}", writed);
-            }
-
+            this.WriteBytes(bytes, 0, bytes.Length);
             return true;
+
+            //int total = bytes.Length;
+            //int writed = 0;
+            //while (writed != total)
+            //{
+            //    int size = this.WriteBytes(bytes, writed, total - writed);
+            //    if (size == -1)
+            //    {
+            //        return false;
+            //    }
+            //    writed += size;
+            //    logger.DebugFormat("写入的字节数 = {0}", writed);
+            //}
+
+            //return true;
         }
 
         #endregion

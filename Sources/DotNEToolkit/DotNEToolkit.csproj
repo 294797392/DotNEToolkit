@@ -137,7 +137,7 @@
     <Compile Include="Expressions\ExpressionDefinition.cs" />
     <Compile Include="Expressions\ExpressionState.cs" />
     <Compile Include="Expressions\ParserState.cs" />
-    <Compile Include="BytesExtentions.cs" />
+    <Compile Include="Bytes.cs" />
     <Compile Include="DirectoryExtentions.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="StreamExtentions.cs" />

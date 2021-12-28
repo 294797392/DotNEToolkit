@@ -9,9 +9,11 @@ namespace Factory.NET.Communictions
 {
     public static class CommObjectExtension
     {
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("CommObjectExtension");
+
         private const int DefaultTimeout = 30000;
 
-        public static int ReadMatches(this CommunicationObject commObject, string match, int timeout, out string line)
+        public static int ReadMatches(this CommObject commObject, string match, int timeout, out string line)
         {
             line = null;
 
@@ -19,11 +21,16 @@ namespace Factory.NET.Communictions
 
             while ((DateTime.Now - start).TotalMilliseconds < timeout)
             {
-                string readed;
-                int code = commObject.ReadLine(out readed);
-                if (code != DotNETCode.SUCCESS)
+                string readed = string.Empty;
+
+                try
                 {
-                    return code;
+                    readed = commObject.ReadLine();
+                }
+                catch (Exception ex) 
+                {
+                    logger.Error("从通信对象中读取数据异常", ex);
+                    return DotNETCode.UNKNOWN_EXCEPTION;
                 }
 
                 if (!readed.Contains(match))
@@ -38,7 +45,7 @@ namespace Factory.NET.Communictions
             return DotNETCode.TIMEOUT;
         }
 
-        public static int ReadMatches(this CommunicationObject commObject, string match, out string line)
+        public static int ReadMatches(this CommObject commObject, string match, out string line)
         {
             return ReadMatches(commObject, match, DefaultTimeout, out line);
         }

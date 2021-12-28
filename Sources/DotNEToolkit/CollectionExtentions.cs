@@ -75,7 +75,7 @@ namespace DotNEToolkit.Extentions
         /// <param name="map"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static T GetValueWithThrow<T>(this IDictionary map, string key)
+        public static T GetValue<T>(this IDictionary map, string key)
         {
             if (!map.Contains(key))
             {

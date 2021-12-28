@@ -47,11 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Communictions\CommObjectExtension.cs" />
     <Compile Include="Communictions\CommObjectFactory.cs" />
-    <Compile Include="Communictions\CommunicationTypes.cs" />
-    <Compile Include="Communictions\CommunicationObject.cs" />
+    <Compile Include="Communictions\CommTypes.cs" />
+    <Compile Include="Communictions\CommObject.cs" />
     <Compile Include="Communictions\SerialPortCommObject.cs" />
     <Compile Include="Communictions\TcpClientCommObject.cs" />
     <Compile Include="Communictions\TcpServiceCommObject.cs" />

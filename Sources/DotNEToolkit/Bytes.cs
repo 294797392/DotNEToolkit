@@ -18,7 +18,10 @@ namespace DotNEToolkit.Extentions
         WithPrefix
     }
 
-    public static class BytesExtentions
+    /// <summary>
+    /// 操作字节数组的帮助类
+    /// </summary>
+    public static class Bytes
     {
         /// <summary>
         /// 把一个字节数组转成十六进制字符串

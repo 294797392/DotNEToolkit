@@ -35,7 +35,7 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 组件类型ID
         /// </summary>
-        [JsonProperty("TypeID")]
+        [JsonProperty("MetadataID")]
         public string MetadataID { get; set; }
 
         /// <summary>

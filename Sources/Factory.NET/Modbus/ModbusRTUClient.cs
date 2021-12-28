@@ -1,5 +1,8 @@
 ﻿using DotNEToolkit.Bindings;
+using DotNEToolkit.Crypto;
+using DotNEToolkit.Extentions;
 using DotNEToolkit.Modular;
+using Factory.NET.Communictions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,309 +27,305 @@ namespace DotNEToolkit.Modbus
     /// </summary>
     public class ModbusRTUClient : ModuleBase
     {
-        //#region 类变量
+        #region 类变量
 
-        //private static log4net.ILog logger = log4net.LogManager.GetLogger("ModbusRTUClient");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("ModbusRTUClient");
 
-        //private const byte FUNCTION_CODE_READ_DO = 0x01;
-        //private const byte FUNCTION_CODE_READ_DI = 0x02;
-        //private const byte FUNCTION_CODE_READ_AO = 0x03;
-        //private const byte FUNCTION_CODE_READ_AI = 0x04;
+        private const byte FUNCTION_CODE_READ_DO = 0x01;
+        private const byte FUNCTION_CODE_READ_DI = 0x02;
+        private const byte FUNCTION_CODE_READ_AO = 0x03;
+        private const byte FUNCTION_CODE_READ_AI = 0x04;
 
-        //private const byte FUNCTION_CODE_WRITE_DO = 0x05;
-        //private const byte FUNCTION_CODE_WRITE_DO_MULIT = 0x0F;
+        private const byte FUNCTION_CODE_WRITE_DO = 0x05;
+        private const byte FUNCTION_CODE_WRITE_DO_MULIT = 0x0F;
 
-        //private const byte FUNCTION_CODE_WRITE_AO = 0x06;
-        //private const byte FUNCTION_CODE_WRITE_AO_MULIT = 0x10;
+        private const byte FUNCTION_CODE_WRITE_AO = 0x06;
+        private const byte FUNCTION_CODE_WRITE_AO_MULIT = 0x10;
 
-        //#endregion
+        #endregion
 
-        //#region 实例变量
+        #region 实例变量
 
-        ///// <summary>
-        ///// IO驱动器
-        ///// </summary>
-        //private AbstractIODriver driver;
+        /// <summary>
+        /// 与PLC通信的对象
+        /// </summary>
+        private CommObject commObject;
 
-        //#endregion
+        #endregion
 
-        //#region 属性
+        #region 属性
 
-        ///// <summary>
-        ///// Modbus设备的地址码，这个地址码一般使用厂商提供的软件去修改
-        ///// </summary>
-        //[BindableProperty(1)]
-        //public byte AddressCode { get; private set; }
+        /// <summary>
+        /// Modbus设备的地址码，这个地址码一般使用厂商提供的软件去修改
+        /// </summary>
+        [BindableProperty(1)]
+        public byte AddressCode { get; private set; }
 
-        //#endregion
+        #endregion
 
-        //#region ServiceBase
+        #region ModuleBase
 
-        //public override int Initialize(IDictionary parameters)
-        //{
-        //    base.Initialize(parameters);
+        public override int Initialize(IDictionary parameters)
+        {
+            base.Initialize(parameters);
 
-        //    this.driver = IODriverFactory.Create(parameters);
-        //    return this.driver.Initialize(parameters);
-        //}
+            this.commObject = CommObjectFactory.Create(parameters);
+            return this.commObject.Initialize(parameters);
+        }
 
-        //public override void Release()
-        //{
-        //    this.driver.Release();
+        public override void Release()
+        {
+            this.commObject.Release();
 
-        //    base.Release();
-        //}
+            base.Release();
+        }
 
-        //#endregion
+        #endregion
 
-        //#region 数字输入
+        #region 数字输入
 
-        ///// <summary>
-        ///// 读取一路线圈输入寄存器的值
-        ///// </summary>
-        ///// <param name="address">要读取的线圈寄存器的地址</param>
-        ///// <param name="value">读取到寄存器的数据</param>
-        ///// <returns></returns>
-        //public int ReadDI(byte address, out byte value)
-        //{
-        //    return this.ReadDigtalIO(address, FUNCTION_CODE_READ_DI, out value);
-        //}
+        /// <summary>
+        /// 读取一路线圈输入寄存器的值
+        /// </summary>
+        /// <param name="address">要读取的线圈寄存器的地址</param>
+        /// <param name="value">读取到寄存器的数据</param>
+        /// <returns></returns>
+        public bool ReadDI(byte address, out byte value)
+        {
+            return this.ReadDigtalIO(address, FUNCTION_CODE_READ_DI, out value);
+        }
 
-        //#endregion
+        #endregion
 
-        //#region 数字输出
+        #region 数字输出
 
-        //public int ReadDO(byte address, out byte value)
-        //{
-        //    return this.ReadDigtalIO(address, FUNCTION_CODE_READ_DO, out value);
-        //}
+        public bool ReadDO(byte address, out byte value)
+        {
+            return this.ReadDigtalIO(address, FUNCTION_CODE_READ_DO, out value);
+        }
 
-        //public int WriteDO(byte address, short value)
-        //{
-        //    return this.WriteDigtalOutput(address, FUNCTION_CODE_WRITE_DO, value);
-        //}
+        public bool WriteDO(byte address, short value)
+        {
+            return this.WriteDigtalOutput(address, FUNCTION_CODE_WRITE_DO, value);
+        }
 
-        //#endregion
+        #endregion
 
-        //#region 模拟输出
+        #region 模拟输出
 
-        //public int ReadAO(byte address, short numReg, out List<short> value)
-        //{
-        //    return this.ReadAnalogIO(address, FUNCTION_CODE_READ_AO, numReg, out value);
-        //}
+        public bool ReadAO(byte address, short numReg, out List<short> value)
+        {
+            return this.ReadAnalogIO(address, FUNCTION_CODE_READ_AO, numReg, out value);
+        }
 
-        //public int WriteAO(byte address, short value)
-        //{
-        //    return this.WriteAnalogOutput(FUNCTION_CODE_WRITE_AO, address, value);
-        //}
+        public bool WriteAO(byte address, short value)
+        {
+            return this.WriteAnalogOutput(FUNCTION_CODE_WRITE_AO, address, value);
+        }
 
-        //#endregion
+        #endregion
 
-        //#region 模拟输入
+        #region 模拟输入
 
-        //public int ReadAI(byte address, short numReg, out List<short> value)
-        //{
-        //    return this.ReadAnalogIO(address, FUNCTION_CODE_READ_AI, numReg, out value);
-        //}
+        public bool ReadAI(byte address, short numReg, out List<short> value)
+        {
+            return this.ReadAnalogIO(address, FUNCTION_CODE_READ_AI, numReg, out value);
+        }
 
-        //#endregion
+        #endregion
 
-        //#region 实例方法
+        #region 实例方法
 
-        ///// <summary>
-        ///// 读取数字量
-        ///// </summary>
-        ///// <param name="address"></param>
-        ///// <param name="fcode"></param>
-        ///// <param name="value"></param>
-        ///// <returns></returns>
-        //private int ReadDigtalIO(byte address, byte fcode, out byte value)
-        //{
-        //    value = 0;
+        /// <summary>
+        /// 读取数字量
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="fcode"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private bool ReadDigtalIO(byte address, byte fcode, out byte value)
+        {
+            value = 0;
 
-        //    byte[] buffer = new byte[4];
-        //    byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
-        //    byte[] numBytes = this.ReverseBytes(BitConverter.GetBytes((short)8));                  // 一次性读取8路
-        //    Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
-        //    Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
+            byte[] buffer = new byte[4];
+            byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
+            byte[] numBytes = this.ReverseBytes(BitConverter.GetBytes((short)8));                  // 一次性读取8路
+            Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
+            Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
 
-        //    byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-        //    int code = this.driver.WriteBytes(data);
-        //    if (code != ResponseCode.SUCCESS)
-        //    {
-        //        logger.Error("ReadDigtalIO失败");
-        //        return code;
-        //    }
+            byte[] data = this.PackData(this.AddressCode, fcode, buffer);
+            if (!this.commObject.WriteBytes(data))
+            {
+                logger.Error("ReadDigtalIO失败");
+                return false;
+            }
 
-        //    byte[] result = new byte[6];
-        //    if ((code = this.driver.ReadBytes(result)) != ResponseCode.SUCCESS)
-        //    {
-        //        logger.ErrorFormat("接收Modbus数据失败, {0}", code);
-        //        return code;
-        //    }
+            byte[] result = new byte[6];
+            if (!this.commObject.ReadBytes(result))
+            {
+                logger.ErrorFormat("接收Modbus数据失败");
+                return false;
+            }
 
-        //    if (result[0] != this.AddressCode || result[1] != fcode || result[2] != 1)
-        //    {
-        //        logger.ErrorFormat("收到的Mosbus数据格式不正确");
-        //        return code;
-        //    }
+            if (result[0] != this.AddressCode || result[1] != fcode || result[2] != 1)
+            {
+                logger.ErrorFormat("收到的Mosbus数据格式不正确");
+                return false;
+            }
 
-        //    value = result[3];
+            value = result[3];
 
-        //    return ResponseCode.SUCCESS;
-        //}
+            return true;
+        }
 
-        ///// <summary>
-        ///// 写数字输出寄存器
-        ///// </summary>
-        ///// <param name="address">要写的寄存器地址</param>
-        ///// <param name="fcode">功能代码</param>
-        ///// <param name="value">寄存器的值</param>
-        ///// <returns></returns>
-        //private int WriteDigtalOutput(byte fcode, byte address, short value)
-        //{
-        //    byte[] buffer = new byte[4];
-        //    byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
-        //    byte[] valueBytes = this.ReverseBytes(BitConverter.GetBytes(value));
-        //    Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
-        //    Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
+        /// <summary>
+        /// 写数字输出寄存器
+        /// </summary>
+        /// <param name="address">要写的寄存器地址</param>
+        /// <param name="fcode">功能代码</param>
+        /// <param name="value">寄存器的值</param>
+        /// <returns></returns>
+        private bool WriteDigtalOutput(byte fcode, byte address, short value)
+        {
+            byte[] buffer = new byte[4];
+            byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
+            byte[] valueBytes = this.ReverseBytes(BitConverter.GetBytes(value));
+            Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
+            Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
 
-        //    byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-        //    int code = this.driver.WriteBytes(data);
-        //    if (code != ResponseCode.SUCCESS)
-        //    {
-        //        logger.Error("WriteDigtalOutput失败");
-        //        return code;
-        //    }
+            byte[] data = this.PackData(this.AddressCode, fcode, buffer);
+            if (!this.commObject.WriteBytes(data))
+            {
+                logger.Error("WriteDigtalOutput失败");
+                return false;
+            }
 
-        //    byte[] result = new byte[8];
-        //    if ((code = this.driver.ReadBytes(result)) != ResponseCode.SUCCESS)
-        //    {
-        //        logger.ErrorFormat("接收Modbus数据失败, {0}", code);
-        //        return code;
-        //    }
+            byte[] result = new byte[8];
+            if (!this.commObject.ReadBytes(result))
+            {
+                logger.ErrorFormat("接收Modbus数据失败");
+                return false;
+            }
 
-        //    if (!Bytes.Compare(result, data))
-        //    {
-        //        logger.ErrorFormat("WriteDigtalOutput失败, 返回的数据和发送的数据不一致");
-        //        return ResponseCode.GENERIC_FAILED;
-        //    }
+            if (!Bytes.Compare(result, data))
+            {
+                logger.ErrorFormat("WriteDigtalOutput失败, 返回的数据和发送的数据不一致");
+                return false;
+            }
 
-        //    return ResponseCode.SUCCESS;
-        //}
+            return true;
+        }
 
-        ///// <summary>
-        ///// 读取单路模拟量
-        ///// </summary>
-        ///// <param name="address">要读取的数据的地址</param>
-        ///// <param name="fcode">功能码</param>
-        ///// <param name="numReg">要读取的寄存器的数量</param>
-        ///// <param name="value"></param>
-        ///// <returns></returns>
-        //private int ReadAnalogIO(byte address, byte fcode, short numReg, out List<short> values)
-        //{
-        //    values = null;
+        /// <summary>
+        /// 读取单路模拟量
+        /// </summary>
+        /// <param name="address">要读取的数据的地址</param>
+        /// <param name="fcode">功能码</param>
+        /// <param name="numReg">要读取的寄存器的数量</param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private bool ReadAnalogIO(byte address, byte fcode, short numReg, out List<short> values)
+        {
+            values = null;
 
-        //    byte[] buffer = new byte[4];
-        //    byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
-        //    byte[] numBytes = this.ReverseBytes(BitConverter.GetBytes(numReg));                  // 要读取的寄存器的数量，一个寄存器是两个字节
-        //    Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
-        //    Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
+            byte[] buffer = new byte[4];
+            byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
+            byte[] numBytes = this.ReverseBytes(BitConverter.GetBytes(numReg));                  // 要读取的寄存器的数量，一个寄存器是两个字节
+            Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
+            Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
 
-        //    byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-        //    int code = this.driver.WriteBytes(data);
-        //    if (code != ResponseCode.SUCCESS)
-        //    {
-        //        logger.Error("ReadAnalogIO失败");
-        //        return code;
-        //    }
+            byte[] data = this.PackData(this.AddressCode, fcode, buffer);
+            if (!this.commObject.WriteBytes(data))
+            {
+                logger.Error("ReadAnalogIO失败");
+                return false;
+            }
 
-        //    int valueBytes = numReg * 2;    // 寄存器的值所占用的字节数
-        //    byte[] result = new byte[3 + valueBytes + 2];
-        //    if ((code = this.driver.ReadBytes(result)) != ResponseCode.SUCCESS)
-        //    {
-        //        logger.ErrorFormat("接收Modbus数据失败, {0}", code);
-        //        return code;
-        //    }
+            int valueBytes = numReg * 2;    // 寄存器的值所占用的字节数
+            byte[] result = new byte[3 + valueBytes + 2];
+            if (!this.commObject.ReadBytes(result))
+            {
+                logger.ErrorFormat("接收Modbus数据失败, {0}");
+                return false;
+            }
 
-        //    // result[2]是字节数，参考MODBUS_Communication_Protocol_Chinese_Version# MODBUS通讯协议中文版.pdf, 16页
-        //    if (result[0] != this.AddressCode || result[1] != fcode || result[2] != valueBytes)
-        //    {
-        //        logger.ErrorFormat("收到的Mosbus数据格式不正确");
-        //        return code;
-        //    }
+            // result[2]是字节数，参考MODBUS_Communication_Protocol_Chinese_Version# MODBUS通讯协议中文版.pdf, 16页
+            if (result[0] != this.AddressCode || result[1] != fcode || result[2] != valueBytes)
+            {
+                logger.ErrorFormat("收到的Mosbus数据格式不正确");
+                return false;
+            }
 
-        //    values = new List<short>();
+            values = new List<short>();
 
-        //    for (int i = 0; i < valueBytes; i += 2)
-        //    {
-        //        byte[] vbs = new byte[2] { result[3 + i + 1], result[3 + i] };
-        //        short v = BitConverter.ToInt16(vbs, 0);
-        //        values.Add(v);
-        //    }
+            for (int i = 0; i < valueBytes; i += 2)
+            {
+                byte[] vbs = new byte[2] { result[3 + i + 1], result[3 + i] };
+                short v = BitConverter.ToInt16(vbs, 0);
+                values.Add(v);
+            }
 
-        //    return ResponseCode.SUCCESS;
-        //}
+            return true;
+        }
 
-        //private int WriteAnalogOutput(byte fcode, short address, short value)
-        //{
-        //    byte[] buffer = new byte[4];
-        //    byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
-        //    byte[] valueBytes = this.ReverseBytes(BitConverter.GetBytes(value));
-        //    Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
-        //    Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
+        private bool WriteAnalogOutput(byte fcode, short address, short value)
+        {
+            byte[] buffer = new byte[4];
+            byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
+            byte[] valueBytes = this.ReverseBytes(BitConverter.GetBytes(value));
+            Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
+            Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
 
-        //    byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-        //    int code = this.driver.WriteBytes(data);
-        //    if (code != ResponseCode.SUCCESS)
-        //    {
-        //        logger.Error("WriteDigtalOutput失败");
-        //        return code;
-        //    }
+            byte[] data = this.PackData(this.AddressCode, fcode, buffer);
+            if (!this.commObject.WriteBytes(data))
+            {
+                logger.Error("WriteDigtalOutput失败");
+                return false;
+            }
 
-        //    byte[] result = new byte[8];
-        //    if ((code = this.driver.ReadBytes(result)) != ResponseCode.SUCCESS)
-        //    {
-        //        logger.ErrorFormat("接收Modbus数据失败, {0}", code);
-        //        return code;
-        //    }
+            byte[] result = new byte[8];
+            if (!this.commObject.ReadBytes(result))
+            {
+                logger.ErrorFormat("接收Modbus数据失败, {0}");
+                return false;
+            }
 
-        //    if (!Bytes.Compare(result, data))
-        //    {
-        //        logger.ErrorFormat("WriteDigtalOutput失败, 返回的数据和发送的数据不一致");
-        //        return ResponseCode.GENERIC_FAILED;
-        //    }
+            if (!Bytes.Compare(result, data))
+            {
+                logger.ErrorFormat("WriteDigtalOutput失败, 返回的数据和发送的数据不一致");
+                return false;
+            }
 
-        //    return ResponseCode.SUCCESS;
-        //}
+            return true;
+        }
 
-        ///// <summary>
-        ///// 打包Modbus数据
-        ///// </summary>
-        ///// <param name="addressCode">地址码</param>
-        ///// <param name="fcode">功能代码</param>
-        ///// <param name="data">要发送的数据</param>
-        ///// <returns></returns>
-        //private byte[] PackData(byte addressCode, byte fcode, byte[] data)
-        //{
-        //    byte[] buffer = new byte[1 + 1 + data.Length];
-        //    buffer[0] = addressCode;
-        //    buffer[1] = fcode;
-        //    Buffer.BlockCopy(data, 0, buffer, 2, data.Length);
+        /// <summary>
+        /// 打包Modbus数据
+        /// </summary>
+        /// <param name="addressCode">地址码</param>
+        /// <param name="fcode">功能代码</param>
+        /// <param name="data">要发送的数据</param>
+        /// <returns></returns>
+        private byte[] PackData(byte addressCode, byte fcode, byte[] data)
+        {
+            byte[] buffer = new byte[1 + 1 + data.Length];
+            buffer[0] = addressCode;
+            buffer[1] = fcode;
+            Buffer.BlockCopy(data, 0, buffer, 2, data.Length);
 
-        //    byte[] crcBytes = this.ReverseBytes(CRC.CRC16(buffer));
+            byte[] crcBytes = this.ReverseBytes(CRC.CRC16(buffer));
 
-        //    byte[] result = new byte[buffer.Length + crcBytes.Length];
-        //    Buffer.BlockCopy(buffer, 0, result, 0, buffer.Length);
-        //    Buffer.BlockCopy(crcBytes, 0, result, buffer.Length, crcBytes.Length);
-        //    return result;
-        //}
+            byte[] result = new byte[buffer.Length + crcBytes.Length];
+            Buffer.BlockCopy(buffer, 0, result, 0, buffer.Length);
+            Buffer.BlockCopy(crcBytes, 0, result, buffer.Length, crcBytes.Length);
+            return result;
+        }
 
-        //private byte[] ReverseBytes(byte[] src)
-        //{
-        //    return src.Reverse().ToArray();
-        //}
+        private byte[] ReverseBytes(byte[] src)
+        {
+            return src.Reverse().ToArray();
+        }
 
-        //#endregion
+        #endregion
     }
 }

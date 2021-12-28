@@ -21,8 +21,6 @@ namespace DotNEToolkit.Modular
     {
         private const string ModuleMetadataFilePattern = "modules.*.json";
 
-        private static readonly string DefaultDescriptionFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ModuleFactory.json");
-
         #region 类变量
 
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ModuleFactory");
@@ -171,11 +169,6 @@ namespace DotNEToolkit.Modular
             return CreateFactory(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)));
         }
 
-        public static ModuleFactory CreateDefaultFactory()
-        {
-            return CreateFactory(DefaultDescriptionFile);
-        }
-
         /// <summary>
         /// 创建一个模块工厂并同步初始化模块实例
         /// </summary>
@@ -200,6 +193,15 @@ namespace DotNEToolkit.Modular
         public static ModuleFactory CreateFactory()
         {
             return new ModuleFactory();
+        }
+
+        /// <summary>
+        /// 异步初始化ModuleFactory
+        /// </summary>
+        public void SetupAsync(string descFile, int interval = 1000)
+        {
+            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(descFile);
+            this.SetupModulesAsync(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)), 1000);
         }
 
         /// <summary>
@@ -275,6 +277,8 @@ namespace DotNEToolkit.Modular
 
         /// <summary>
         /// 根据模块定义创建一个模块实例
+        /// 但是不初始化它
+        /// 如果要创建并初始化，那么请调用SetupModule
         /// </summary>
         /// <param name="module">模块定义</param>
         /// <returns></returns>

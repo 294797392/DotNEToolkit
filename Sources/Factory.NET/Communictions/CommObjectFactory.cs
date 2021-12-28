@@ -1,4 +1,7 @@
-﻿using System;
+﻿using DotNEToolkit;
+using DotNEToolkit.Extentions;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,13 +14,34 @@ namespace Factory.NET.Communictions
     /// </summary>
     public static class CommObjectFactory
     {
-        public static CommunicationObject Create(CommunicationTypes type)
+        private const string KEY_TYPE = "type";
+        private const string KEY_CLASS_NAME = "className";
+
+        public static CommObject Create(IDictionary parameters)
+        {
+            // 优先通过className加载
+            string className = parameters.GetValue<string>(KEY_CLASS_NAME, string.Empty);
+            if (string.IsNullOrEmpty(className))
+            {
+                // className为空，那么通过type加载
+                int type = parameters.GetValue<int>(KEY_TYPE, -1);
+                if (type == -1)
+                {
+                    throw new NotImplementedException();
+                }
+                return CommObjectFactory.Create((CommTypes)type);
+            }
+
+            return ConfigFactory<CommObject>.CreateInstance(className);
+        }
+
+        public static CommObject Create(CommTypes type)
         {
             switch (type)
             {
-                case CommunicationTypes.SerialPort: return new SerialPortCommObject();
-                case CommunicationTypes.TcpClient: return new TcpClientCommObject();
-                case CommunicationTypes.TcpService: return new TcpServiceCommObject();
+                case CommTypes.SerialPort: return new SerialPortCommObject();
+                case CommTypes.TcpClient: return new TcpClientCommObject();
+                //case CommTypes.TcpService: return new TcpServiceCommObject();
 
                 default:
                     throw new NotImplementedException(string.Format("未实现{0}的通信设备", type));

@@ -9,7 +9,7 @@ namespace Factory.NET.Communictions
     /// <summary>
     /// 定义通信对象的类型
     /// </summary>
-    public enum CommunicationTypes
+    public enum CommTypes
     {
         /// <summary>
         /// 串口通信设备

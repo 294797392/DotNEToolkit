@@ -9,20 +9,27 @@ namespace DotNEToolkit.Modular
 {
     /// <summary>
     /// 存储模块的元数据信息
+    /// ModuleFactory通过TypeID找到ModuleMetadata，然后动态创建模块实例
     /// </summary>
     [JsonObject("ModuleMetadata")]
-    public sealed class ModuleMetadata
+    public class ModuleMetadata
     {
         /// <summary>
-        /// 元数据唯一标志符
+        /// 唯一标志符
         /// </summary>
-        [JsonProperty("TypeID")]
+        [JsonProperty("ID")]
         public string ID { get; set; }
+
+        /// <summary>
+        /// 模块的默认的名字
+        /// </summary>
+        [JsonProperty("Name")]
+        public string Name { get; set; }
 
         /// <summary>
         /// 模块的完整类型名
         /// </summary>
-        [JsonProperty("EntryClass")]
+        [JsonProperty("ClassName")]
         public string ClassName { get; set; }
     }
 }
