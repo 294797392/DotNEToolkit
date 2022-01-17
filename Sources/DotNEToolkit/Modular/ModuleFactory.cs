@@ -38,7 +38,7 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 当模块出发了一个事件的时候触发
         /// </summary>
-        public event Action<ModuleFactory, IModuleInstance, string, object> ModuleEvent;
+        public event Action<ModuleFactory, IModuleInstance, int, object> ModuleEvent;
 
         #endregion
 
@@ -396,17 +396,21 @@ namespace DotNEToolkit.Modular
 
         #endregion
 
-        private void NotifyModuleEvent(IModuleInstance moduleInst, string eventCode, object eventParams)
+        #region 事件处理器
+
+        private void NotifyModuleEvent(IModuleInstance moduleInst, int eventType, object eventParams)
         {
             if (this.ModuleEvent != null)
             {
-                this.ModuleEvent(this, moduleInst, eventCode, eventParams);
+                this.ModuleEvent(this, moduleInst, eventType, eventParams);
             }
         }
 
-        private void ModuleInstance_PublishEvent(IModuleInstance module, string eventCode, object eventParams)
+        private void ModuleInstance_PublishEvent(IModuleInstance module, int eventType, object eventParams)
         {
-            this.NotifyModuleEvent(module, eventCode, eventParams);
+            this.NotifyModuleEvent(module, eventType, eventParams);
         }
+
+        #endregion
     }
 }

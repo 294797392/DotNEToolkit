@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -31,7 +32,11 @@ namespace DotNEToolkit.Modular
         /// 第二个参数：事件代码
         /// 第二个参数：eventXml（由用户定义）
         /// </summary>
-        public event Action<IModuleInstance, string, object> PublishEvent;
+        public event Action<IModuleInstance, int, object> PublishEvent;
+
+        #endregion
+
+        #region 实例变量
 
         #endregion
 
@@ -64,6 +69,7 @@ namespace DotNEToolkit.Modular
 
         /// <summary>
         /// 模块所属工厂
+        /// 在ModuleFactory里被赋值
         /// </summary>
         public ModuleFactory Factory { get; internal set; }
 
@@ -154,15 +160,44 @@ namespace DotNEToolkit.Modular
         #region 公开接口
 
         /// <summary>
+        /// 从InputParameter里读取一个对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        protected T GetInputValue<T>(string key)
+        {
+            string json = this.InputParameters[key].ToString();
+            return JsonConvert.DeserializeObject<T>(json);
+        }
+
+        /// <summary>
+        /// 从InputParameter里读取一个对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="defaultValue">如果不存在该对象，那么要返回的默认值</param>
+        /// <returns></returns>
+        protected T GetInputValue<T>(string key, T defaultValue)
+        {
+            if (!this.InputParameters.Contains(key))
+            {
+                return defaultValue;
+            }
+
+            return this.GetInputValue<T>(key);
+        }
+
+        /// <summary>
         /// 发布一个事件，该事件只有订阅了该事件的模块才能收到
         /// </summary>
         /// <param name="eventCode">事件代码</param>
         /// <param name="eventParams">事件参数</param>
-        protected void PubEvent(string eventCode, object eventParams)
+        protected void PubEvent(int eventType, object eventData)
         {
             if (this.PublishEvent != null)
             {
-                this.PublishEvent(this, eventCode, eventParams);
+                this.PublishEvent(this, eventType, eventData);
             }
         }
 

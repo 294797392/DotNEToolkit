@@ -139,7 +139,7 @@
     <Compile Include="Expressions\ParserState.cs" />
     <Compile Include="Bytes.cs" />
     <Compile Include="DirectoryExtentions.cs" />
-    <Compile Include="EnumExtensions.cs" />
+    <Compile Include="Enumerations.cs" />
     <Compile Include="StreamExtentions.cs" />
     <Compile Include="SocketExtentions.cs" />
     <Compile Include="HttpClient.cs" />

@@ -18,7 +18,7 @@ namespace DotNEToolkit.Modular
         /// 第二个参数：事件类型
         /// 第三个参数：事件参数（由用户定义）
         /// </summary>
-        event Action<IModuleInstance, string, object> PublishEvent;
+        event Action<IModuleInstance, int, object> PublishEvent;
 
         /// <summary>
         /// 模块状态

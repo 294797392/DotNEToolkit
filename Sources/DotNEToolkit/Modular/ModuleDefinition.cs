@@ -57,7 +57,7 @@ namespace DotNEToolkit.Modular
         /// 执行模块的构造方法的时候，会动态把所依赖的模块实例反射并赋值给该模块的属性
         /// 避免了每次都要调用LookupModule去查找模块，麻烦
         /// </summary>
-        [JsonProperty("InputParameters")]
+        [JsonProperty("Inputs")]
         public IDictionary InputParameters { get; set; }
 
         public ModuleDefinition()
