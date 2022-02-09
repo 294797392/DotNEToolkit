@@ -45,6 +45,10 @@ namespace DotNEToolkit
 
         #region 构造方法
 
+        /// <summary>
+        /// 构造方法
+        /// </summary>
+        /// <param name="mysqlDir">mysql的基目录</param>
         public MySQLInstaller(string mysqlDir = null)
         {
             if (string.IsNullOrEmpty(mysqlDir))
