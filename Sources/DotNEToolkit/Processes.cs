@@ -52,5 +52,28 @@ namespace DotNEToolkit
                 }
             }
         }
+
+        /// <summary>
+        /// 创建一个标准输入输出都重定向了的进程
+        /// </summary>
+        /// <param name="exe"></param>
+        /// <param name="arguments"></param>
+        /// <returns></returns>
+        public static Process CreateProcess(string exe, string arguments)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo()
+            {
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+                FileName = exe,
+                Arguments = arguments
+            };
+
+            return Process.Start(psi);
+        }
     }
 }

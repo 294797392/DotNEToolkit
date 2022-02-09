@@ -165,7 +165,7 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public static ModuleFactory CreateFactory(string descFile)
         {
-            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(descFile);
+            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(descFile, new ModuleFactoryDescription());
             return CreateFactory(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)));
         }
 
@@ -200,7 +200,7 @@ namespace DotNEToolkit.Modular
         /// </summary>
         public void SetupAsync(string descFile, int interval = 1000)
         {
-            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(descFile);
+            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(descFile, new ModuleFactoryDescription());
             this.SetupModulesAsync(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)), 1000);
         }
 

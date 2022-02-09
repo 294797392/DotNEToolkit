@@ -608,7 +608,7 @@ namespace DotNEToolkit.Expressions
         /// 从树形结构的儿子节点递归计算表达式的值，直到把根节点的值计算出来
         /// </summary>
         /// <param name="parent">要计算的表达式根节点/param>
-        /// <paramref name="context">计算表达式的时候需要的额外数据</paramref>
+        /// <param name="context">计算表达式的时候需要的额外数据</param>
         /// <returns>返回null则表示失败，否则成功</returns>
         public object Evaluate(Expression parent, IEvaluationContext context)
         {
@@ -659,7 +659,7 @@ namespace DotNEToolkit.Expressions
                 return expression;
             }
 
-            return this.Evaluate(tree, context);
+            return this.Evaluate(tree.Children[0], context);
         }
 
         #endregion
@@ -719,7 +719,7 @@ namespace DotNEToolkit.Expressions
 
             try
             {
-                result = JSONHelper.ParseFile<List<ExpressionDefinition>>(exprFile);
+                result = JSONHelper.ParseFile<List<ExpressionDefinition>>(exprFile, result);
             }
             catch (Exception ex)
             {

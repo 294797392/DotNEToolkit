@@ -31,7 +31,7 @@ namespace DotNEToolkit.Modular
         /// </summary>
         Initializing,
 
-        //// <summary>
+        /// <summary>
         /// 初始化异常
         /// </summary>
         InitializeException

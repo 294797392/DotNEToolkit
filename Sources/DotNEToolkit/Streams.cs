@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
-namespace DotNEToolkit.Extentions
+namespace DotNEToolkit
 {
-    public static class StreamExtentions
+    public static class Streams
     {
         /// <summary>
         /// 一次读取1024个字节

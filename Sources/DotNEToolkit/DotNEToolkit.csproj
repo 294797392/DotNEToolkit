@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\DotNEToolkit.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -60,6 +61,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -102,6 +104,7 @@
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
     <Compile Include="Log4net.cs" />
     <Compile Include="Modular\Exceptions\ModuleNotFoundException.cs" />
+    <Compile Include="MySQLInstaller.cs" />
     <Compile Include="StringEnumerator.cs" />
     <Compile Include="Media\AudioPlay.cs" />
     <Compile Include="Media\AudioPlayFactory.cs" />
@@ -140,8 +143,8 @@
     <Compile Include="Bytes.cs" />
     <Compile Include="DirectoryExtentions.cs" />
     <Compile Include="Enumerations.cs" />
-    <Compile Include="StreamExtentions.cs" />
-    <Compile Include="SocketExtentions.cs" />
+    <Compile Include="Streams.cs" />
+    <Compile Include="Sockets.cs" />
     <Compile Include="HttpClient.cs" />
     <Compile Include="INIReader.cs" />
     <Compile Include="Keyboard.cs" />
@@ -159,8 +162,7 @@
     <Compile Include="Modular\ModuleFlags.cs" />
     <Compile Include="Modular\ModuleStatus.cs" />
     <Compile Include="Modular\ModuleMetadata.cs" />
-    <Compile Include="DateTimeExtentions.cs" />
-    <Compile Include="CollectionExtentions.cs" />
+    <Compile Include="Collections.cs" />
     <Compile Include="Internals\Confguration.cs" />
     <Compile Include="JSONHelper.cs" />
     <Compile Include="MouseScanner.cs" />
@@ -181,6 +183,7 @@
     <Compile Include="TcpFramework\TcpSvr.cs" />
     <Compile Include="Win32API.cs" />
     <Compile Include="WindowScanner.cs" />
+    <Compile Include="WindowsServices.cs" />
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup />

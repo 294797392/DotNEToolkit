@@ -18,7 +18,7 @@ namespace DotNEToolkit
         /// </summary>
         /// <param name="structObj">要转换的结构体</param>
         /// <returns>指向结构体的指针</returns>
-        public static IntPtr StructureToPtr(object structObj)
+        public static IntPtr CreateStructurePointer(object structObj)
         {
             int size = Marshal.SizeOf(structObj);
 
@@ -35,7 +35,7 @@ namespace DotNEToolkit
         /// 释放用StructureToPtr函数分配的结构体指针
         /// </summary>
         /// <param name="structPtr">要释放的指针</param>
-        public static void FreeStructurePtr(IntPtr structPtr)
+        public static void FreeStructurePointer(IntPtr structPtr)
         {
             if (structPtr != IntPtr.Zero)
             {

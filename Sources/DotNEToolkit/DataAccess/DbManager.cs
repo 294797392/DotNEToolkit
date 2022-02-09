@@ -39,7 +39,7 @@
                 connection = DbHelper.CreateDbConnection(this.ConnectionString, this.DbType);
                 return true;
             }
-            catch
+            catch(Exception ex)
             {
             }
             finally

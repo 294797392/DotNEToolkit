@@ -38,9 +38,9 @@ namespace DotNEToolkit.Extentions
         }
 
         /// <summary>
-        /// 把一个枚举类型转换成List<EnumMember>
+        /// 把一个枚举类型转换成实体集合
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">要转换的枚举类型</typeparam>
         /// <returns></returns>
         public static List<EnumMember> GetMemberList<T>()
         {

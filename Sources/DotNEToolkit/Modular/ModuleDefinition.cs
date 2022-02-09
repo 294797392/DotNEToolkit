@@ -58,8 +58,11 @@ namespace DotNEToolkit.Modular
         /// 避免了每次都要调用LookupModule去查找模块，麻烦
         /// </summary>
         [JsonProperty("Inputs")]
-        public IDictionary InputParameters { get; set; }
+        public IDictionary InputParameters { get; private set; }
 
+        /// <summary>
+        /// 构造方法
+        /// </summary>
         public ModuleDefinition()
         {
             this.ID = Guid.NewGuid().ToString();

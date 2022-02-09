@@ -32,17 +32,17 @@ namespace DotNEToolkit
 
             foreach (string filePath in expressionFiles)
             {
-                result.AddRange(JSONHelper.ParseFile<List<T>>(filePath));
+                result.AddRange(JSONHelper.ParseFile<List<T>>(filePath, new List<T>()));
             }
 
             return result;
         }
 
-        public static TResult Parse<TResult>(string jsonText)
+        public static TResult Parse<TResult>(string jsonText, TResult defaultValue)
         {
             if (string.IsNullOrEmpty(jsonText))
             {
-                return default(TResult);
+                return defaultValue;
             }
 
             try
@@ -52,14 +52,8 @@ namespace DotNEToolkit
             catch (Exception ex)
             {
                 logger.Error(string.Format("解析JSON异常, json = {0}", jsonText), ex);
-                return default(TResult);
+                return defaultValue;
             }
-        }
-
-        public static bool TryParse<TResult>(string jsonText, out TResult result)
-        {
-            result = Parse<TResult>(jsonText);
-            return result != null;
         }
 
         /// <summary>
@@ -76,47 +70,22 @@ namespace DotNEToolkit
             return JsonConvert.DeserializeObject<TResult>(json);
         }
 
-        /// <summary>
-        /// 把一个json文件序列化成C#对象
-        /// 该函数会对异常做处理
-        /// 注意，如果该函数返回false，那么调用者可能不知道出现异常的详细原因
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="jsonFile"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        public static bool TryParseFile<TResult>(string jsonFile, out TResult result)
+        public static TResult ParseFile<TResult>(string jsonFile, TResult defaultValue)
         {
-            result = default(TResult);
-
-            if (string.IsNullOrEmpty(jsonFile))
-            {
-                logger.ErrorFormat("TryParseFile失败, 文件路径为空");
-                return false;
-            }
-
             if (!File.Exists(jsonFile))
             {
-                logger.ErrorFormat("TryParseFile失败, 文件不存在, {0}", jsonFile);
-                return false;
+                return defaultValue;
             }
 
             try
             {
                 string json = File.ReadAllText(jsonFile);
-                result = JsonConvert.DeserializeObject<TResult>(json);
-                if (result == null)
-                {
-                    logger.ErrorFormat("TryParseFile, 转换后的对象为null");
-                    return false;
-                }
-
-                return true;
+                return JsonConvert.DeserializeObject<TResult>(json);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("TryParseFile异常, {0}, {1}", jsonFile, ex);
-                return false;
+                logger.Error(string.Format("解析JSON文件异常, path = {0}", jsonFile), ex);
+                return defaultValue;
             }
         }
 
@@ -133,20 +102,23 @@ namespace DotNEToolkit
             File.WriteAllText(jsonFile, jsonText);
         }
 
-        public static List<T> JArray2List<T>(this IDictionary toConvert, string key)
+        /// <summary>
+        /// 从一个字典里获取一个JSON格式的对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="parameters"></param>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static TValue GetValue<TValue>(this IDictionary parameters, string key, TValue defaultValue)
         {
-            if (!toConvert.Contains(key))
+            if (!parameters.Contains(key))
             {
-                return null;
+                return defaultValue;
             }
 
-            if (!(toConvert[key] is JArray))
-            {
-                return null;
-            }
-
-            JArray jArray = toConvert[key] as JArray;
-            return jArray.ToObject<List<T>>();
+            string json = parameters[key].ToString();
+            return JsonConvert.DeserializeObject<TValue>(json);
         }
     }
 
@@ -206,24 +178,24 @@ namespace DotNEToolkit
         /// </summary>
         /// <typeparam name="T">集合里的类型</typeparam>
         /// <param name="jsonFile">json文件路径</param>
-        /// <param name="obj">要插入的元素的实例</param>
+        /// <param name="item">要插入的元素的实例</param>
         /// <returns></returns>
         public static void Insert<T>(string jsonFile, T item)
         {
-            List<T> list = JSONHelper.Parse<List<T>>(jsonFile);
+            List<T> list = JSONHelper.Parse<List<T>>(jsonFile, new List<T>());
             list.Add(item);
             JSONHelper.WriteFile<List<T>>(jsonFile, list);
         }
 
         public static TSource Select<TSource>(string jsonFile, Func<TSource, bool> predicate)
         {
-            List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile);
+            List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile, new List<TSource>());
             return list.FirstOrDefault(predicate);
         }
 
         public static List<TSource> SelectAll<TSource>(string jsonFile)
         {
-            return JSONHelper.ParseFile<List<TSource>>(jsonFile);
+            return JSONHelper.ParseFile<List<TSource>>(jsonFile, new List<TSource>());
         }
 
         public static List<TSource> SelectAll<TSource>(string jsonFile, Func<TSource, bool> predicate)
@@ -233,7 +205,7 @@ namespace DotNEToolkit
 
         public static void Delete<TSource>(string jsonFile, Func<TSource, bool> predicate)
         {
-            List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile);
+            List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile, new List<TSource>());
             TSource toDelete = list.FirstOrDefault(predicate);
             if (toDelete != null)
             {
@@ -245,7 +217,7 @@ namespace DotNEToolkit
 
         public static int Update<TSource>(string jsonFile, Func<TSource, bool> predicate, TSource item)
         {
-            List<TSource> list = JSONHelper.Parse<List<TSource>>(jsonFile);
+            List<TSource> list = JSONHelper.Parse<List<TSource>>(jsonFile, new List<TSource>());
 
             TSource exist = list.FirstOrDefault(predicate);
             if (exist == null)

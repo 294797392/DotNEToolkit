@@ -59,7 +59,7 @@ namespace DotNEToolkit.Media
                 cbSize = 0,
                 wFormatTag = 1
             };
-            this.free_pwfx = Marshals.StructureToPtr(wfx);
+            this.free_pwfx = Marshals.CreateStructurePointer(wfx);
             this.waveInProcDlg = new waveIn.waveInProcDlg(this.waveInProc);
             int code = waveIn.waveInOpen(out this.hwi, waveIn.WAVE_MAPPER, this.free_pwfx, this.waveInProcDlg, 0, waveIn.WAVE_FORMAT_DIRECT | waveIn.CALLBACK_FUNCTION);
             if (code != MMSYSERR.MMSYSERR_NOERROR)
@@ -79,7 +79,7 @@ namespace DotNEToolkit.Media
                 dwFlags = 0x00000002
             };
             this.whSize = Marshal.SizeOf(typeof(waveIn.wavehdr_tag));
-            this.free_pwh = Marshals.StructureToPtr(wh);
+            this.free_pwh = Marshals.CreateStructurePointer(wh);
             code = waveIn.waveInPrepareHeader(hwi, this.free_pwh, (uint)this.whSize);
             if (code != MMSYSERR.MMSYSERR_NOERROR)
             {

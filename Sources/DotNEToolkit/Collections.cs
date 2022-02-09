@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DotNEToolkit.Extentions
+namespace DotNEToolkit
 {
-    public static class CollectionExtentions
+    public static class Collections
     {
         public static T Parse<T>(this string value)
         {

@@ -4,9 +4,12 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
-namespace DotNEToolkit.Extentions
+namespace DotNEToolkit
 {
-    public static class SocketExtentions
+    /// <summary>
+    /// 封装可以快速操作Socket的方法
+    /// </summary>
+    public static class Sockets
     {
         /// <summary>
         /// 读取一段完整的数据

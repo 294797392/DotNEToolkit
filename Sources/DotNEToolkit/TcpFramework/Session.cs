@@ -31,7 +31,7 @@ namespace DotNEToolkit.TcpFramework
         }
 
         /// <summary> 
-        /// 返回会话的ID. <0 则为未连接
+        /// 返回会话的ID. 小于0 则为未连接
         /// </summary>
         public int ID
         {
