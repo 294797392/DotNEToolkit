@@ -94,7 +94,7 @@ namespace DotNEToolkit
 
             #endregion
 
-            this.NotifyProgress(25);
+            this.NotifyProgress(20);
 
             #region 创建Windows服务
 
@@ -108,7 +108,7 @@ namespace DotNEToolkit
 
             #endregion
 
-            this.NotifyProgress(50);
+            this.NotifyProgress(40);
 
             #region 初始化数据库
 
@@ -148,7 +148,7 @@ namespace DotNEToolkit
 
             #endregion
 
-            this.NotifyProgress(75);
+            this.NotifyProgress(60);
 
             #region 保存Mysql的用户名和密码
 
@@ -167,7 +167,7 @@ namespace DotNEToolkit
 
             #endregion
 
-            this.NotifyProgress(100);
+            this.NotifyProgress(80);
 
             #region 最后启动Mysql服务
 
@@ -178,6 +178,8 @@ namespace DotNEToolkit
             }
 
             #endregion
+
+            this.NotifyProgress(100);
 
             return DotNETCode.SUCCESS;
         }
