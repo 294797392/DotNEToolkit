@@ -200,20 +200,14 @@ namespace DotNEToolkit
                 return DotNETCode.MYSQL_INSTALL_SVC_FAILED;
             }
 
+            // 删除data目录
             string dataDir = Path.Combine(this.mysqlDir, "data");
             if (Directory.Exists(dataDir))
             {
-                //// 先备份一下原有的db目录
-                //string backupDir = Path.Combine(this.mysqlDir, string.Format("data_bakup{0}", DateTime.Now.ToString(DateTimeFormat.yyyyMMddhhmmss)));
-                //Directory.Move(dataDir, backupDir);
                 Directory.Delete(dataDir, true);
-
-                // 再删除
-                // 备份就相当于删除了，所以就不用删除了
             }
 
             // 删除配置文件
-            
 
             return DotNETCode.SUCCESS;
         }
