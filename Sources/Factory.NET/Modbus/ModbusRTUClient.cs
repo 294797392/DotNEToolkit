@@ -154,18 +154,9 @@ namespace DotNEToolkit.Modbus
             Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
 
             byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            if (!this.commObject.WriteBytes(data))
-            {
-                logger.Error("ReadDigtalIO失败");
-                return false;
-            }
+            this.commObject.WriteBytes(data);
 
-            byte[] result = new byte[6];
-            if (!this.commObject.ReadBytes(result))
-            {
-                logger.ErrorFormat("接收Modbus数据失败");
-                return false;
-            }
+            byte[] result = this.commObject.ReadBytes(6);
 
             if (result[0] != this.AddressCode || result[1] != fcode || result[2] != 1)
             {
@@ -194,18 +185,9 @@ namespace DotNEToolkit.Modbus
             Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
 
             byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            if (!this.commObject.WriteBytes(data))
-            {
-                logger.Error("WriteDigtalOutput失败");
-                return false;
-            }
+            this.commObject.WriteBytes(data);
 
-            byte[] result = new byte[8];
-            if (!this.commObject.ReadBytes(result))
-            {
-                logger.ErrorFormat("接收Modbus数据失败");
-                return false;
-            }
+            byte[] result = this.commObject.ReadBytes(8);
 
             if (!Bytes.Compare(result, data))
             {
@@ -235,19 +217,10 @@ namespace DotNEToolkit.Modbus
             Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
 
             byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            if (!this.commObject.WriteBytes(data))
-            {
-                logger.Error("ReadAnalogIO失败");
-                return false;
-            }
+            this.commObject.WriteBytes(data);
 
             int valueBytes = numReg * 2;    // 寄存器的值所占用的字节数
-            byte[] result = new byte[3 + valueBytes + 2];
-            if (!this.commObject.ReadBytes(result))
-            {
-                logger.ErrorFormat("接收Modbus数据失败, {0}");
-                return false;
-            }
+            byte[] result = this.commObject.ReadBytes(3 + valueBytes + 2);
 
             // result[2]是字节数，参考MODBUS_Communication_Protocol_Chinese_Version# MODBUS通讯协议中文版.pdf, 16页
             if (result[0] != this.AddressCode || result[1] != fcode || result[2] != valueBytes)
@@ -277,18 +250,9 @@ namespace DotNEToolkit.Modbus
             Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
 
             byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            if (!this.commObject.WriteBytes(data))
-            {
-                logger.Error("WriteDigtalOutput失败");
-                return false;
-            }
+            this.commObject.WriteBytes(data);
 
-            byte[] result = new byte[8];
-            if (!this.commObject.ReadBytes(result))
-            {
-                logger.ErrorFormat("接收Modbus数据失败, {0}");
-                return false;
-            }
+            byte[] result = this.commObject.ReadBytes(8);
 
             if (!Bytes.Compare(result, data))
             {

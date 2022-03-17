@@ -53,8 +53,9 @@
     <Compile Include="Communictions\CommObject.cs" />
     <Compile Include="Communictions\SerialPortCommObject.cs" />
     <Compile Include="Communictions\TcpClientCommObject.cs" />
-    <Compile Include="Communictions\TcpServiceCommObject.cs" />
     <Compile Include="Modbus\ModbusRTUClient.cs" />
+    <Compile Include="Modules\CameraDriver.cs" />
+    <Compile Include="Modules\CardDriver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,5 +64,6 @@
       <Name>DotNEToolkit</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,4 +1,5 @@
-﻿using DotNEToolkit.Modular;
+﻿using DotNEToolkit;
+using DotNEToolkit.Modular;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,13 +18,29 @@ namespace Factory.NET.Communictions
 
         private static log4net.ILog logger = log4net.LogManager.GetLogger("CommunicationObject");
 
+        private const string KEY_NEWLINE = "newline";
+        private const string DefaultNewLine = "\r\n";
+
+        #endregion
+
+        #region 实例变量
+
+        /// <summary>
+        /// 在读取或写入一行数据的时候使用的换行符
+        /// </summary>
+        protected string newline;
+
         #endregion
 
         #region ModuleBase
 
         public override int Initialize(IDictionary parameters)
         {
-            return base.Initialize(parameters);
+            base.Initialize(parameters);
+
+            this.newline = parameters.GetValue<string>(KEY_NEWLINE, DefaultNewLine);
+
+            return DotNETCode.SUCCESS;
         }
 
         public override void Release()
@@ -53,79 +70,34 @@ namespace Factory.NET.Communictions
         /// <returns></returns>
         public abstract void Close();
 
+        /// <summary>
+        /// 从通信设备里读取一行数据
+        /// </summary>
+        /// <returns></returns>
         public abstract string ReadLine();
 
+        /// <summary>
+        /// 向通信设备里写入一行数据
+        /// </summary>
+        /// <param name="line"></param>
         public abstract void WriteLine(string line);
 
         /// <summary>
         /// 从通信设备里读取一段数据
         /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="offset"></param>
-        /// <param name="count"></param>
+        /// <param name="size">要读取的数据大小</param>
         /// <returns>读取的字节数</returns>
-        protected abstract int ReadBytes(byte[] bytes, int offset, int count);
+        public abstract byte[] ReadBytes(int size);
 
         /// <summary>
         /// 向通信设备里写入一段数据
         /// </summary>
         /// <param name="bytes"></param>
-        /// <param name="offset"></param>
-        /// <param name="count"></param>
-        protected abstract void WriteBytes(byte[] bytes, int offset, int count);
+        public abstract void WriteBytes(byte[] bytes);
 
         #endregion
 
         #region 公开接口
-
-        /// <summary>
-        /// 读取bytes大小的数据
-        /// </summary>
-        /// <param name="bytes">要存储读取的数据的缓冲区</param>
-        /// <returns></returns>
-        public bool ReadBytes(byte[] bytes)
-        {
-            int total = bytes.Length;
-            int readed = 0;
-            while (readed != total)
-            {
-                int size = this.ReadBytes(bytes, readed, total - readed);
-                if (size == -1)
-                {
-                    return false;
-                }
-                readed += size;
-                logger.DebugFormat("读取的字节数 = {0}", readed);
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// 写入bytes大小的数据
-        /// </summary>
-        /// <param name="bytes">要写入的数据</param>
-        /// <returns></returns>
-        public bool WriteBytes(byte[] bytes)
-        {
-            this.WriteBytes(bytes, 0, bytes.Length);
-            return true;
-
-            //int total = bytes.Length;
-            //int writed = 0;
-            //while (writed != total)
-            //{
-            //    int size = this.WriteBytes(bytes, writed, total - writed);
-            //    if (size == -1)
-            //    {
-            //        return false;
-            //    }
-            //    writed += size;
-            //    logger.DebugFormat("写入的字节数 = {0}", writed);
-            //}
-
-            //return true;
-        }
 
         #endregion
     }

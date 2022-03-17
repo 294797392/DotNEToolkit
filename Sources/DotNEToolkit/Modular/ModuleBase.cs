@@ -80,6 +80,8 @@ namespace DotNEToolkit.Modular
 
         /// <summary>
         /// 模块的输入参数
+        /// 不要使用这个参数去获取配置参数，而是使用Initialize方法里穿进去的parameter去获取配置参数
+        /// 因为InputParameters参数里有可能有绑定参数，需要动态计算
         /// </summary>
         public IDictionary InputParameters { get; private set; }
 

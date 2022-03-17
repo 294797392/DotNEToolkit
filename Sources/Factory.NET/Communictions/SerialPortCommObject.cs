@@ -19,7 +19,6 @@ namespace Factory.NET.Communictions
         private const string KEY_PORT = "Port";
         private const string KEY_DATABITS = "DataBits";
         private const string KEY_STOPBITS = "StopBits";
-        private const string KEY_NEWLINE = "NewLine";
 
         #region 类变量
 
@@ -39,18 +38,17 @@ namespace Factory.NET.Communictions
         {
             base.Initialize(parameters);
 
-            int baudRate = this.InputParameters.GetValue<int>(KEY_BAUDRATE);
-            string portName = this.InputParameters.GetValue<string>(KEY_PORT);
-            int dataBits = this.InputParameters.GetValue<int>(KEY_DATABITS, 8);
-            StopBits stopBits = this.InputParameters.GetValue<StopBits>(KEY_STOPBITS, StopBits.One);
-            string newLine = this.InputParameters.GetValue<string>(KEY_NEWLINE, Environment.NewLine);
+            int baudRate = parameters.GetValue<int>(KEY_BAUDRATE);
+            string portName = parameters.GetValue<string>(KEY_PORT);
+            int dataBits = parameters.GetValue<int>(KEY_DATABITS, 8);
+            StopBits stopBits = parameters.GetValue<StopBits>(KEY_STOPBITS, StopBits.One);
 
             this.serialPort = new SerialPort();
             this.serialPort.PortName = portName;
             this.serialPort.BaudRate = baudRate;
             this.serialPort.DataBits = dataBits;
             this.serialPort.StopBits = stopBits;
-            this.serialPort.NewLine = newLine;
+            this.serialPort.NewLine = this.newline;
 
             logger.InfoFormat("初始化串口成功, PortName = {0}, BaudRate = {1}, DataBits = {2}, StopBits = {3}", portName, baudRate, dataBits, stopBits);
 
@@ -98,14 +96,14 @@ namespace Factory.NET.Communictions
             this.serialPort.WriteLine(line);
         }
 
-        protected override int ReadBytes(byte[] bytes, int offset, int count)
+        public override byte[] ReadBytes(int size)
         {
-            return this.serialPort.Read(bytes, offset, count);
+            return Streams.ReadFull(this.serialPort.Read, size);
         }
 
-        protected override void WriteBytes(byte[] bytes, int offset, int count)
+        public override void WriteBytes(byte[] bytes)
         {
-            this.serialPort.Write(bytes, offset, count);
+            this.serialPort.Write(bytes, 0, bytes.Length);
         }
 
         #endregion

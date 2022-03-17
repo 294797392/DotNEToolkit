@@ -30,17 +30,31 @@ namespace DotNEToolkitConsole
         {
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            MySQLInstaller installer = new MySQLInstaller(@"D:\Mysql\mysql-8.0.26-winx64");
-            installer.Progress += Installer_Progress;
-            int code = installer.Install();
-            if (code == DotNETCode.SUCCESS)
-            {
-                Console.WriteLine("执行成功");
-            }
-            else
-            {
-                Console.WriteLine("执行失败, {0}", code);
-            }
+            int value = 456;
+            byte[] data = new byte[] { (byte)(value & 0xFF), (byte)(value >> 8 & 0xFF), 0, 0 };
+
+            int value2 = 0;
+            value2 |= data[0];
+            value2 |= data[1] << 8;
+            value2 |= data[2] << 16;
+            value2 |= data[3] << 24;
+
+            Console.WriteLine(value2);
+
+            //byte[] data = BitConverter.GetBytes(456);
+            //int d=  BitConverter.ToInt32(data,0 );
+
+            //MySQLInstaller installer = new MySQLInstaller(@"D:\Mysql\mysql-8.0.26-winx64");
+            //installer.Progress += Installer_Progress;
+            //int code = installer.Install();
+            //if (code == DotNETCode.SUCCESS)
+            //{
+            //    Console.WriteLine("执行成功");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("执行失败, {0}", code);
+            //}
 
             Console.ReadLine();
         }

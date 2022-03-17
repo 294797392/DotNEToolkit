@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace DotNEToolkit
 {
     public static class Collections
     {
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("Collections");
+
         public static T Parse<T>(this string value)
         {
             Type conversionType = typeof(T);
@@ -83,6 +86,34 @@ namespace DotNEToolkit
             }
 
             return map.GetValue<T>(key, default(T));
+        }
+
+        /// <summary>
+        /// 从一个字典里获取一个JSON格式的对象
+        /// 如果不存在该参数或者序列化失败, 那么返回defaultValue
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="parameters"></param>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static TValue GetJSONObject<TValue>(this IDictionary parameters, string key, TValue defaultValue)
+        {
+            if (!parameters.Contains(key))
+            {
+                return defaultValue;
+            }
+
+            try
+            {
+                string json = parameters[key].ToString();
+                return JsonConvert.DeserializeObject<TValue>(json);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("解析JSON对象异常", ex);
+                return defaultValue;
+            }
         }
 
         /// <summary>

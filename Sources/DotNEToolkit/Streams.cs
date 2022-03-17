@@ -7,6 +7,9 @@ using System.Text;
 
 namespace DotNEToolkit
 {
+    /// <summary>
+    /// 封装对流的一些操作
+    /// </summary>
     public static class Streams
     {
         /// <summary>
@@ -23,18 +26,7 @@ namespace DotNEToolkit
         public static byte[] ReadFull(this Stream stream, long size)
         {
             byte[] result = new byte[size];
-
-            long left = size;
-            int offset = 0;
-
-            while (left > 0)
-            {
-                int readLen = left > 1024 ? BufferSize : (int)left;
-                int actual = stream.Read(result, offset, readLen);
-                offset += actual;
-                left = result.Length - offset;
-            }
-
+            stream.ReadFull(result);
             return result;
         }
 
@@ -56,6 +48,34 @@ namespace DotNEToolkit
             }
 
             return readed;
+        }
+
+        /// <summary>
+        /// 读取指定大小的数据
+        /// </summary>
+        /// <param name="readFunc"></param>
+        /// <param name="howMuch">要读取的字节数</param>
+        /// <returns></returns>
+        public static byte[] ReadFull(Func<byte[], int, int, int> readFunc, int howMuch)
+        {
+            byte[] result = new byte[howMuch];
+
+            int left = howMuch;
+            int readed = 0;
+
+            while (left > 0)
+            {
+                int readLen = left > BufferSize ? BufferSize : (int)left;
+                int size = readFunc(result, readed, readLen);
+                if (size == 0)
+                {
+                    break;
+                }
+                readed += size;
+                left -= readed;
+            }
+
+            return result;
         }
     }
 }

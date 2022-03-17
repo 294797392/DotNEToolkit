@@ -119,14 +119,14 @@ namespace Factory.NET.Communictions
             this.writer.WriteLine(line);
         }
 
-        protected override int ReadBytes(byte[] bytes, int offset, int count)
+        public override byte[] ReadBytes(int size)
         {
-            return this.stream.Read(bytes, offset, count);
+            return this.stream.ReadFull(size);
         }
 
-        protected override void WriteBytes(byte[] bytes, int offset, int count)
+        public override void WriteBytes(byte[] bytes)
         {
-            this.stream.Write(bytes, offset, count);
+            this.stream.Write(bytes, 0, bytes.Length);
         }
 
         #endregion

@@ -152,7 +152,6 @@ namespace DotNEToolkit
             }
         }
 
-
         public void Clear()
         {
             lock (this.syncRoot)

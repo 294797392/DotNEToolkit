@@ -101,25 +101,6 @@ namespace DotNEToolkit
             string jsonText = JsonConvert.SerializeObject(obj);
             File.WriteAllText(jsonFile, jsonText);
         }
-
-        /// <summary>
-        /// 从一个字典里获取一个JSON格式的对象
-        /// </summary>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="parameters"></param>
-        /// <param name="key"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public static TValue GetValue<TValue>(this IDictionary parameters, string key, TValue defaultValue)
-        {
-            if (!parameters.Contains(key))
-            {
-                return defaultValue;
-            }
-
-            string json = parameters[key].ToString();
-            return JsonConvert.DeserializeObject<TValue>(json);
-        }
     }
 
     /// <summary>
