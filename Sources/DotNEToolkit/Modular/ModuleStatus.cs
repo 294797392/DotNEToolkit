@@ -34,6 +34,31 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 初始化异常
         /// </summary>
-        InitializeException
+        InitializeException,
+
+        /// <summary>
+        /// 服务正在启动
+        /// </summary>
+        StartPending,
+
+        /// <summary>
+        /// 服务正在启动
+        /// </summary>
+        StopPending,
+
+        /// <summary>
+        /// 服务已经启动
+        /// </summary>
+        Running,
+
+        /// <summary>
+        /// 服务已停止
+        /// </summary>
+        Stopped,
+
+        /// <summary>
+        /// 启动异常
+        /// </summary>
+        StartupException
     }
 }

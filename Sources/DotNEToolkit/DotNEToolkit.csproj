@@ -104,6 +104,7 @@
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
     <Compile Include="Log4net.cs" />
     <Compile Include="Modular\Exceptions\ModuleNotFoundException.cs" />
+    <Compile Include="Modular\ServiceModule.cs" />
     <Compile Include="MySQLInstaller.cs" />
     <Compile Include="StringEnumerator.cs" />
     <Compile Include="Media\AudioPlay.cs" />

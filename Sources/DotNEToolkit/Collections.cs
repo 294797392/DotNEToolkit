@@ -44,6 +44,8 @@ namespace DotNEToolkit
 
         public static T GetValue<T>(this IDictionary settings, object key, T defaultValue)
         {
+            Type valueType = typeof(T);
+
             try
             {
                 if (!settings.Contains(key))
@@ -56,9 +58,15 @@ namespace DotNEToolkit
                 {
                     return defaultValue;
                 }
-                else if (!typeof(T).IsValueType)
+                else if (!valueType.IsValueType)
                 {
                     return (T)v;
+                }
+                else if (valueType.IsEnum)
+                {
+                    // 枚举需要单独转换
+                    string name = Enum.GetName(valueType, v);
+                    return (T)Enum.Parse(valueType, name);
                 }
                 else
                 {

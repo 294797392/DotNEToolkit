@@ -89,12 +89,11 @@ namespace DotNEToolkit.Modular
         {
             int code = DotNETCode.SUCCESS;
 
+            moduleInst.Status = ModuleStatus.Initializing;
             this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Initializing);
 
             try
             {
-                moduleInst.Status = ModuleStatus.Initializing;
-
                 if ((code = moduleInst.Initialize(moduleInst.Definition.InputParameters)) != DotNETCode.SUCCESS)
                 {
                     moduleInst.Status = ModuleStatus.InitializeFailed;
@@ -119,20 +118,59 @@ namespace DotNEToolkit.Modular
             }
         }
 
-        private void InitializeModuleFinal(ModuleBase moduleInst, int interval)
+        private int StartServiceModuleFinal(ServiceModule moduleInst)
         {
             int code = DotNETCode.SUCCESS;
 
-            while (true)
+            moduleInst.Status = ModuleStatus.StartPending;
+            this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.StartPending);
+
+            try
             {
-                if ((code = this.InitializeModuleFinal(moduleInst)) != DotNETCode.SUCCESS)
+                if ((code = moduleInst.Start()) != DotNETCode.SUCCESS)
+                {
+                    moduleInst.Status = ModuleStatus.Stopped;
+                    this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Stopped);
+                    logger.WarnFormat("启动服务模块失败, module = {0}, code = {1}, {2}", moduleInst.Name, code, DotNETCode.GetMessage(code));
+                    return code;
+                }
+
+                logger.InfoFormat("启动服务模块成功, module = {0}", moduleInst.Name);
+
+                moduleInst.Status = ModuleStatus.Running;
+                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Running);
+
+                return DotNETCode.SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                moduleInst.Status = ModuleStatus.StartupException;
+                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.StartupException);
+                logger.Error("启动服务模块异常", ex);
+                return DotNETCode.UNKNOWN_EXCEPTION;
+            }
+        }
+
+        /// <summary>
+        /// 初始化一个模块，直到该模块初始化成功为止
+        /// 如果初始化失败，那么会一直初始化
+        /// </summary>
+        /// <param name="moduleInst">要初始化的模块</param>
+        /// <param name="interval">重新初始化的间隔时间</param>
+        private void InitializeModule(ModuleBase moduleInst, int interval)
+        {
+            int code = DotNETCode.SUCCESS;
+
+            while ((code = this.InitializeModuleFinal(moduleInst)) != DotNETCode.SUCCESS)
+            {
+                Thread.Sleep(interval);
+            }
+
+            if (moduleInst is ServiceModule)
+            {
+                while ((code = this.StartServiceModuleFinal(moduleInst as ServiceModule)) != DotNETCode.SUCCESS)
                 {
                     Thread.Sleep(interval);
-                    continue;
-                }
-                else
-                {
-                    break;
                 }
             }
         }
@@ -143,7 +181,7 @@ namespace DotNEToolkit.Modular
             {
                 foreach (ModuleBase moduleInst in moduleList)
                 {
-                    this.InitializeModuleFinal(moduleInst, interval);
+                    this.InitializeModule(moduleInst, interval);
                 }
 
                 if (this.Initialized != null)
