@@ -100,10 +100,38 @@ namespace DotNEToolkit
 
         #endregion
 
-        #region 501 - 500 MySQLInstaller
+        #region 501 - 600 MySQLInstaller
 
         public const int MYSQL_INSTALL_SVC_FAILED = 501;
         public const int MYSQL_INITIALIZE_FAILED = 502;
+
+        #endregion
+
+        #region 601 - 650 IPC
+
+        public const int IPC_CONNECT_FAILED = 601;
+
+        /// <summary>
+        /// 发送消息异常
+        /// </summary>
+        public const int IPC_SEND_FAILED = 602;
+
+        public const int IPC_START_FAILED = 603;
+
+        /// <summary>
+        /// 创建进程失败
+        /// </summary>
+        public const int CREATE_PROC_FAILED = 604;
+
+        /// <summary>
+        /// 创建IHostedModule失败
+        /// </summary>
+        public const int CREATE_HOSTED_MODULE_FAILED = 605;
+
+        /// <summary>
+        /// 初始化IHostedModule失败
+        /// </summary>
+        public const int INIT_HOSTED_MODULE_FAILED = 606;
 
         #endregion
 
@@ -121,9 +149,10 @@ namespace DotNEToolkit
                 case DotNETCode.WRITE_FAILED: return "写数据失败";
                 case DotNETCode.TIMEOUT: return "操作超时";
 
-
                 case DotNETCode.MYSQL_INSTALL_SVC_FAILED: return "安装Mysql服务失败";
                 case DotNETCode.MYSQL_INITIALIZE_FAILED: return "初始化Mysql数据库失败";
+
+                case DotNETCode.IPC_SEND_FAILED: return "发送消息失败";
 
                 default:
                     return "未知错误码";

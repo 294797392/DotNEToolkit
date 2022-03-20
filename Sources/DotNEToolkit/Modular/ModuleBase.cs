@@ -107,7 +107,8 @@ namespace DotNEToolkit.Modular
         {
             this.InputParameters = parameters;
             this.InitializeBinding();
-            return DotNETCode.SUCCESS;
+
+            return this.OnInitialize();
         }
 
         /// <summary>
@@ -116,6 +117,7 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public virtual void Release()
         {
+            this.OnRelease();
         }
 
         #endregion
@@ -209,6 +211,14 @@ namespace DotNEToolkit.Modular
         }
 
         #endregion
+
+        protected virtual int OnInitialize()
+        {
+            return DotNETCode.SUCCESS;
+        }
+
+        protected virtual void OnRelease()
+        { }
     }
 }
 
