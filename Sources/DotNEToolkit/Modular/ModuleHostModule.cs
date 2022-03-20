@@ -55,17 +55,32 @@ namespace DotNEToolkit.Modular
 
         public int Initialize(IDictionary parameters)
         {
+            int code = DotNETCode.SUCCESS;
+
             ProcessCommTypes commType = parameters.GetValue<ProcessCommTypes>(KEY_COMM_TYPE);
             this.commSvc = ProcessCommFactory.CreateSvc(commType);
             this.commSvc.URI = parameters.GetValue<string>("uri");
             this.commSvc.DataReceived += this.CommSvc_DataReceived1; ;
-            this.commSvc.Initialize();
-            return this.commSvc.Start();
+            if ((code = this.commSvc.Initialize()) != DotNETCode.SUCCESS)
+            {
+                logger.ErrorFormat("初始化commSvc失败, code = {0}", code);
+                return code;
+            }
+
+            if ((code = this.commSvc.Start()) != DotNETCode.SUCCESS)
+            {
+                logger.ErrorFormat("启动commSvc失败, code = {0}", code);
+                return code;
+            }
+
+            return this.OnInitialize(parameters);
         }
 
         public void Release()
         {
             this.commSvc.Release();
+
+            this.OnRelease();
         }
 
         #endregion
@@ -122,6 +137,10 @@ namespace DotNEToolkit.Modular
         }
 
         #endregion
+
+        protected abstract int OnInitialize(IDictionary parameters);
+
+        protected abstract void OnRelease();
     }
 
     /// <summary>
