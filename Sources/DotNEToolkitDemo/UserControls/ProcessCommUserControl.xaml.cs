@@ -31,10 +31,10 @@ namespace DotNEToolkitDemo.UserControls
         private void ButtonStartServiceProcess_Click(object sender, RoutedEventArgs e)
         {
             this.commSvc = ProcessCommFactory.CreateSvc(ProcessCommTypes.WCFNamedPipe);
+            this.commSvc.DataReceived += CommSvc_DataReceived;
             this.commSvc.URI = TextBoxURI.Text;
             this.commSvc.Initialize();
             this.commSvc.Start();
-            this.commSvc.DataReceived += CommSvc_DataReceived;
         }
 
         private void CommSvc_DataReceived(ProcessCommObject commClient, int cmdType, object cmdParam)

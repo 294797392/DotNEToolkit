@@ -1,0 +1,26 @@
+﻿{
+    "modules": [
+        {
+            "ID": "1",
+            "Name": "HostedImageQueue",
+            "ClassName": "DotNEToolkit.Modular.ModuleHostModule, DotNEToolkit",
+            "Flags": 1,
+            "Inputs": {
+                "commType": 0,
+                "uri": "net.pipe://localhost/console/demo/",
+                "moduleEntry": "Factory.NET.Modules.HostedImageQueue, Factory.NET",
+                "queueSize": 99999
+            }
+        },
+
+        {
+            "ID": "2",
+            "Name": "HostedImageQueueProxy",
+            "ClassName": "DotNEToolkitDemo.UserControls.HostedImageQueueProxy, DotNEToolkitDemo",
+            "Inputs": {
+                "commType": 0,
+                "uri": "net.pipe://localhost/console/demo/"
+            }
+        }
+    ]
+}

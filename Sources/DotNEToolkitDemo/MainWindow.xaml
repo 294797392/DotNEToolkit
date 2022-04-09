@@ -9,6 +9,8 @@
         Title="MainWindow" Height="450" Width="800">
     
     <Grid>
-        <uc:ProcessCommUserControl/>
+        <uc:ModuleHostUserControl/>
+
+        <!--<uc:ProcessCommUserControl/>-->
     </Grid>
 </Window>

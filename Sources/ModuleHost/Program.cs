@@ -31,23 +31,20 @@ namespace ModuleHost
         {
             Log4net.InitializeLog4net();
 
-            if (args.Length != 2)
+            if (args.Length != 1)
             {
                 Usage();
-                Console.WriteLine("参数不正确");
+                Console.WriteLine("参数不正确, 参数数量 = {0}", args.Length);
                 Exit();
             }
 
-            string arguments = args[1];
-
-            Console.WriteLine("arguments:");
-            Console.WriteLine(arguments);
+            string arguments = args[0];
 
             // 解析参数
-            IDictionary parameters = JSONHelper.Parse<IDictionary>(arguments, null);
+            IDictionary parameters = JSONHelper.ParseFile<Dictionary<string, object>>(arguments, null);
             if (parameters == null)
             {
-                Console.WriteLine("参数格式不正确");
+                Console.WriteLine("参数格式不正确, 参数 = {0}", arguments);
                 Exit();
             }
 
@@ -57,12 +54,11 @@ namespace ModuleHost
             try
             {
                 hostedModule = ConfigFactory<IHostedModule>.CreateInstance(moduleEntry);
-                logger.InfoFormat("创建HostedModule成功");
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("创建HostedModule异常", ex);
-                Console.WriteLine(DotNETCode.CREATE_HOSTED_MODULE_FAILED);
+                Console.WriteLine(DotNETCode.CREATE_HOSTED_MODULE_FAILED.ToString());
                 return;
             }
 
@@ -70,11 +66,11 @@ namespace ModuleHost
             int code = hostedModule.Initialize(parameters);
             if (code != DotNETCode.SUCCESS)
             {
-                Console.WriteLine(DotNETCode.INIT_HOSTED_MODULE_FAILED);
+                Console.WriteLine(DotNETCode.INIT_HOSTED_MODULE_FAILED.ToString());
                 return;
             }
 
-            Console.WriteLine(DotNETCode.SUCCESS);
+            Console.WriteLine(DotNETCode.SUCCESS.ToString());
             Console.ReadLine();
         }
     }

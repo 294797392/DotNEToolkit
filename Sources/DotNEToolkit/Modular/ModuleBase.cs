@@ -103,7 +103,7 @@ namespace DotNEToolkit.Modular
         /// </summary>
         /// <param name="parameters">模块参数</param>
         /// <returns></returns>
-        public virtual int Initialize(IDictionary parameters)
+        public int Initialize(IDictionary parameters)
         {
             this.InputParameters = parameters;
             this.InitializeBinding();
@@ -115,7 +115,7 @@ namespace DotNEToolkit.Modular
         /// 释放模块占用的资源
         /// </summary>
         /// <returns></returns>
-        public virtual void Release()
+        public void Release()
         {
             this.OnRelease();
         }
@@ -163,16 +163,9 @@ namespace DotNEToolkit.Modular
 
         #region 公开接口
 
-        /// <summary>
-        /// 从InputParameter里读取一个对象
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <returns></returns>
         protected T GetInputValue<T>(string key)
         {
-            string json = this.InputParameters[key].ToString();
-            return JsonConvert.DeserializeObject<T>(json);
+            return this.InputParameters.GetValue<T>(key);
         }
 
         /// <summary>
@@ -180,16 +173,28 @@ namespace DotNEToolkit.Modular
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
-        /// <param name="defaultValue">如果不存在该对象，那么要返回的默认值</param>
         /// <returns></returns>
         protected T GetInputValue<T>(string key, T defaultValue)
         {
-            if (!this.InputParameters.Contains(key))
+            return this.InputParameters.GetValue<T>(key, defaultValue);
+        }
+
+        /// <summary>
+        /// 从InputParameter里读取一个JSON对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="defaultValue">如果不存在该对象，那么要返回的默认值</param>
+        /// <returns></returns>
+        protected T GetJSONObject<T>(string key, T defaultObject)
+        {
+            string json = this.GetInputValue<string>(key, string.Empty);
+            if (string.IsNullOrEmpty(json))
             {
-                return defaultValue;
+                return defaultObject;
             }
 
-            return this.GetInputValue<T>(key);
+            return JSONHelper.Parse<T>(json, defaultObject);
         }
 
         /// <summary>

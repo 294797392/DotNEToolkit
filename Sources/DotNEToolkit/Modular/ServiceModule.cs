@@ -32,11 +32,11 @@ namespace DotNEToolkit.Modular
         /// 在服务开始的时候被调用
         /// </summary>
         /// <returns></returns>
-        public abstract int OnStart();
+        protected abstract int OnStart();
 
         /// <summary>
         /// 在服务结束的时候被调用
         /// </summary>
-        public abstract void OnStop();
+        protected abstract void OnStop();
     }
 }

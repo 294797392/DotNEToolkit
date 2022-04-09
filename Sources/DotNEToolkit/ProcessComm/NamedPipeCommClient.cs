@@ -75,6 +75,8 @@ namespace DotNEToolkit.ProcessComm
                 // 调用Connect，此时服务端会连接客户端的ServiceHost
                 this.serviceChannel.Connect();
 
+                logger.InfoFormat("ModuleHost连接客户端成功");
+
                 return DotNETCode.SUCCESS;
             }
             catch (Exception ex)
@@ -185,14 +187,17 @@ namespace DotNEToolkit.ProcessComm
 
         private void NamedPipeHost_Closed(object sender, EventArgs e)
         {
-            logger.InfoFormat("客户端NamedPipeHost已启动, {0}", this.ServiceURI);
+            ServiceHost serviceHost = sender as ServiceHost;
+
+            logger.InfoFormat("客户端NamedPipeHost已关闭, {0}", serviceHost.BaseAddresses.FirstOrDefault());
         }
 
         private void NamedPipeHost_Opened(object sender, EventArgs e)
         {
-            logger.InfoFormat("客户端NamedPipeHost已关闭, {0}", this.ServiceURI);
-        }
+            ServiceHost serviceHost = sender as ServiceHost;
 
+            logger.InfoFormat("客户端NamedPipeHost已启动, {0}", serviceHost.BaseAddresses.FirstOrDefault());
+        }
 
         #endregion
     }

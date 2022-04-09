@@ -199,11 +199,11 @@ namespace DotNEToolkit.Modular
         /// 根据配置文件加载ModuleFactory
         /// 同步接口
         /// </summary>
-        /// <param name="descFile">ModuleFactory描述文件的路径</param>
+        /// <param name="moduleFile">模块文件</param>
         /// <returns></returns>
-        public static ModuleFactory CreateFactory(string descFile)
+        public static ModuleFactory CreateFactory(string moduleFile)
         {
-            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(descFile, new ModuleFactoryDescription());
+            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(moduleFile, new ModuleFactoryDescription());
             return CreateFactory(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)));
         }
 

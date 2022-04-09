@@ -8,9 +8,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>ModuleHost</RootNamespace>
     <AssemblyName>ModuleHost</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
@@ -55,6 +58,10 @@
     <ProjectReference Include="..\DotNEToolkit\DotNEToolkit.csproj">
       <Project>{2a9fb13c-e7f4-4770-b731-b653372e25d2}</Project>
       <Name>DotNEToolkit</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Factory.NET\Factory.NET.csproj">
+      <Project>{7e5683e2-dbc8-4143-9a88-165c2e8c8f60}</Project>
+      <Name>Factory.NET</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
