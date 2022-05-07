@@ -34,18 +34,15 @@ namespace Factory.NET.Communictions
 
         #region ModuleBase
 
-        public override int Initialize(IDictionary parameters)
+        protected override int OnInitialize()
         {
-            base.Initialize(parameters);
-
-            this.newline = parameters.GetValue<string>(KEY_NEWLINE, DefaultNewLine);
+            this.newline = this.InputParameters.GetValue<string>(KEY_NEWLINE, DefaultNewLine);
 
             return DotNETCode.SUCCESS;
         }
 
-        public override void Release()
+        protected override void OnRelease()
         {
-            base.Release();
         }
 
         #endregion

@@ -44,10 +44,8 @@ namespace DotNEToolkit.Media
 
         #region AudioPlay
 
-        public override int Initialize(IDictionary parameters)
+        protected override int OnInitialize()
         {
-            base.Initialize(parameters);
-
             if ((this.CreateIDirectSound8() &&
                 this.CreateSecondaryBuffer() &&
                 this.CreateBufferNotifications()))
@@ -59,7 +57,7 @@ namespace DotNEToolkit.Media
             return DotNETCode.FAILED;
         }
 
-        public override void Release()
+        protected override void OnRelease()
         {
             Marshal.FreeHGlobal(this.pwfx_free);
             Marshal.Release(this.pdsb8);
@@ -83,8 +81,6 @@ namespace DotNEToolkit.Media
             }
             this.notifyHwnd_close = null;
             this.rgdsbpn = null;
-
-            base.Release();
         }
 
         public override int PlayFile(string fileURI)

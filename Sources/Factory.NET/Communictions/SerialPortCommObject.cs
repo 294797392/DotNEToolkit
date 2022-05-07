@@ -34,14 +34,12 @@ namespace Factory.NET.Communictions
 
         #region ModuleBase
 
-        public override int Initialize(IDictionary parameters)
+        protected override int OnInitialize()
         {
-            base.Initialize(parameters);
-
-            int baudRate = parameters.GetValue<int>(KEY_BAUDRATE);
-            string portName = parameters.GetValue<string>(KEY_PORT);
-            int dataBits = parameters.GetValue<int>(KEY_DATABITS, 8);
-            StopBits stopBits = parameters.GetValue<StopBits>(KEY_STOPBITS, StopBits.One);
+            int baudRate = this.GetInputValue<int>(KEY_BAUDRATE);
+            string portName = this.GetInputValue<string>(KEY_PORT);
+            int dataBits = this.GetInputValue<int>(KEY_DATABITS, 8);
+            StopBits stopBits = this.GetInputValue<StopBits>(KEY_STOPBITS, StopBits.One);
 
             this.serialPort = new SerialPort();
             this.serialPort.PortName = portName;
@@ -55,12 +53,10 @@ namespace Factory.NET.Communictions
             return DotNETCode.SUCCESS;
         }
 
-        public override void Release()
+        protected override void OnRelease()
         {
             this.serialPort.Dispose();
             this.serialPort = null;
-
-            base.Release();
         }
 
         #endregion

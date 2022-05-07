@@ -34,18 +34,6 @@ namespace Factory.NET.Communictions
 
         #region ModuleBase
 
-        public override int Initialize(IDictionary parameters)
-        {
-            base.Initialize(parameters);
-
-            return DotNETCode.SUCCESS;
-        }
-
-        public override void Release()
-        {
-            base.Release();
-        }
-
         #endregion
 
         #region CommunicationObject

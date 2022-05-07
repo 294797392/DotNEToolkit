@@ -118,18 +118,6 @@ namespace DotNEToolkit.Media
 
         #region ModuleBase
 
-        public override int Initialize(IDictionary parameters)
-        {
-            base.Initialize(parameters);
-
-            return DotNETCode.SUCCESS;
-        }
-
-        public override void Release()
-        {
-            base.Release();
-        }
-
         protected void NotifyDataReceived(byte[] audioData)
         {
             if (this.DataReceived != null)

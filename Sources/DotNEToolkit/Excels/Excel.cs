@@ -20,6 +20,111 @@ namespace DotNEToolkit
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("Excel");
 
+        private static void WriteSheet(ISheet sheet, DataTable table)
+        {
+            int startRow = sheet.PhysicalNumberOfRows;
+            int columns = table.Columns.Count;
+
+            // 先把所有的列名写一行
+            IRow titleRow = sheet.CreateRow(startRow++);
+            for (int i = 0; i < columns; i++)
+            {
+                ICell cell = titleRow.CreateCell(i, CellType.String);
+                cell.SetCellValue(table.Columns[i].ColumnName);
+            }
+
+            foreach (DataRow dataRow in table.Rows)
+            {
+                IRow row = sheet.CreateRow(startRow++);
+
+                for (int columnIndex = 0; columnIndex < columns; columnIndex++)
+                {
+                    object value = dataRow[columnIndex];
+                    if (value == null || value == DBNull.Value)
+                    {
+                        row.CreateCell(columnIndex, CellType.String);
+                    }
+                    else
+                    {
+                        CreateCell(row, columnIndex, value);
+                    }
+                }
+            }
+        }
+
+        private static void WriteSheet(ISheet sheet, object[,] excelData)
+        {
+            int startRow = sheet.PhysicalNumberOfRows;
+            int rows = excelData.GetLength(0);
+            int columns = excelData.GetLength(1);
+
+            for (int rowIndex = 0; rowIndex < rows; rowIndex++)
+            {
+                IRow row = sheet.CreateRow(startRow++);
+
+                for (int columnIndex = 0; columnIndex < columns; columnIndex++)
+                {
+                    object value = excelData[rowIndex, columnIndex];
+                    if (value == null)
+                    {
+                        row.CreateCell(columnIndex, CellType.String);
+                    }
+                    else
+                    {
+                        CreateCell(row, columnIndex, value);
+                    }
+                }
+            }
+        }
+
+        public static int QuickWrite(string filePath, DataTable table, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        {
+            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            {
+                IWorkbook workbook = OpenWrite(version);
+                ISheet sheet = workbook.CreateSheet(sheetName);
+                WriteSheet(sheet, table);
+                workbook.Write(fs);
+                fs.Close();
+                return DotNETCode.SUCCESS;
+            }
+        }
+
+        /// <summary>
+        /// 把一个二维数组写到Excel里
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="excelData">一维是行，二维是列</param>
+        /// <param name="sheetName"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public static int QuickWrite(string filePath, object[,] excelData, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        {
+            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            {
+                IWorkbook workbook = OpenWrite(version);
+                ISheet sheet = workbook.CreateSheet(sheetName);
+                WriteSheet(sheet, excelData);
+                workbook.Write(fs);
+                fs.Close();
+                return DotNETCode.SUCCESS;
+            }
+        }
+
+        public static int QuickWrite(string filePath, object[,] firstWrite, DataTable secondWrite, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        {
+            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            {
+                IWorkbook workbook = OpenWrite(version);
+                ISheet sheet = workbook.CreateSheet(sheetName);
+                WriteSheet(sheet, firstWrite);
+                WriteSheet(sheet, secondWrite);
+                workbook.Write(fs);
+                fs.Close();
+                return DotNETCode.SUCCESS;
+            }
+        }
+
         public static int QuickWrite(ExcelSheet excelSheet, string filePath, ExcelVersions version = ExcelVersions.Xls)
         {
             using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
@@ -140,61 +245,6 @@ namespace DotNEToolkit
             return DotNETCode.SUCCESS;
         }
 
-        /// <summary>
-        /// 把ExcelSheet对象保存成Excel文件
-        /// </summary>
-        /// <param name="excelSheet"></param>
-        /// <param name="filePath"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        public static int Write<TRow>(string filePath, IList<TRow> dataList, ExcelVersions version = ExcelVersions.Xls) where TRow : IExcelRow
-        {
-            List<PropertyAttribute<ExcelColumnAttribute>> properties = Reflections.GetPropertyAttribute<ExcelColumnAttribute>(typeof(TRow));
-            if (properties.Count == 0)
-            {
-                return DotNETCode.SUCCESS;
-            }
-
-            ExcelSheet sheet = new ExcelSheet();
-
-            // 先写第一行，相当于是标题
-            ExcelRow titleRow = new ExcelRow();
-            IEnumerable<ExcelColumnAttribute> columns = properties.Select(v => v.Attribute);
-            foreach (ExcelColumnAttribute column in columns)
-            {
-                titleRow.AddCell(column.Name, ExcelCellTypes.String);
-            }
-            sheet.AddRow(titleRow);
-
-            foreach (TRow row in dataList)
-            {
-                ExcelRow excelRow = new ExcelRow();
-
-                foreach (PropertyAttribute<ExcelColumnAttribute> property in properties)
-                {
-                    // 当前要写入的列
-                    object value = property.Property.GetValue(row, null);
-
-                    excelRow.AddCell(value, property.Attribute.Type);
-                }
-
-                sheet.AddRow(excelRow);
-            }
-
-            return QuickWrite(sheet, filePath, version);
-        }
-
-        /// <summary>
-        /// 把excel文件转成内存对象
-        /// </summary>
-        /// <param name="options">读取Excel文件的选项</param>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public static int Read<TRow>(string filePath, ReadOptions options, out List<TRow> rows) where TRow : IExcelRow
-        {
-            throw new NotImplementedException();
-        }
-
         private static IWorkbook OpenRead(string extension, FileStream fs)
         {
             IWorkbook workbook = null;
@@ -309,6 +359,45 @@ namespace DotNEToolkit
 
                 default:
                     throw new NotSupportedException("不支持的数据格式");
+            }
+        }
+
+        private static ICell CreateCell(IRow row, int cellIndex, object value)
+        {
+            Type valueType = value.GetType();
+            if (valueType == typeof(int))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellValue((int)value);
+                return cell;
+            }
+            else if (valueType == typeof(float))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellValue((float)value);
+                return cell;
+            }
+            else if (valueType == typeof(double))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellValue((double)value);
+                return cell;
+            }
+            else if (valueType == typeof(string))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.String);
+                cell.SetCellValue(value.ToString());
+                return cell;
+            }
+            else if (valueType == typeof(DateTime))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.String);
+                cell.SetCellValue((DateTime)value);
+                return cell;
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
     }

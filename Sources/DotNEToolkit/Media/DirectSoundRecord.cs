@@ -72,10 +72,8 @@ namespace DotNEToolkit.Media
 
         #region AudioRecord
 
-        public override int Initialize(IDictionary parameters)
+        protected override int OnInitialize()
         {
-            base.Initialize(parameters);
-
             if (!this.CreateIDirectSoundCapture8())
             {
                 return DotNETCode.FAILED;
@@ -96,7 +94,7 @@ namespace DotNEToolkit.Media
             return DotNETCode.SUCCESS;
         }
 
-        public override void Release()
+        protected override void OnRelease()
         {
             Marshal.FreeHGlobal(this.pwfx_free);
             Marshal.Release(this.pdscb8);
@@ -119,8 +117,6 @@ namespace DotNEToolkit.Media
                 Win32API.CloseHandle(handle);
             }
             this.notifyHandle_close = null;
-
-            base.Release();
         }
 
         public override int Start()

@@ -65,19 +65,15 @@ namespace DotNEToolkit.Modbus
 
         #region ModuleBase
 
-        public override int Initialize(IDictionary parameters)
+        protected override int OnInitialize()
         {
-            base.Initialize(parameters);
-
-            this.commObject = CommObjectFactory.Create(parameters);
-            return this.commObject.Initialize(parameters);
+            this.commObject = CommObjectFactory.Create(this.InputParameters);
+            return this.commObject.Initialize(this.InputParameters);
         }
 
-        public override void Release()
+        protected override void OnRelease()
         {
             this.commObject.Release();
-
-            base.Release();
         }
 
         #endregion

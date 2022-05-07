@@ -43,10 +43,8 @@ namespace DotNEToolkit.Media
 
         #region AudioRecord
 
-        public override int Initialize(IDictionary parameters)
+        protected override int OnInitialize()
         {
-            base.Initialize(parameters);
-
             #region waveInOpen
 
             WAVEFORMATEX wfx = new WAVEFORMATEX()
@@ -102,7 +100,7 @@ namespace DotNEToolkit.Media
             return DotNETCode.SUCCESS;
         }
 
-        public override void Release()
+        protected override void OnRelease()
         {
             waveIn.waveInUnprepareHeader(this.hwi, this.free_pwh, (uint)this.whSize);
             waveIn.waveInReset(this.hwi);
@@ -111,8 +109,6 @@ namespace DotNEToolkit.Media
             Marshal.FreeHGlobal(this.free_pAudioData);
             Marshal.FreeHGlobal(this.free_pwfx);
             Marshal.FreeHGlobal(this.free_pwh);
-
-            base.Release();
         }
 
         public override int Start()

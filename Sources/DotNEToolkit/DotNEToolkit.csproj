@@ -35,8 +35,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\Dependence\NPOI\ICSharpCode.SharpZipLib.dll</HintPath>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependence\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\Dependence\log4net.dll</HintPath>
@@ -44,17 +45,21 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\Dependence\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NPOI">
-      <HintPath>..\..\Dependence\NPOI\NPOI.dll</HintPath>
+    <Reference Include="NPOI, Version=2.1.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependence\NPOI.dll</HintPath>
     </Reference>
-    <Reference Include="NPOI.OOXML">
-      <HintPath>..\..\Dependence\NPOI\NPOI.OOXML.dll</HintPath>
+    <Reference Include="NPOI.OOXML, Version=2.1.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependence\NPOI.OOXML.dll</HintPath>
     </Reference>
-    <Reference Include="NPOI.OpenXml4Net">
-      <HintPath>..\..\Dependence\NPOI\NPOI.OpenXml4Net.dll</HintPath>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.1.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependence\NPOI.OpenXml4Net.dll</HintPath>
     </Reference>
-    <Reference Include="NPOI.OpenXmlFormats">
-      <HintPath>..\..\Dependence\NPOI\NPOI.OpenXmlFormats.dll</HintPath>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.1.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependence\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -100,10 +105,21 @@
     <Compile Include="DirectSound\IDirectSoundNotify8.cs" />
     <Compile Include="DirectSound\WAVEFORMATEX.cs" />
     <Compile Include="Colors.cs" />
+    <Compile Include="Excels\Attributes\ExcelColumnAttribute.cs" />
+    <Compile Include="Excels\Excel.cs" />
+    <Compile Include="Excels\ExcelCell.cs" />
+    <Compile Include="Excels\ExcelCellTypes.cs" />
+    <Compile Include="Excels\ExcelRow.cs" />
+    <Compile Include="Excels\ExcelSheet.cs" />
+    <Compile Include="Excels\ExcelVersions.cs" />
+    <Compile Include="Excels\IExcelObject.cs" />
+    <Compile Include="Excels\IExcelRow.cs" />
+    <Compile Include="Excels\ReadOptions.cs" />
     <Compile Include="Expressions\AccessMember.cs" />
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
+    <Compile Include="FilePackage.cs" />
     <Compile Include="Log4net.cs" />
     <Compile Include="Modular\Exceptions\ModuleNotFoundException.cs" />
     <Compile Include="Modular\ModuleHostModule.cs" />
@@ -199,7 +215,9 @@
     <Compile Include="WindowsServices.cs" />
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Direct2D\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Bindings\binding.json" />
     <None Include="Expressions\predefined.exp.json">
