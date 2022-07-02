@@ -12,6 +12,16 @@ namespace DotNEToolkit
         public void Initialize()
         {
         }
+
+        protected override int OnInitialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnRelease()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

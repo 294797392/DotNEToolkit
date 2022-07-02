@@ -245,8 +245,6 @@ namespace DotNEToolkit.Modular
         protected override void OnRelease()
         {
             this.CloseModuleHostProcess();
-
-            base.OnRelease();
         }
 
         #endregion

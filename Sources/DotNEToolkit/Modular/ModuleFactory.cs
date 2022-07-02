@@ -98,14 +98,14 @@ namespace DotNEToolkit.Modular
                 {
                     moduleInst.Status = ModuleStatus.InitializeFailed;
                     this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.InitializeFailed);
-                    logger.WarnFormat("初始化模块失败, module = {0}, code = {1}, {2}", moduleInst.Name, code, DotNETCode.GetMessage(code));
+                    logger.WarnFormat("初始化模块失败, module = {0}, code = {1}", moduleInst.Name, code);
                     return code;
                 }
 
-                logger.InfoFormat("模块初始化成功, module = {0}", moduleInst.Name);
-
                 moduleInst.Status = ModuleStatus.Initialized;
                 this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Initialized);
+
+                logger.InfoFormat("模块初始化成功, module = {0}", moduleInst.Name);
 
                 return DotNETCode.SUCCESS;
             }
@@ -135,10 +135,10 @@ namespace DotNEToolkit.Modular
                     return code;
                 }
 
-                logger.InfoFormat("启动服务模块成功, module = {0}", moduleInst.Name);
-
                 moduleInst.Status = ModuleStatus.Running;
                 this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Running);
+
+                logger.InfoFormat("启动服务模块成功, module = {0}", moduleInst.Name);
 
                 return DotNETCode.SUCCESS;
             }
@@ -168,10 +168,17 @@ namespace DotNEToolkit.Modular
 
             if (moduleInst is ServiceModule)
             {
+                // 如果是服务模块，那么再启动服务，服务启动完成模块的状态才是Running
                 while ((code = this.StartServiceModuleFinal(moduleInst as ServiceModule)) != DotNETCode.SUCCESS)
                 {
                     Thread.Sleep(interval);
                 }
+            }
+            else
+            {
+                // 如果是普通的模块，那么就直接设置成Running状态
+                moduleInst.Status = ModuleStatus.Running;
+                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Running);
             }
         }
 

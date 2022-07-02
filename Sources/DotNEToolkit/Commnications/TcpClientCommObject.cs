@@ -9,17 +9,21 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Factory.NET.Communictions
+namespace DotNEToolkit.Communictions
 {
     /// <summary>
     /// 封装Tcp客户端通信对象
     /// </summary>
     public class TcpClientCommObject : CommObject
     {
+        #region 类变量
+
         private static log4net.ILog logger = log4net.LogManager.GetLogger("TcpClientCommObject");
 
         private const string KEY_IPADDRESS = "IPAddress";
         private const string KEY_PORT = "Port";
+
+        #endregion
 
         #region 实例变量
 
@@ -115,6 +119,10 @@ namespace Factory.NET.Communictions
         {
             this.stream.Write(bytes, 0, bytes.Length);
         }
+
+        #endregion
+
+        #region 实例方法
 
         #endregion
     }

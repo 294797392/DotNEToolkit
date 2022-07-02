@@ -135,5 +135,44 @@ namespace DotNEToolkit
                 m_strSize = (FactSize / 1024.00 / 1024.00).ToString("F2") + " M";
             return m_strSize;
         }
+
+        /// <summary>
+        /// 拷贝目录及目录下的子目录和文件
+        /// </summary>
+        /// <param name="sourceDir">要拷贝的目录</param>
+        /// <param name="destDir">拷贝到的目标目录</param>
+        public static void CopyDirectory(string sourceDir, string destDir)
+        {
+            if (!Directory.Exists(destDir))
+            {
+                Directory.CreateDirectory(destDir);
+            }
+
+            // 枚举文件
+            string[] subFiles = Directory.GetFiles(sourceDir, "*", SearchOption.TopDirectoryOnly);
+
+            // 拷贝子文件
+            foreach (string subFile in subFiles)
+            {
+                FileInfo fileInfo = new FileInfo(subFile);
+                string fileName = fileInfo.Name;
+                string destFileName = Path.Combine(destDir, fileName);
+                File.Copy(subFile, destFileName);
+            }
+
+            // 枚举子目录
+            string[] subDirs = Directory.GetDirectories(sourceDir, "*", SearchOption.TopDirectoryOnly);
+
+            // 创建子目录
+            foreach (string subDir in subDirs)
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(subDir);
+                string dirName = dirInfo.Name;
+                string destDirPath = Path.Combine(destDir, dirName);
+                Directory.CreateDirectory(destDirPath);
+
+                CopyDirectory(subDir, destDirPath);
+            }
+        }
     }
 }

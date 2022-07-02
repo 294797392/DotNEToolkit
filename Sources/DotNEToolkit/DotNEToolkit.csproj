@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DotNEToolkit</RootNamespace>
     <AssemblyName>DotNEToolkit</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -77,6 +77,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commnications\CommObject.cs" />
+    <Compile Include="Commnications\CommObjectExtension.cs" />
+    <Compile Include="Commnications\CommObjectFactory.cs" />
+    <Compile Include="Commnications\CommTypes.cs" />
+    <Compile Include="Commnications\SerialPortCommObject.cs" />
+    <Compile Include="Commnications\TcpClientCommObject.cs" />
+    <Compile Include="Commnications\TcpServiceCommObject.cs" />
     <Compile Include="Crypto\CRC16.cs" />
     <Compile Include="DateTimeFormat.cs" />
     <Compile Include="DeviceWatcher.cs" />
@@ -122,6 +129,7 @@
     <Compile Include="FilePackage.cs" />
     <Compile Include="Log4net.cs" />
     <Compile Include="Modular\Exceptions\ModuleNotFoundException.cs" />
+    <Compile Include="Modular\ModuleBasedContext.cs" />
     <Compile Include="Modular\ModuleHostModule.cs" />
     <Compile Include="Modular\ServiceModule.cs" />
     <Compile Include="MySQLInstaller.cs" />

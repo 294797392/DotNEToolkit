@@ -24,5 +24,14 @@ namespace DotNEToolkitDemo.Modules
 
         [BindableProperty]
         public List<DemoModule> Modules { get; private set; }
+
+        protected override int OnInitialize()
+        {
+            return 0;
+        }
+
+        protected override void OnRelease()
+        {
+        }
     }
 }

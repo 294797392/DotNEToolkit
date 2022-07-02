@@ -173,6 +173,7 @@ namespace DotNEToolkit.Modular
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
         /// <returns></returns>
         protected T GetInputValue<T>(string key, T defaultValue)
         {
@@ -184,11 +185,16 @@ namespace DotNEToolkit.Modular
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
-        /// <param name="defaultValue">如果不存在该对象，那么要返回的默认值</param>
+        /// <param name="defaultObject">如果不存在该对象，那么要返回的默认值</param>
         /// <returns></returns>
-        protected T GetJSONObject<T>(string key, T defaultObject)
+        protected T GetInputObject<T>(string key, T defaultObject)
         {
-            string json = this.GetInputValue<string>(key, string.Empty);
+            if (!this.InputParameters.Contains(key))
+            {
+                return defaultObject;
+            }
+
+            string json = this.InputParameters[key].ToString();
             if (string.IsNullOrEmpty(json))
             {
                 return defaultObject;
@@ -200,8 +206,8 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 发布一个事件，该事件只有订阅了该事件的模块才能收到
         /// </summary>
-        /// <param name="eventCode">事件代码</param>
-        /// <param name="eventParams">事件参数</param>
+        /// <param name="eventType">事件代码</param>
+        /// <param name="eventData">事件参数</param>
         protected void PubEvent(int eventType, object eventData)
         {
             if (this.PublishEvent != null)
@@ -217,13 +223,16 @@ namespace DotNEToolkit.Modular
 
         #endregion
 
-        protected virtual int OnInitialize()
-        {
-            return DotNETCode.SUCCESS;
-        }
+        /// <summary>
+        /// 子类初始化
+        /// </summary>
+        /// <returns></returns>
+        protected abstract int OnInitialize();
 
-        protected virtual void OnRelease()
-        { }
+        /// <summary>
+        /// 子类释放资源
+        /// </summary>
+        protected abstract void OnRelease();
     }
 }
 

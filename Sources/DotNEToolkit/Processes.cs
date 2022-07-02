@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace DotNEToolkit
 {
@@ -12,6 +13,29 @@ namespace DotNEToolkit
     public static class Processes
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("Processes");
+
+        /// <summary>
+        /// 等待某个进程的主窗口句柄创建成功
+        /// </summary>
+        /// <param name="proc"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public static bool WaitForMainWindowHandleCreated(this Process proc, int timeout)
+        {
+            int elapsed = 0;
+            while (proc.MainWindowHandle == IntPtr.Zero)
+            {
+                Thread.Sleep(10);
+                elapsed += 10;
+                if (elapsed >= 5000)
+                {
+                    logger.ErrorFormat("等待进程主窗口句柄创建超时");
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// 清空某个进程里的输出缓冲区里的数据
