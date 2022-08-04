@@ -133,6 +133,7 @@
     <Compile Include="Modular\ModuleHostModule.cs" />
     <Compile Include="Modular\ServiceModule.cs" />
     <Compile Include="MySQLInstaller.cs" />
+    <Compile Include="Objects.cs" />
     <Compile Include="ProcessComm\NamedPipeCommClient.cs" />
     <Compile Include="ProcessComm\INamedPipeChannel.cs" />
     <Compile Include="ProcessComm\NamedPipeCommSvc.cs" />

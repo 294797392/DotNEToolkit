@@ -38,20 +38,27 @@ namespace DotNEToolkit
             return result;
         }
 
-        public static TResult Parse<TResult>(string jsonText, TResult defaultValue)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="json"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static TResult Parse<TResult>(string json, TResult defaultValue)
         {
-            if (string.IsNullOrEmpty(jsonText))
+            if (string.IsNullOrEmpty(json))
             {
                 return defaultValue;
             }
 
             try
             {
-                return JsonConvert.DeserializeObject<TResult>(jsonText);
+                return JsonConvert.DeserializeObject<TResult>(json);
             }
             catch (Exception ex)
             {
-                logger.Error(string.Format("解析JSON异常, json = {0}", jsonText), ex);
+                logger.Error(string.Format("解析JSON异常, json = {0}", json), ex);
                 return defaultValue;
             }
         }
@@ -62,29 +69,36 @@ namespace DotNEToolkit
         /// 如果该函数对异常做处理，那么调用者可能不知道出现异常的详细原因
         /// </summary>
         /// <typeparam name="TResult">要序列化成的对象类型</typeparam>
-        /// <param name="jsonFile">要序列化的json文件的路径</param>
+        /// <param name="filePath">要序列化的json文件的路径</param>
         /// <returns>如果序列化失败，那么返回空</returns>
-        public static TResult ParseFile<TResult>(string jsonFile)
+        public static TResult ParseFile<TResult>(string filePath)
         {
-            string json = File.ReadAllText(jsonFile);
+            string json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<TResult>(json);
         }
 
-        public static TResult ParseFile<TResult>(string jsonFile, TResult defaultValue)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="filePath"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static TResult ParseFile<TResult>(string filePath, TResult defaultValue)
         {
-            if (!File.Exists(jsonFile))
+            if (!File.Exists(filePath))
             {
                 return defaultValue;
             }
 
             try
             {
-                string json = File.ReadAllText(jsonFile);
+                string json = File.ReadAllText(filePath);
                 return JsonConvert.DeserializeObject<TResult>(json);
             }
             catch (Exception ex)
             {
-                logger.Error(string.Format("解析JSON文件异常, path = {0}", jsonFile), ex);
+                logger.Error(string.Format("解析JSON文件异常, path = {0}", filePath), ex);
                 return defaultValue;
             }
         }
@@ -93,13 +107,13 @@ namespace DotNEToolkit
         /// 把一个C#对象序列化成JSON格式并写入到一个文件里
         /// 该函数不会返回错误码，由调用者去截取异常并处理
         /// </summary>
-        /// <typeparam name="TSource"></typeparam>
-        /// <param name="jsonFile"></param>
-        /// <param name="obj"></param>
-        public static void WriteFile<TSource>(string jsonFile, TSource obj)
+        /// <typeparam name="TObject">要写入的对象类型</typeparam>
+        /// <param name="filePath">要保存的文件路径</param>
+        /// <param name="obj">要写入的对象实例</param>
+        public static void Object2File<TObject>(string filePath, TObject obj)
         {
             string jsonText = JsonConvert.SerializeObject(obj);
-            File.WriteAllText(jsonFile, jsonText);
+            File.WriteAllText(filePath, jsonText);
         }
     }
 
@@ -165,7 +179,7 @@ namespace DotNEToolkit
         {
             List<T> list = JSONHelper.Parse<List<T>>(jsonFile, new List<T>());
             list.Add(item);
-            JSONHelper.WriteFile<List<T>>(jsonFile, list);
+            JSONHelper.Object2File<List<T>>(jsonFile, list);
         }
 
         public static TSource Select<TSource>(string jsonFile, Func<TSource, bool> predicate)
@@ -193,7 +207,7 @@ namespace DotNEToolkit
                 list.Remove(toDelete);
             }
 
-            JSONHelper.WriteFile<List<TSource>>(jsonFile, list);
+            JSONHelper.Object2File<List<TSource>>(jsonFile, list);
         }
 
         public static int Update<TSource>(string jsonFile, Func<TSource, bool> predicate, TSource item)
@@ -210,7 +224,7 @@ namespace DotNEToolkit
             list.Remove(exist);
             list.Insert(index, item);
 
-            JSONHelper.WriteFile<List<TSource>>(jsonFile, list);
+            JSONHelper.Object2File<List<TSource>>(jsonFile, list);
             return DotNETCode.SUCCESS;
         }
 
@@ -223,7 +237,7 @@ namespace DotNEToolkit
         /// <returns></returns>
         public static void SaveAll<TSource>(string jsonFile, IEnumerable<TSource> items)
         {
-            JSONHelper.WriteFile<List<TSource>>(jsonFile, new List<TSource>(items));
+            JSONHelper.Object2File<List<TSource>>(jsonFile, new List<TSource>(items));
         }
 
         public static bool Exist<TSource>(string jsonFile, Func<TSource, bool> predicate)

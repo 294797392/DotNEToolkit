@@ -4,10 +4,36 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-// 所有的Win32API用头文件名字给类命名
+// 所有的Win32API用库名字给类命名
 
 namespace DotNEToolkit
 {
+    public static class Kernel32
+    {
+        /// <summary>
+        /// 加载动态链接库
+        /// </summary>
+        /// <param name="dllToLoad">dll文件名</param>
+        /// <returns>dll模块指针</returns>
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr LoadLibrary(string dllToLoad);
+        /// <summary>
+        /// 获取函数指针
+        /// </summary>
+        /// <param name="hModule">dll模块指针</param>
+        /// <param name="procedureName">方法名</param>
+        /// <returns>函数指针</returns>
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
+        /// <summary>
+        /// 释放动态链接库
+        /// </summary>
+        /// <param name="hModule">dll模块指针</param>
+        /// <returns>释放释放成功</returns>
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool FreeLibrary(IntPtr hModule);
+    }
+
     public static class Win32APIHelper
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("Win32APIHelper");
