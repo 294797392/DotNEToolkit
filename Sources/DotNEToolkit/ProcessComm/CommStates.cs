@@ -8,7 +8,7 @@ namespace DotNEToolkit.ProcessComm
     /// <summary>
     /// 定义通信客户端的状态
     /// </summary>
-    public enum CommClientStates
+    public enum CommStates
     {
         Connecting,
 

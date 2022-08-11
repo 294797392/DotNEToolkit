@@ -67,7 +67,7 @@ namespace DotNEToolkit.ProcessComm
         {
             try
             {
-                this.NotifyStatusChanged(CommClientStates.Connecting);
+                this.NotifyStatusChanged(CommStates.Connecting);
 
                 // 创建一个指向服务端ServiceHost的Channel并且连接
                 this.serviceChannel = this.channelFactory.CreateChannel();
@@ -81,7 +81,7 @@ namespace DotNEToolkit.ProcessComm
             }
             catch (Exception ex)
             {
-                this.NotifyStatusChanged(CommClientStates.ConnectFailed);
+                this.NotifyStatusChanged(CommStates.ConnectFailed);
                 logger.Error(string.Format("WCF NamedPipe连接失败, uri = {0}", this.ServiceURI), ex);
                 return DotNETCode.IPC_CONNECT_FAILED;
             }
@@ -176,13 +176,13 @@ namespace DotNEToolkit.ProcessComm
         private void ChannelFactory_Closed(object sender, EventArgs e)
         {
             logger.InfoFormat("NamedPipe 客户端 -> 服务器连接已关闭", this.ServiceURI);
-            this.NotifyStatusChanged(CommClientStates.Disconnected);
+            this.NotifyStatusChanged(CommStates.Disconnected);
         }
 
         private void ChannelFactory_Opened(object sender, EventArgs e)
         {
             logger.InfoFormat("NamedPipe 客户端 -> 服务器连接已连接", this.ServiceURI);
-            this.NotifyStatusChanged(CommClientStates.Connected);
+            this.NotifyStatusChanged(CommStates.Connected);
         }
 
         private void NamedPipeHost_Closed(object sender, EventArgs e)

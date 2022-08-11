@@ -57,7 +57,7 @@ namespace DotNEToolkitDemo.UserControls
             this.AppendMessage("客户端收到消息:{0}", cmdParam);
         }
 
-        private void CommClient_StatusChanged(ProcessCommClient commClient, CommClientStates status)
+        private void CommClient_StatusChanged(ProcessCommClient commClient, CommStates status)
         {
             this.AppendMessage("客户端状态发生改变:{0}", status);
         }

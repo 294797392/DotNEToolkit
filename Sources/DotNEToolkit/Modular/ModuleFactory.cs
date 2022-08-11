@@ -118,39 +118,6 @@ namespace DotNEToolkit.Modular
             }
         }
 
-        private int StartServiceModuleFinal(ServiceModule moduleInst)
-        {
-            int code = DotNETCode.SUCCESS;
-
-            moduleInst.Status = ModuleStatus.StartPending;
-            this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.StartPending);
-
-            try
-            {
-                if ((code = moduleInst.Start()) != DotNETCode.SUCCESS)
-                {
-                    moduleInst.Status = ModuleStatus.Stopped;
-                    this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Stopped);
-                    logger.WarnFormat("启动服务模块失败, module = {0}, code = {1}, {2}", moduleInst.Name, code, DotNETCode.GetMessage(code));
-                    return code;
-                }
-
-                moduleInst.Status = ModuleStatus.Running;
-                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Running);
-
-                logger.InfoFormat("启动服务模块成功, module = {0}", moduleInst.Name);
-
-                return DotNETCode.SUCCESS;
-            }
-            catch (Exception ex)
-            {
-                moduleInst.Status = ModuleStatus.StartupException;
-                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.StartupException);
-                logger.Error("启动服务模块异常", ex);
-                return DotNETCode.UNKNOWN_EXCEPTION;
-            }
-        }
-
         /// <summary>
         /// 初始化一个模块，直到该模块初始化成功为止
         /// 如果初始化失败，那么会一直初始化
@@ -164,21 +131,6 @@ namespace DotNEToolkit.Modular
             while ((code = this.InitializeModuleFinal(moduleInst)) != DotNETCode.SUCCESS)
             {
                 Thread.Sleep(interval);
-            }
-
-            if (moduleInst is ServiceModule)
-            {
-                // 如果是服务模块，那么再启动服务，服务启动完成模块的状态才是Running
-                while ((code = this.StartServiceModuleFinal(moduleInst as ServiceModule)) != DotNETCode.SUCCESS)
-                {
-                    Thread.Sleep(interval);
-                }
-            }
-            else
-            {
-                // 如果是普通的模块，那么就直接设置成Running状态
-                moduleInst.Status = ModuleStatus.Running;
-                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Running);
             }
         }
 

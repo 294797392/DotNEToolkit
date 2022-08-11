@@ -315,7 +315,7 @@ namespace DotNEToolkit.Modular
     /// 调用者只需要关心子进程发送过来的命令并处理就可以了
     /// 主要的函数：OnDataReceived - 收到子进程发送的消息的时候触发
     /// </summary>
-    public abstract class ModuleHostProxy : ServiceModule
+    public abstract class ModuleHostProxy : ModuleBase
     {
         #region 类变量
 
@@ -418,7 +418,7 @@ namespace DotNEToolkit.Modular
             this.OnDataReceived(cmdType, cmdParam);
         }
 
-        private void CommClient_StatusChanged(ProcessCommClient commObject, CommClientStates status)
+        private void CommClient_StatusChanged(ProcessCommClient commObject, CommStates status)
         {
             logger.InfoFormat("ProcessCommClient连接状态发生改变, {0}", status);
         }
