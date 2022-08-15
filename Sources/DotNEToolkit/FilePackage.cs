@@ -30,8 +30,8 @@ namespace DotNEToolkit
     {
         /// <summary>
         /// 带有反斜杠的路径
-        /// SharpZipLib会把带有反斜杠结束的名字当成一个目录来处理
-        /// 所以在把目录写入压缩包的时候要带反斜杠
+        /// SharpZipLib会把带有反斜杠结束的路径当成压缩包里的一个目录来处理
+        /// 所以在把目录写入压缩包的时候路径要带反斜杠
         /// </summary>
         internal string BackslashPath
         {
@@ -158,6 +158,26 @@ namespace DotNEToolkit
         {
             this.AppendFile(new List<FileItem>() { file });
         }
+
+        #region 实例方法
+
+        /// <summary>
+        /// 把一个内存流写到一个文件里
+        /// </summary>
+        /// <param name="ms"></param>
+        /// <param name="filePath"></param>
+        protected void CreateFile(MemoryStream ms, string filePath)
+        {
+            byte[] buffer = ms.GetBuffer();
+
+            // 写入文件
+            using (FileStream fs = new FileStream(this.packageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+            {
+                fs.Write(buffer, 0, (int)ms.Length);
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -257,12 +277,10 @@ namespace DotNEToolkit
                     zipOutStream.Finish();
 
                     // 到这里baseStream里就都是压缩后的数据了
-                    baseStream.Seek(0, SeekOrigin.Begin);
-                    byte[] zipBytes = new byte[baseStream.Length];
-                    baseStream.Read(zipBytes, 0, zipBytes.Length);
+                    byte[] zipBytes = baseStream.GetBuffer();
 
-                    // 把压缩数据写成一个文件
-                    File.WriteAllBytes(this.packageFilePath, zipBytes);
+                    // 写入文件
+                    this.CreateFile(baseStream, this.packageFilePath);
                 }
             }
         }
@@ -283,12 +301,10 @@ namespace DotNEToolkit
                     zipOutStream.Finish();
 
                     // 到这里baseStream里就都是压缩后的数据了
-                    baseStream.Seek(0, SeekOrigin.Begin);
-                    byte[] zipBytes = new byte[baseStream.Length];
-                    baseStream.Read(zipBytes, 0, zipBytes.Length);
+                    byte[] zipBytes = baseStream.GetBuffer();
 
-                    // 把压缩数据写成一个文件
-                    File.WriteAllBytes(this.packageFilePath, zipBytes);
+                    // 写入文件
+                    this.CreateFile(baseStream, this.packageFilePath);
                 }
             }
         }
