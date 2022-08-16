@@ -30,6 +30,16 @@ namespace DotNEToolkitConsole
         {
             DotNEToolkit.Log4net.InitializeLog4net();
 
+            byte[] buffer = new byte[9999999];
+            byte[] fileBytes = File.ReadAllBytes("image");
+            int fileSize = ImageCodec.BMPCodec.Encode(buffer, fileBytes, 1920, 1200, ImageCodec.PixelFormats.Gray8);
+            using (FileStream fs = new FileStream("test.bmp", FileMode.Create, FileAccess.ReadWrite))
+            {
+                fs.Write(buffer, 0, fileSize);
+            }
+
+            Console.ReadLine();
+
             int value = 456;
             byte[] data = new byte[] { (byte)(value & 0xFF), (byte)(value >> 8 & 0xFF), 0, 0 };
 

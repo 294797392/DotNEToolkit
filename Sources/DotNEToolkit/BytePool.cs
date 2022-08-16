@@ -61,6 +61,11 @@ namespace DotNEToolkit
         private Queue<ByteBlock> blockQueue;
         private object queueLock;
 
+        /// <summary>
+        /// 字节块的数量
+        /// </summary>
+        private int numblk;
+
         #endregion
 
         #region 构造方法
@@ -71,6 +76,7 @@ namespace DotNEToolkit
             this.baseBytes = new byte[count * size];
             this.blockQueue = new Queue<ByteBlock>(count);
             this.queueLock = new object();
+            this.numblk = count;
 
             // 先初始化baseBytes，baseBytes里的每个元素的值不为0，才会占用内存空间
             for (int i = 0; i < this.baseBytes.Length; i++)
@@ -98,11 +104,11 @@ namespace DotNEToolkit
         /// 创建一个新的字节缓存池
         /// </summary>
         /// <param name="numblk">字节块数量</param>
-        /// <param name="sizeblk">每个字节块的大小</param>
+        /// <param name="blksize">每个字节块的大小</param>
         /// <returns></returns>
-        public static BytePool Create(int numblk, int sizeblk)
+        public static BytePool Create(int numblk, int blksize)
         {
-            BytePool pool = new BytePool(numblk, sizeblk);
+            BytePool pool = new BytePool(numblk, blksize);
             return pool;
         }
 
@@ -119,7 +125,7 @@ namespace DotNEToolkit
             {
                 if (this.blockQueue.Count == 0)
                 {
-                    // 数量不够了，需要扩容
+
                 }
                 else
                 {

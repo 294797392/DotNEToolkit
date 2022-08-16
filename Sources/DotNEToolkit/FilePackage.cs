@@ -19,8 +19,21 @@ namespace DotNEToolkit
 
         /// <summary>
         /// 文件内容
+        /// 使用Size字段指定内容的长度
         /// </summary>
         public byte[] Content { get; set; }
+
+        /// <summary>
+        /// 文件的真实长度
+        /// 注意该值可以不等于Content的长度
+        /// 写入Size个字节的数据
+        /// </summary>
+        public int Size { get; set; }
+
+        /// <summary>
+        /// 文件在Content里的偏移量
+        /// </summary>
+        public int Offset { get; set; }
     }
 
     /// <summary>
@@ -187,16 +200,16 @@ namespace DotNEToolkit
     {
         public class BufferedDataSource : IStaticDataSource
         {
-            private byte[] buffer;
+            private FileItem fileItem;
 
-            public BufferedDataSource(byte[] buffer)
+            public BufferedDataSource(FileItem fileItem)
             {
-                this.buffer = buffer;
+                this.fileItem = fileItem;
             }
 
             public Stream GetSource()
             {
-                MemoryStream ms = new MemoryStream(this.buffer);
+                MemoryStream ms = new MemoryStream(this.fileItem.Content, this.fileItem.Offset, this.fileItem.Size);
                 return ms;
             }
         }
@@ -268,9 +281,9 @@ namespace DotNEToolkit
                             string fileFullPath = Path.Combine(directory.Path, file.Name);
 
                             ZipEntry fileEntry = new ZipEntry(fileFullPath) { CompressionMethod = this.CompressionMethod };
-                            fileEntry.Size = file.Content.Length;
+                            fileEntry.Size = file.Size;
                             zipOutStream.PutNextEntry(fileEntry);
-                            zipOutStream.Write(file.Content, 0, file.Content.Length);  // 文件的Byte数组写入压缩流
+                            zipOutStream.Write(file.Content, file.Offset, file.Size);  // 文件的Byte数组写入压缩流
                         }
                     }
 
@@ -295,7 +308,7 @@ namespace DotNEToolkit
                     {
                         ZipEntry fileEntry = new ZipEntry(file.Name) { CompressionMethod = this.CompressionMethod };
                         zipOutStream.PutNextEntry(fileEntry);
-                        zipOutStream.Write(file.Content, 0, file.Content.Length);
+                        zipOutStream.Write(file.Content, file.Offset, file.Size);
                     }
 
                     zipOutStream.Finish();
@@ -328,9 +341,9 @@ namespace DotNEToolkit
                             string fileFullPath = Path.Combine(directory.Path, file.Name);
 
                             ZipEntry fileEntry = new ZipEntry(fileFullPath) { CompressionMethod = this.CompressionMethod };
-                            fileEntry.Size = file.Content.Length;
+                            fileEntry.Size = file.Size;
                             zipOutStream.PutNextEntry(fileEntry);
-                            zipOutStream.Write(file.Content, 0, file.Content.Length);  // 文件的Byte数组写入压缩流
+                            zipOutStream.Write(file.Content, file.Offset, file.Size);  // 文件的Byte数组写入压缩流
                         }
                     }
 
@@ -358,10 +371,11 @@ namespace DotNEToolkit
                     // 输入更新数据
                     foreach (FileItem fileItem in fileList)
                     {
-                        BufferedDataSource bds = new BufferedDataSource(fileItem.Content);
+                        BufferedDataSource bds = new BufferedDataSource(fileItem);
                         zipFile.Add(bds, fileItem.Name, this.CompressionMethod);
                     }
 
+                    zipFile.Close();
                     // 结束更新
                     zipFile.CommitUpdate();
                     zipFile.Close();
