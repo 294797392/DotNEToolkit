@@ -48,8 +48,15 @@ namespace DotNEToolkitConsole
                 dirItems.Add(dirItem);
             }
 
-            this.package.AppendDirectory(dirItems);
+            this.package.PackDirectory(dirItems);
             this.package.Close();
+        }
+
+        public static void PackDirectory(string dir, string packagePath)
+        {
+            FilePackage package = FilePackage.Open(packagePath, FilePackages.Stored);
+            package.PackDirectory(dir);
+            package.Close();
         }
     }
 }

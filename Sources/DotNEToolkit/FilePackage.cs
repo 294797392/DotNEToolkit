@@ -122,11 +122,6 @@ namespace DotNEToolkit
     {
         #region 实例变量
 
-        /// <summary>
-        /// 存储该打包文件的流
-        /// </summary>
-        protected Stream stream;
-
         #endregion
 
         #region 属性
@@ -134,7 +129,7 @@ namespace DotNEToolkit
         /// <summary>
         /// 最终的压缩包的名字
         /// </summary>
-        public string packageFilePath;
+        public string packagePath;
 
         /// <summary>
         /// 打包文件的类型
@@ -145,46 +140,12 @@ namespace DotNEToolkit
 
         #region 构造方法
 
-        internal FilePackage(string filePackagePath, Stream stream)
+        internal FilePackage(string packagePath)
         {
-            this.packageFilePath = filePackagePath;
-            this.stream = stream;
+            this.packagePath = packagePath;
         }
 
         #endregion
-
-        ///// <summary>
-        ///// 使用一个文件创建一个压缩包
-        ///// 或者打开一个现有的压缩包
-        ///// </summary>
-        ///// <param name="package">要创建的压缩包类型</param>
-        ///// <returns></returns>
-        //public static FilePackage Open(string packagePath, FilePackages package)
-        //{
-        //    FileStream stream = new FileStream(packagePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-        //    FilePackage filePackage = Open(stream, packagePath, package);
-        //    filePackage.packageFilePath = packagePath;
-        //    return filePackage;
-        //}
-
-        /// <summary>
-        /// 使用一个流创建一个压缩包
-        /// </summary>
-        /// <param name="stream">要从流创建的压缩包</param>
-        /// <param name="package">要创建的压缩包类型</param>
-        /// <param name="packagePath">压缩包类型</param>
-        /// <returns></returns>
-        public static FilePackage Open(Stream stream, string packagePath, FilePackages package)
-        {
-            switch (package)
-            {
-                case FilePackages.Zip: return new ZIPFilePackage(packagePath, stream) { CompressionMethod = CompressionMethod.Deflated };
-                case FilePackages.Stored: return new ZIPFilePackage(packagePath, stream) { CompressionMethod = CompressionMethod.Stored };
-
-                default:
-                    throw new NotImplementedException();
-            }
-        }
 
         /// <summary>
         /// 使用一个空流创建一个压缩包
@@ -194,11 +155,43 @@ namespace DotNEToolkit
         /// <returns></returns>
         public static FilePackage Open(string packagePath, FilePackages package)
         {
-            MemoryStream ms = new MemoryStream();
-            return Open(ms, packagePath, package);
+            FilePackage filePackage = null;
+
+            switch (package)
+            {
+                case FilePackages.Zip:
+                    {
+                        filePackage = new ZIPFilePackage(packagePath) 
+                        {
+                            CompressionMethod = CompressionMethod.Deflated 
+                        };
+                        break;
+                    } 
+
+                case FilePackages.Stored:
+                    {
+                        filePackage = new ZIPFilePackage(packagePath)
+                        {
+                            CompressionMethod = CompressionMethod.Stored
+                        };
+                        break;
+                    }
+
+                default:
+                    throw new NotImplementedException();
+            }
+
+            filePackage.Open();
+
+            return filePackage;
         }
 
         #region 抽象方法
+
+        /// <summary>
+        /// 创建一个空的压缩包
+        /// </summary>
+        public abstract void Open();
 
         /// <summary>
         /// 关闭并保存打包文件
@@ -209,27 +202,23 @@ namespace DotNEToolkit
         /// 往一个已经存在的打包文件里追加目录列表
         /// </summary>
         /// <param name="dirList">要追加到打包文件里的目录列表</param>
-        public abstract void AppendDirectory(List<DirectoryItem> dirList);
+        public abstract void PackDirectory(List<DirectoryItem> dirList);
 
         /// <summary>
         /// 往压缩包里打包文件
         /// </summary>
         /// <param name="fileList"></param>
-        public abstract void AppendFile(List<FileItem> fileList);
+        public abstract void PackFile(List<FileItem> fileList);
+
+        /// <summary>
+        /// 打包一个目录
+        /// </summary>
+        /// <param name="baseDir">要打包的目录</param>
+        public abstract void PackDirectory(string baseDir);
 
         #endregion
 
         #region 公开接口
-
-        public void AppendDirectory(DirectoryItem dir)
-        {
-            this.AppendDirectory(new List<DirectoryItem>() { dir });
-        }
-
-        public void AppendFile(FileItem file)
-        {
-            this.AppendFile(new List<FileItem>() { file });
-        }
 
         #endregion
 
@@ -245,7 +234,7 @@ namespace DotNEToolkit
             byte[] buffer = ms.GetBuffer();
 
             // 写入文件
-            using (FileStream fs = new FileStream(this.packageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+            using (FileStream fs = new FileStream(this.packagePath, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
                 fs.Write(buffer, 0, (int)ms.Length);
             }
@@ -283,95 +272,6 @@ namespace DotNEToolkit
 
         #region 实例变量
 
-        private ZipOutputStream zipOutStream;
-
-        #endregion
-
-        #region 属性
-
-        internal CompressionMethod CompressionMethod { get; set; }
-
-        public override FilePackages Type => FilePackages.Zip;
-
-        #endregion
-
-        #region 构造方法
-
-        internal ZIPFilePackage(string packagePath, Stream stream) :
-            base(packagePath, stream)
-        {
-            this.zipOutStream = new ZipOutputStream(stream);
-        }
-
-        #endregion
-
-        #region 实例方法
-
-        #endregion
-
-        #region FilePackage
-
-        public override void Close()
-        {
-            this.zipOutStream.Finish();
-            using (FileStream fs = new FileStream(this.packageFilePath, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                MemoryStream ms = this.stream as MemoryStream;
-                fs.Write(ms.GetBuffer(), 0, (int)ms.Position);
-            }
-
-            this.zipOutStream.Close();
-            this.zipOutStream.Dispose();
-            this.stream.Close();
-            this.stream.Dispose();
-        }
-
-        public override void AppendDirectory(List<DirectoryItem> dirList)
-        {
-            foreach (DirectoryItem directory in dirList)
-            {
-                // 打包目录
-                ZipEntry dirEntry = new ZipEntry(directory.BackslashPath);
-                this.zipOutStream.PutNextEntry(dirEntry);
-
-                // 打包目录下的所有文件
-                foreach (FileItem file in directory.FileList)
-                {
-                    // 压缩包里的文件完整路径
-                    string fileFullPath = Path.Combine(directory.Path, file.Name);
-
-                    ZipEntry fileEntry = new ZipEntry(fileFullPath) { CompressionMethod = this.CompressionMethod };
-                    fileEntry.Size = file.Size;
-                    this.zipOutStream.PutNextEntry(fileEntry);
-                    this.zipOutStream.Write(file.Content, file.Offset, file.Size);  // 文件的Byte数组写入压缩流
-                }
-            }
-        }
-
-        public override void AppendFile(List<FileItem> fileList)
-        {
-            // 打包目录下的所有文件
-            foreach (FileItem file in fileList)
-            {
-                // 压缩包里的文件完整路径
-
-                ZipEntry fileEntry = new ZipEntry(file.Name) { CompressionMethod = this.CompressionMethod };
-                fileEntry.Size = file.Size;
-                this.zipOutStream.PutNextEntry(fileEntry);
-                this.zipOutStream.Write(file.Content, file.Offset, file.Size);  // 文件的Byte数组写入压缩流
-            }
-        }
-
-        #endregion
-    }
-
-    /// <summary>
-    /// 当更新压缩包的时候使用这个类
-    /// </summary>
-    internal class ZIPFilePackageUpdate : FilePackage
-    {
-        #region 实例变量
-
         private ZipFile zipFile;
 
         #endregion
@@ -386,11 +286,9 @@ namespace DotNEToolkit
 
         #region 构造方法
 
-        internal ZIPFilePackageUpdate(string packagePath, Stream stream) :
-            base(packagePath, stream)
+        internal ZIPFilePackage(string packagePath) :
+            base(packagePath)
         {
-            this.zipFile = new ZipFile(stream);
-            this.zipFile.BeginUpdate();
         }
 
         #endregion
@@ -401,7 +299,37 @@ namespace DotNEToolkit
 
         #region FilePackage
 
-        public override void AppendDirectory(List<DirectoryItem> dirList)
+        public override void Open()
+        {
+            // 如果压缩包不存在，先创建一个空的压缩包
+            if (!File.Exists(this.packagePath))
+            {
+                using (MemoryStream baseStream = new MemoryStream())
+                {
+                    using (ZipOutputStream zipOutStream = new ZipOutputStream(baseStream))
+                    {
+                        zipOutStream.Finish();
+
+                        using (FileStream fs = new FileStream(this.packagePath, FileMode.Create, FileAccess.Write))
+                        {
+                            fs.Write(baseStream.GetBuffer(), 0, (int)baseStream.Length);
+                        }
+                    }
+                }
+            }
+
+            // 打开一个ZipFile对象，使用ZipFile来更新Zip文件
+            this.zipFile = new ZipFile(this.packagePath);
+            this.zipFile.BeginUpdate();
+        }
+
+        public override void Close()
+        {
+            this.zipFile.CommitUpdate();
+            this.zipFile.Close();
+        }
+
+        public override void PackDirectory(List<DirectoryItem> dirList)
         {
             foreach (DirectoryItem dirItem in dirList)
             {
@@ -410,24 +338,30 @@ namespace DotNEToolkit
                 foreach (FileItem fileItem in dirItem.FileList)
                 {
                     BufferedDataSource bds = new BufferedDataSource(fileItem);
-                    zipFile.Add(bds, fileItem.Name, this.CompressionMethod);
+                    this.zipFile.Add(bds, fileItem.Name, this.CompressionMethod);
                 }
             }
         }
 
-        public override void AppendFile(List<FileItem> fileList)
+        public override void PackFile(List<FileItem> fileList)
         {
+            // 打包目录下的所有文件
             foreach (FileItem fileItem in fileList)
             {
                 BufferedDataSource bds = new BufferedDataSource(fileItem);
-                zipFile.Add(bds, fileItem.Name, this.CompressionMethod);
+                this.zipFile.Add(bds, fileItem.Name, this.CompressionMethod);
             }
         }
 
-        public override void Close()
+        public override void PackDirectory(string baseDir)
         {
-            this.zipFile.CommitUpdate();
-            this.zipFile.Close();
+            IEnumerable<string> fileList = Directory.EnumerateFiles(baseDir, "*", SearchOption.AllDirectories);
+
+            foreach (string fileItem in fileList)
+            {
+                // 直接把文件完整路径传给SharpZipLib，它可以帮我们处理压缩包里的目录
+                this.zipFile.Add(fileItem);
+            }
         }
 
         #endregion

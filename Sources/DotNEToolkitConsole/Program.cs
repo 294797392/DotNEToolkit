@@ -30,19 +30,10 @@ namespace DotNEToolkitConsole
         {
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestArrayPool.Test();
-
-            byte[] buffer = new byte[] { 1, 2, 3 };
-            MemoryStream ms = new MemoryStream(buffer);
-            Console.WriteLine(ms.Length);
-            ms.Seek(0, SeekOrigin.Begin);
-            Console.WriteLine(ms.Length);
-
-            Console.ReadLine();
-
-            TestFilePackage filePackage = new TestFilePackage("test.zip");
-            DirectoryInfo baseDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            filePackage.PackDirectory(baseDir.Parent.FullName);
+            //TestFilePackage filePackage = new TestFilePackage("test.zip");
+            //DirectoryInfo baseDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            //filePackage.PackDirectory(baseDir.Parent.FullName);
+            TestFilePackage.PackDirectory(@"E:\HMI_Model", "1.zip");
 
             Console.WriteLine("运行结束...");
 
