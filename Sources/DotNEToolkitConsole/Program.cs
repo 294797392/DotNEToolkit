@@ -30,8 +30,19 @@ namespace DotNEToolkitConsole
         {
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestFilePackage filePackage = new TestFilePackage();
-            filePackage.PackDirectory(@"E:\oheiheiheiheihei\DotNEToolkit\Sources\DotNEToolkitConsole\bin");
+            TestArrayPool.Test();
+
+            byte[] buffer = new byte[] { 1, 2, 3 };
+            MemoryStream ms = new MemoryStream(buffer);
+            Console.WriteLine(ms.Length);
+            ms.Seek(0, SeekOrigin.Begin);
+            Console.WriteLine(ms.Length);
+
+            Console.ReadLine();
+
+            TestFilePackage filePackage = new TestFilePackage("test.zip");
+            DirectoryInfo baseDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            filePackage.PackDirectory(baseDir.Parent.FullName);
 
             Console.WriteLine("运行结束...");
 

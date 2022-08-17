@@ -12,9 +12,9 @@ namespace DotNEToolkitConsole
     {
         private FilePackage package;
 
-        public TestFilePackage()
+        public TestFilePackage(string packagePath)
         {
-            this.package = FilePackage.Open(FilePackages.Stored);
+            this.package = FilePackage.Open(packagePath, FilePackages.Stored);
         }
 
         public void PackDirectory(string dir)
@@ -49,7 +49,6 @@ namespace DotNEToolkitConsole
             }
 
             this.package.AppendDirectory(dirItems);
-            this.package.WriteAll(@"E:\oheiheiheiheihei\DotNEToolkit\Sources\DotNEToolkitConsole\test.zip");
             this.package.Close();
         }
     }

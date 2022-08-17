@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using static DotNEToolkit.ZIPFilePackage;
 
 namespace DotNEToolkit
 {
@@ -69,6 +70,9 @@ namespace DotNEToolkit
         /// </summary>
         public List<FileItem> FileList { get; private set; }
 
+        /// <summary>
+        /// 构造方法
+        /// </summary>
         public DirectoryItem()
         {
             this.FileList = new List<FileItem>();
@@ -141,38 +145,41 @@ namespace DotNEToolkit
 
         #region 构造方法
 
-        internal FilePackage(Stream stream)
+        internal FilePackage(string filePackagePath, Stream stream)
         {
+            this.packageFilePath = filePackagePath;
             this.stream = stream;
         }
 
         #endregion
 
-        /// <summary>
-        /// 使用一个文件创建一个压缩包
-        /// 或者打开一个现有的压缩包
-        /// </summary>
-        /// <param name="package">要创建的压缩包类型</param>
-        /// <returns></returns>
-        public static FilePackage Open(string packagePath, FilePackages package)
-        {
-            FileStream stream = new FileStream(packagePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            FilePackage filePackage = Open(stream, package);
-            filePackage.packageFilePath = packagePath;
-            return filePackage;
-        }
+        ///// <summary>
+        ///// 使用一个文件创建一个压缩包
+        ///// 或者打开一个现有的压缩包
+        ///// </summary>
+        ///// <param name="package">要创建的压缩包类型</param>
+        ///// <returns></returns>
+        //public static FilePackage Open(string packagePath, FilePackages package)
+        //{
+        //    FileStream stream = new FileStream(packagePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        //    FilePackage filePackage = Open(stream, packagePath, package);
+        //    filePackage.packageFilePath = packagePath;
+        //    return filePackage;
+        //}
 
         /// <summary>
         /// 使用一个流创建一个压缩包
         /// </summary>
+        /// <param name="stream">要从流创建的压缩包</param>
         /// <param name="package">要创建的压缩包类型</param>
+        /// <param name="packagePath">压缩包类型</param>
         /// <returns></returns>
-        public static FilePackage Open(Stream stream, FilePackages package)
+        public static FilePackage Open(Stream stream, string packagePath, FilePackages package)
         {
             switch (package)
             {
-                case FilePackages.Zip: return new ZIPFilePackage(stream) { CompressionMethod = CompressionMethod.Deflated };
-                case FilePackages.Stored: return new ZIPFilePackage(stream) { CompressionMethod = CompressionMethod.Stored };
+                case FilePackages.Zip: return new ZIPFilePackage(packagePath, stream) { CompressionMethod = CompressionMethod.Deflated };
+                case FilePackages.Stored: return new ZIPFilePackage(packagePath, stream) { CompressionMethod = CompressionMethod.Stored };
 
                 default:
                     throw new NotImplementedException();
@@ -182,12 +189,13 @@ namespace DotNEToolkit
         /// <summary>
         /// 使用一个空流创建一个压缩包
         /// </summary>
+        /// <param name="packagePath">压缩包的路径，如果没有这个压缩包文件，则会创建一个</param>
         /// <param name="package"></param>
         /// <returns></returns>
-        public static FilePackage Open(FilePackages package)
+        public static FilePackage Open(string packagePath, FilePackages package)
         {
             MemoryStream ms = new MemoryStream();
-            return Open(ms, package);
+            return Open(ms, packagePath, package);
         }
 
         #region 抽象方法
@@ -200,31 +208,18 @@ namespace DotNEToolkit
         /// <summary>
         /// 往一个已经存在的打包文件里追加目录列表
         /// </summary>
-        /// <param name="packagePath">已经存在的打包文件完整路径</param>
         /// <param name="dirList">要追加到打包文件里的目录列表</param>
         public abstract void AppendDirectory(List<DirectoryItem> dirList);
 
+        /// <summary>
+        /// 往压缩包里打包文件
+        /// </summary>
+        /// <param name="fileList"></param>
         public abstract void AppendFile(List<FileItem> fileList);
 
         #endregion
 
-        /// <summary>
-        /// 把当前数据一次性写入一个文件里
-        /// </summary>
-        /// <param name="packageFilePath"></param>
-        public void WriteAll(string packageFilePath)
-        {
-            if (!string.IsNullOrEmpty(this.packageFilePath))
-            {
-                throw new InvalidOperationException("以文件流的形式打开的压缩包不允许WriteAll");
-            }
-
-            using (FileStream fs = new FileStream(packageFilePath, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                MemoryStream ms = this.stream as MemoryStream;
-                fs.Write(ms.GetBuffer(), 0, (int)ms.Length);
-            }
-        }
+        #region 公开接口
 
         public void AppendDirectory(DirectoryItem dir)
         {
@@ -235,6 +230,8 @@ namespace DotNEToolkit
         {
             this.AppendFile(new List<FileItem>() { file });
         }
+
+        #endregion
 
         #region 实例方法
 
@@ -260,7 +257,7 @@ namespace DotNEToolkit
     /// <summary>
     /// 使用SharpZipLib库实现的文件打包器
     /// </summary>
-    public class ZIPFilePackage : FilePackage
+    internal class ZIPFilePackage : FilePackage
     {
         public class BufferedDataSource : IStaticDataSource
         {
@@ -300,8 +297,8 @@ namespace DotNEToolkit
 
         #region 构造方法
 
-        internal ZIPFilePackage(Stream stream) :
-            base(stream)
+        internal ZIPFilePackage(string packagePath, Stream stream) :
+            base(packagePath, stream)
         {
             this.zipOutStream = new ZipOutputStream(stream);
         }
@@ -316,6 +313,13 @@ namespace DotNEToolkit
 
         public override void Close()
         {
+            this.zipOutStream.Finish();
+            using (FileStream fs = new FileStream(this.packageFilePath, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                MemoryStream ms = this.stream as MemoryStream;
+                fs.Write(ms.GetBuffer(), 0, (int)ms.Position);
+            }
+
             this.zipOutStream.Close();
             this.zipOutStream.Dispose();
             this.stream.Close();
@@ -356,6 +360,74 @@ namespace DotNEToolkit
                 this.zipOutStream.PutNextEntry(fileEntry);
                 this.zipOutStream.Write(file.Content, file.Offset, file.Size);  // 文件的Byte数组写入压缩流
             }
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// 当更新压缩包的时候使用这个类
+    /// </summary>
+    internal class ZIPFilePackageUpdate : FilePackage
+    {
+        #region 实例变量
+
+        private ZipFile zipFile;
+
+        #endregion
+
+        #region 属性
+
+        internal CompressionMethod CompressionMethod { get; set; }
+
+        public override FilePackages Type => FilePackages.Zip;
+
+        #endregion
+
+        #region 构造方法
+
+        internal ZIPFilePackageUpdate(string packagePath, Stream stream) :
+            base(packagePath, stream)
+        {
+            this.zipFile = new ZipFile(stream);
+            this.zipFile.BeginUpdate();
+        }
+
+        #endregion
+
+        #region 实例方法
+
+        #endregion
+
+        #region FilePackage
+
+        public override void AppendDirectory(List<DirectoryItem> dirList)
+        {
+            foreach (DirectoryItem dirItem in dirList)
+            {
+                this.zipFile.AddDirectory(dirItem.BackslashPath);
+
+                foreach (FileItem fileItem in dirItem.FileList)
+                {
+                    BufferedDataSource bds = new BufferedDataSource(fileItem);
+                    zipFile.Add(bds, fileItem.Name, this.CompressionMethod);
+                }
+            }
+        }
+
+        public override void AppendFile(List<FileItem> fileList)
+        {
+            foreach (FileItem fileItem in fileList)
+            {
+                BufferedDataSource bds = new BufferedDataSource(fileItem);
+                zipFile.Add(bds, fileItem.Name, this.CompressionMethod);
+            }
+        }
+
+        public override void Close()
+        {
+            this.zipFile.CommitUpdate();
+            this.zipFile.Close();
         }
 
         #endregion
