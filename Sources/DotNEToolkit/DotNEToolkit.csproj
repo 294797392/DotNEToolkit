@@ -126,13 +126,16 @@
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
-    <Compile Include="FilePackage.cs" />
+    <Compile Include="Packaging\FilePackage.cs" />
     <Compile Include="ImageEncoder.cs" />
     <Compile Include="Log4net.cs" />
     <Compile Include="Modular\Exceptions\ModuleNotFoundException.cs" />
     <Compile Include="Modular\ModuleBasedContext.cs" />
     <Compile Include="MySQLInstaller.cs" />
     <Compile Include="Objects.cs" />
+    <Compile Include="Packaging\FilePackages.cs" />
+    <Compile Include="Packaging\TARFilePackage.cs" />
+    <Compile Include="Packaging\ZIPFilePackage.cs" />
     <Compile Include="Pool\ArrayPool.cs" />
     <Compile Include="Pool\ArrayPoolEventSource.cs" />
     <Compile Include="Pool\DefaultArrayPool.cs" />
