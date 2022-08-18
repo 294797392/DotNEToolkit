@@ -10,46 +10,70 @@ namespace DotNEToolkitConsole
 {
     public class TestFilePackage
     {
-        private FilePackage package;
-
-        public TestFilePackage(string packagePath)
+        public static void WriteOnce()
         {
-            this.package = FilePackage.Open(packagePath, FilePackages.Stored);
-        }
+            List<byte> fileBytes = new List<byte>();
 
-        public void PackDirectory(string dir)
-        {
-            List<string> dirList = Directory.EnumerateDirectories(dir).ToList();
-
-            List<DirectoryItem> dirItems = new List<DirectoryItem>();
-
-            foreach (string dir1 in dirList)
+            List<string> fileList = Directory.EnumerateFiles(@"E:\44").ToList();
+            foreach (string filePath in fileList)
             {
-                DirectoryItem dirItem = new DirectoryItem()
-                {
-                    Path = Path.GetFileNameWithoutExtension(dir1),
-                };
-
-                List<string> fileList = Directory.EnumerateFiles(dir1).ToList();
-
-                foreach (string file in fileList)
-                {
-                    byte[] fileBytes = File.ReadAllBytes(file);
-
-                    dirItem.FileList.Add(new FileItem()
-                    {
-                        Name = Path.GetFileName(file),
-                        Offset = 0,
-                        Size = fileBytes.Length,
-                        Content = fileBytes
-                    });
-                }
-
-                dirItems.Add(dirItem);
+                fileBytes.AddRange(File.ReadAllBytes(filePath));
             }
 
-            this.package.PackDirectory(dirItems);
-            this.package.Close();
+            byte[] bytes = fileBytes.ToArray();
+
+            DateTime start2 = DateTime.Now;
+            using (FileStream FS = new FileStream("1.test", FileMode.Create, FileAccess.ReadWrite))
+            {
+                FS.Write(bytes, 0, bytes.Length);
+            }
+            Console.WriteLine("{0}ms", (DateTime.Now - start2).TotalMilliseconds);
+        }
+
+        public static void WriteMulit()
+        {
+            List<byte[]> fileBytes = new List<byte[]>();
+
+            List<string> fileList = Directory.EnumerateFiles(@"E:\44").ToList();
+            foreach (string filePath in fileList)
+            {
+                fileBytes.Add(File.ReadAllBytes(filePath));
+            }
+
+            DateTime start2 = DateTime.Now;
+            using (FileStream FS = new FileStream("2.test", FileMode.Create, FileAccess.ReadWrite))
+            {
+                foreach (byte[] bytes in fileBytes)
+                {
+                    FS.Write(bytes, 0, bytes.Length);
+                }
+            }
+            Console.WriteLine("{0}ms", (DateTime.Now - start2).TotalMilliseconds);
+        }
+
+        public static void PackDirectoryUseFileItem(string dir, string packagePath)
+        {
+            FilePackage package = FilePackage.Open(packagePath, FilePackages.Stored);
+
+            List<string> fileList = Directory.EnumerateFiles(dir).ToList();
+
+            List<FileItem> fileItems = new List<FileItem>();
+
+            foreach (string filePath in fileList)
+            {
+                byte[] fileBytes = File.ReadAllBytes(filePath);
+
+                fileItems.Add(new FileItem()
+                {
+                    Name = filePath,
+                    Offset = 0,
+                    Size = fileBytes.Length,
+                    Content = fileBytes
+                });
+            }
+
+            package.PackFile(fileItems);
+            package.Close();
         }
 
         public static void PackDirectory(string dir, string packagePath)

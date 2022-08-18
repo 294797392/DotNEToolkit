@@ -157,7 +157,14 @@ namespace DotNEToolkit
             buffer[0x14] = widthBytes[2];
             buffer[0x15] = widthBytes[3];
 
-            // 4字节：图像高度
+            /***************************************************************************************************************************
+             * 4字节：图像高度
+             * 这个值除了用于描述图像高度之外，它还有另外一个用处，就是指明该图像是倒向的位图，还是正向的位图。
+             * 如果该值是一个正数，说明图像是倒向的，如果该值是一个负数，说明图像是正向的
+             * 大多数的BMP文件都是倒向的位图，也就是高度值是一个正数
+             * 
+             * 在拷贝原始数据的时候，如果该值是正数，那么要把字节数组反过来拷贝，如果是负数，那么就直接按顺序拷贝
+             *****************************************************************************************************************************/
             byte[] heightBytes = BitConverter.GetBytes(height);
             buffer[0x16] = heightBytes[0];
             buffer[0x17] = heightBytes[1];
@@ -204,12 +211,12 @@ namespace DotNEToolkit
             buffer[0x30] = 0;
             buffer[0x31] = 0;
 
-            /**************
+            /***************************************************************************************************************************
              * 4字节：说明对位图有重要影响的颜色索引的数目
              * 在早期的计算机中，显卡相对比较落后，不一定能保证显示所有颜色，所以在调色板中的颜色数据应尽可能将图像中主要的颜色按顺序排列在前面
              * 位图信息头的biClrImportant字段指出了有多少种颜色是重要的
              * 每个调色板的大小为4字节，按蓝、绿、红、Alpha存储一个颜色值。
-             *****************/
+             *****************************************************************************************************************************/
             buffer[0x32] = 0;
             buffer[0x33] = 0x00;
             buffer[0x34] = 0;
@@ -234,8 +241,19 @@ namespace DotNEToolkit
                 Buffer.BlockCopy(colorPlate, 0, buffer, 0x36, colorPlate.Length);
             }
 
+            #endregion
+
+            #region 原始像素数据
+
             // 最后是原始像素数据
-            Buffer.BlockCopy(rawData, 0, buffer, 0x36 + colorPlate.Length, rawData.Length);
+            // TODO：根据高度值去区分如何写入数据
+            int startOffset = 0x36 + colorPlate.Length;
+            int rawOffset = rawData.Length;
+            for (int i = height - 1; i >= 0; i--)
+            {
+                // 倒向的图片从最后一行开始拷贝
+                Buffer.BlockCopy(rawData, rawOffset -= width, buffer, startOffset += width, width);
+            }
 
             #endregion
 

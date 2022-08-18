@@ -30,10 +30,10 @@ namespace DotNEToolkitConsole
         {
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            //TestFilePackage filePackage = new TestFilePackage("test.zip");
-            //DirectoryInfo baseDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            //filePackage.PackDirectory(baseDir.Parent.FullName);
-            TestFilePackage.PackDirectory(@"E:\HMI_Model", "1.zip");
+            TestImageCodec.TestSpeed();
+
+            //TestFilePackage.WriteOnce();
+            //TestFilePackage.WriteMulit();
 
             Console.WriteLine("运行结束...");
 

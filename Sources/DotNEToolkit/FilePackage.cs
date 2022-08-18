@@ -1,4 +1,5 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
+﻿using ICSharpCode.SharpZipLib.Tar;
+using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -161,12 +162,12 @@ namespace DotNEToolkit
             {
                 case FilePackages.Zip:
                     {
-                        filePackage = new ZIPFilePackage(packagePath) 
+                        filePackage = new ZIPFilePackage(packagePath)
                         {
-                            CompressionMethod = CompressionMethod.Deflated 
+                            CompressionMethod = CompressionMethod.Deflated
                         };
                         break;
-                    } 
+                    }
 
                 case FilePackages.Stored:
                     {
@@ -301,6 +302,8 @@ namespace DotNEToolkit
 
         public override void Open()
         {
+            FileStream packageStream = null;
+
             // 如果压缩包不存在，先创建一个空的压缩包
             if (!File.Exists(this.packagePath))
             {
@@ -310,16 +313,19 @@ namespace DotNEToolkit
                     {
                         zipOutStream.Finish();
 
-                        using (FileStream fs = new FileStream(this.packagePath, FileMode.Create, FileAccess.Write))
-                        {
-                            fs.Write(baseStream.GetBuffer(), 0, (int)baseStream.Length);
-                        }
+                        packageStream = new FileStream(this.packagePath, FileMode.Create, FileAccess.ReadWrite);
+                        packageStream.Write(baseStream.GetBuffer(), 0, (int)baseStream.Length);
+                        packageStream.Seek(0, SeekOrigin.Begin);
                     }
                 }
             }
+            else
+            {
+                packageStream = new FileStream(this.packagePath, FileMode.Open, FileAccess.ReadWrite);
+            }
 
             // 打开一个ZipFile对象，使用ZipFile来更新Zip文件
-            this.zipFile = new ZipFile(this.packagePath);
+            this.zipFile = new ZipFile(packageStream);
             this.zipFile.BeginUpdate();
         }
 
@@ -357,14 +363,102 @@ namespace DotNEToolkit
         {
             IEnumerable<string> fileList = Directory.EnumerateFiles(baseDir, "*", SearchOption.AllDirectories);
 
-            foreach (string fileItem in fileList)
+            foreach (string filePath in fileList)
             {
-                // 直接把文件完整路径传给SharpZipLib，它可以帮我们处理压缩包里的目录
-                this.zipFile.Add(fileItem);
+                byte[] bytes = File.ReadAllBytes(filePath);
+
+                FileItem fileItem = new FileItem()
+                {
+                    Name = filePath,
+                    Content = bytes,
+                    Size = bytes.Length,
+                    Offset = 0
+                };
+
+                BufferedDataSource bds = new BufferedDataSource(fileItem);
+                this.zipFile.Add(bds, fileItem.Name, this.CompressionMethod);
             }
         }
 
         #endregion
     }
+
+    //internal class TARFilePackage : FilePackage
+    //{
+    //    #region 实例变量
+
+    //    private TarArchive tarArchive;
+
+    //    #endregion
+
+    //    #region 属性
+
+    //    public override FilePackages Type => throw new NotImplementedException();
+
+    //    #endregion
+
+    //    #region 实例方法
+
+    //    private void WriteHeader()
+    //    {
+
+    //    }
+
+    //    #endregion
+
+    //    #region FilePackage
+
+    //    public override void Open()
+    //    {
+    //        FileStream packageStream = null;
+
+    //        // 如果压缩包不存在，先创建一个空的压缩包
+    //        if (!File.Exists(this.packagePath))
+    //        {
+    //            using (MemoryStream baseStream = new MemoryStream())
+    //            {
+    //                using (TarOutputStream zipOutStream = new TarOutputStream(baseStream, Encoding.Default))
+    //                {
+    //                    zipOutStream.Finish();
+
+    //                    packageStream = new FileStream(this.packagePath, FileMode.Create, FileAccess.ReadWrite);
+    //                    packageStream.Write(baseStream.GetBuffer(), 0, (int)baseStream.Length);
+    //                    packageStream.Seek(0, SeekOrigin.Begin);
+    //                }
+    //            }
+    //        }
+    //        else
+    //        {
+    //            packageStream = new FileStream(this.packagePath, FileMode.Open, FileAccess.ReadWrite);
+    //        }
+
+    //        // 打开一个ZipFile对象，使用ZipFile来更新Zip文件
+    //        this.tarArchive = TarArchive.CreateOutputTarArchive(packageStream);
+    //    }
+
+    //    public override void Close()
+    //    {
+    //        this.tarArchive.Close();
+    //    }
+
+    //    public override void PackDirectory(List<DirectoryItem> dirList)
+    //    {
+    //    }
+
+    //    public override void PackFile(List<FileItem> fileList)
+    //    {
+    //        foreach (FileItem fileItem in fileList)
+    //        {
+    //            TarEntry entry = TarEntry.CreateTarEntry(fileItem.Name);
+    //            this.tarArchive.WriteEntry(entry, false);
+    //        }
+    //    }
+
+    //    public override void PackDirectory(string baseDir)
+    //    {
+    //    }
+
+    //    #endregion
+    //}
 }
 
