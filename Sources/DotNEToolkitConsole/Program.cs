@@ -30,10 +30,12 @@ namespace DotNEToolkitConsole
         {
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestImageCodec.TestSpeed();
+            //TestImageCodec.TestSpeed();
 
             //TestFilePackage.WriteOnce();
             //TestFilePackage.WriteMulit();
+            //TestFilePackage.PackDirectory(@"E:\oheiheiheiheihei\DotNEToolkit\Sources\DotNEToolkitConsole\bin\Debug\Rolling.log", "1.tar");
+            TestFilePackage.PackFile(@"Rolling.log", "1.tar");
 
             Console.WriteLine("运行结束...");
 

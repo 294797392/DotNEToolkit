@@ -79,8 +79,26 @@ namespace DotNEToolkitConsole
 
         public static void PackDirectory(string dir, string packagePath)
         {
-            FilePackage package = FilePackage.Open(packagePath, FilePackages.Stored);
+            FilePackage package = FilePackage.Open(packagePath, FilePackages.TarArchive);
             package.PackDirectory(dir);
+            package.Close();
+        }
+
+        public static void PackFile(string filePath, string packagePath)
+        {
+            byte[] fileBytes = File.ReadAllBytes(filePath);
+
+            List<FileItem> fileItems = new List<FileItem>();
+            fileItems.Add(new FileItem() 
+            {
+                Name = filePath,
+                Size = fileBytes.Length,
+                Content = fileBytes,
+                Offset = 0
+            });
+
+            FilePackage package = FilePackage.Open(packagePath, FilePackages.TarArchive);
+            package.PackFile(fileItems);
             package.Close();
         }
     }

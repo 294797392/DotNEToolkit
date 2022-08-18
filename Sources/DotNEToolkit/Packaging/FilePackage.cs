@@ -158,6 +158,14 @@ namespace DotNEToolkit.Packaging
                         break;
                     }
 
+                case FilePackages.TarArchive:
+                    {
+                        filePackage = new TARFilePackage(packagePath)
+                        {
+                        };
+                        break;
+                    }
+
                 default:
                     throw new NotImplementedException();
             }

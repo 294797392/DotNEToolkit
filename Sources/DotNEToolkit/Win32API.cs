@@ -32,6 +32,9 @@ namespace DotNEToolkit
         /// <returns>释放释放成功</returns>
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool FreeLibrary(IntPtr hModule);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr CreateFileMapping();
     }
 
     public static class Win32APIHelper
