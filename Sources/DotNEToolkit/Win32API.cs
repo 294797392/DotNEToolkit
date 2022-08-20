@@ -8,6 +8,65 @@ using System.Text;
 
 namespace DotNEToolkit
 {
+    public static class Iphlpapi
+    {
+        private const int TCPIP_OWNING_MODULE_SIZE = 16;
+
+        public enum TCP_TABLE_CLASS
+        {
+            /// <summary>
+            /// MIB_TCPTABLE
+            /// </summary>
+            TCP_TABLE_BASIC_ALL,
+            TCP_TABLE_BASIC_CONNECTIONS,
+            TCP_TABLE_BASIC_LISTENER,
+
+            /// <summary>
+            /// MIB_TCPTABLE_OWNER_MODULE
+            /// </summary>
+            TCP_TABLE_OWNER_MODULE_ALL,
+            TCP_TABLE_OWNER_MODULE_CONNECTIONS,
+            TCP_TABLE_OWNER_MODULE_LISTENER,
+
+            /// <summary>
+            /// MIB_TCPTABLE_OWNER_PID
+            /// </summary>
+            TCP_TABLE_OWNER_PID_ALL,
+            TCP_TABLE_OWNER_PID_CONNECTIONS,
+            TCP_TABLE_OWNER_PID_LISTENER
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MIB_TCPROW_OWNER_MODULE
+        {
+            public int dwState;
+            public int dwLocalAddr;
+            public int dwLocalPort;
+            public int dwRemoteAddr;
+            public int dwRemotePort;
+            public int dwOwningPid;
+            public long liCreateTimestamp;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = TCPIP_OWNING_MODULE_SIZE)]
+            public long[] OwningModuleInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MIB_TCPTABLE_OWNER_MODULE
+        {
+            /// <summary>
+            /// The number of MIB_TCPROW_OWNER_MODULE elements in the table.
+            /// </summary>
+            public int dwNumEntries;
+
+            /// <summary>
+            /// Array of MIB_TCPROW_OWNER_MODULE structures returned by a call to GetExtendedTcpTable.
+            /// </summary>
+            public IntPtr table;
+        }
+
+        public static extern int GetExtendedTcpTable(IntPtr pTcpTable, out int pdwSize, bool bOrder, int ulAf, TCP_TABLE_CLASS TableClass, int Reserved);
+    }
+
     public static class Kernel32
     {
         /// <summary>

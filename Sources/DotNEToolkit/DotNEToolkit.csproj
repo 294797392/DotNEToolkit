@@ -77,6 +77,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BytePool.cs" />
     <Compile Include="Commnications\CommObject.cs" />
     <Compile Include="Commnications\CommObjectExtension.cs" />
     <Compile Include="Commnications\CommObjectFactory.cs" />
@@ -136,11 +137,6 @@
     <Compile Include="Packaging\FilePackages.cs" />
     <Compile Include="Packaging\TARFilePackage.cs" />
     <Compile Include="Packaging\ZIPFilePackage.cs" />
-    <Compile Include="Pool\ArrayPool.cs" />
-    <Compile Include="Pool\ArrayPoolEventSource.cs" />
-    <Compile Include="Pool\DefaultArrayPool.cs" />
-    <Compile Include="Pool\DefaultArrayPoolBucket.cs" />
-    <Compile Include="Pool\Utilities.cs" />
     <Compile Include="ProcessComm\ProcessCommClient.cs" />
     <Compile Include="ProcessComm\CommStates.cs" />
     <Compile Include="ProcessComm\ProcessCommClientSHM.cs" />

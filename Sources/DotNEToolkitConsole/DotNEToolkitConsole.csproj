@@ -55,6 +55,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestArrayPool.cs" />
+    <Compile Include="TestBytePool.cs" />
     <Compile Include="TestFilePackage.cs" />
     <Compile Include="TestImageCodec.cs" />
   </ItemGroup>

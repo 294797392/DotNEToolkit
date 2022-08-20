@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace DotNEToolkitConsole
@@ -30,8 +31,8 @@ namespace DotNEToolkitConsole
         {
             DotNEToolkit.Log4net.InitializeLog4net();
 
+            TestBytePool.Test();
             //TestImageCodec.TestSpeed();
-
             //TestFilePackage.WriteOnce();
             //TestFilePackage.WriteMulit();
             //TestFilePackage.PackDirectory(@"E:\oheiheiheiheihei\DotNEToolkit\Sources\DotNEToolkitConsole\bin\Debug\Rolling.log", "1.tar");
