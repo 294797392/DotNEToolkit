@@ -19,6 +19,11 @@ namespace DotNEToolkit.Packaging
         public string Name { get; set; }
 
         /// <summary>
+        /// 在压缩包内的完整路径
+        /// </summary>
+        public string PathRelativePackage { get; set; }
+
+        /// <summary>
         /// 文件内容
         /// 使用Size字段指定内容的长度
         /// </summary>
@@ -145,15 +150,6 @@ namespace DotNEToolkit.Packaging
                         filePackage = new ZIPFilePackage(packagePath)
                         {
                             CompressionMethod = CompressionMethod.Deflated
-                        };
-                        break;
-                    }
-
-                case FilePackages.Stored:
-                    {
-                        filePackage = new ZIPFilePackage(packagePath)
-                        {
-                            CompressionMethod = CompressionMethod.Stored
                         };
                         break;
                     }

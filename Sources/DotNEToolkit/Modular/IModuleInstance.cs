@@ -13,10 +13,10 @@ namespace DotNEToolkit.Modular
     public interface IModuleInstance
     {
         /// <summary>
-        /// 当前模块有事件的时候触发
+        /// 当前模块有事件触发的时候触发
         /// 第一个参数：事件发送者
-        /// 第二个参数：事件类型
-        /// 第三个参数：事件参数（由用户定义）
+        /// 第二个参数：事件代码
+        /// 第二个参数：eventXml（由用户定义）
         /// </summary>
         event Action<IModuleInstance, int, object> PublishEvent;
 

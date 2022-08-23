@@ -42,10 +42,10 @@ namespace DotNEToolkit
         /// </summary>
         public byte[] Data { get; set; }
 
-        /// <summary>
-        /// 该段缓存数据再Data里的偏移量
-        /// </summary>
-        public int Offset { get; set; }
+        ///// <summary>
+        ///// 该段缓存数据再Data里的偏移量
+        ///// </summary>
+        //public int Offset { get; set; }
 
         /// <summary>
         /// 该段缓存数据的长度
@@ -77,7 +77,6 @@ namespace DotNEToolkit
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="startOffset">该内存池所维护的在整块大内存中的偏移位置</param>
         /// <param name="blockSize">每个内存块的大小</param>
         /// <param name="numberOfBlock">为该内存池有多少个内存块</param>
         public ByteBucket(int blockSize, int numberOfBlock)
@@ -105,7 +104,6 @@ namespace DotNEToolkit
                             Data = new byte[this.blockSize],
                             Size = this.blockSize,
                             AllocateFromBucket = true,
-                            Offset = 0
                         };
                         return block;
                     }
@@ -256,7 +254,7 @@ namespace DotNEToolkit
             if (bucketIndex > buckets.Length - 1)
             {
                 // 没有则开辟一段新的内存
-                return new ByteBlock() { Data = new byte[size], Offset = 0, Size = size, AllocateFromBucket = false };
+                return new ByteBlock() { Data = new byte[size], Size = size, AllocateFromBucket = false };
             }
 
             // 从bucket里获取一个block
@@ -268,7 +266,7 @@ namespace DotNEToolkit
             ByteBlock block = bucket.Obtain();
             if (block == null)
             {
-                return new ByteBlock() { Data = new byte[size], Offset = 0, Size = size, AllocateFromBucket = false };
+                return new ByteBlock() { Data = new byte[size], Size = size, AllocateFromBucket = false };
             }
 
             return block;

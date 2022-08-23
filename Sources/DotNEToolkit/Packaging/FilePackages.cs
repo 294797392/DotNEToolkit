@@ -20,13 +20,6 @@ namespace DotNEToolkit.Packaging
         /// <summary>
         /// tar包
         /// </summary>
-        TarArchive,
-
-        /// <summary>
-        /// 不压缩，直接保存
-        /// 当压缩很耗时的时候可以考虑此方法
-        /// 后缀名.zip
-        /// </summary>
-        Stored
+        TarArchive
     }
 }

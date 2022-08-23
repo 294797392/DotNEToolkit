@@ -54,7 +54,7 @@ namespace DotNEToolkitConsole
 
         public static void PackDirectoryUseFileItem(string dir, string packagePath)
         {
-            FilePackage package = FilePackage.Open(packagePath, FilePackages.Stored);
+            FilePackage package = FilePackage.Open(packagePath, FilePackages.TarArchive);
 
             List<string> fileList = Directory.EnumerateFiles(dir).ToList();
 
@@ -89,11 +89,40 @@ namespace DotNEToolkitConsole
             byte[] fileBytes = File.ReadAllBytes(filePath);
 
             List<FileItem> fileItems = new List<FileItem>();
-            fileItems.Add(new FileItem() 
+            fileItems.Add(new FileItem()
             {
                 Name = filePath,
+                PathRelativePackage = filePath,
                 Size = fileBytes.Length,
                 Content = fileBytes,
+                Offset = 0
+            });
+
+            FilePackage package = FilePackage.Open(packagePath, FilePackages.TarArchive);
+            package.PackFile(fileItems);
+            package.Close();
+        }
+
+        public static void PackFile(string filePath, string filePath2, string packagePath)
+        {
+            byte[] fileBytes = File.ReadAllBytes(filePath);
+            byte[] fileBytes2 = File.ReadAllBytes(filePath2);
+
+            List<FileItem> fileItems = new List<FileItem>();
+            fileItems.Add(new FileItem()
+            {
+                Name = filePath,
+                PathRelativePackage = filePath,
+                Size = fileBytes.Length,
+                Content = fileBytes,
+                Offset = 0
+            });
+            fileItems.Add(new FileItem()
+            {
+                Name = filePath2,
+                PathRelativePackage = filePath2,
+                Content = fileBytes2,
+                Size = fileBytes2.Length,
                 Offset = 0
             });
 

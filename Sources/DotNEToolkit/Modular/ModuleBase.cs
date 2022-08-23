@@ -14,6 +14,14 @@ using System.Text;
 namespace DotNEToolkit.Modular
 {
     /// <summary>
+    /// 处理模块事件的委托
+    /// </summary>
+    /// <param name="sender">发布该事件的模块实例</param>
+    /// <param name="eventType">事件类型</param>
+    /// <param name="eventData">事件数据</param>
+    public delegate void ModuleEventDlg(ModuleBase sender, object eventType, object eventData);
+
+    /// <summary>
     /// 表示一个抽象的模块
     /// </summary>
     public abstract class ModuleBase : IModuleInstance
@@ -163,6 +171,26 @@ namespace DotNEToolkit.Modular
 
         #region 公开接口
 
+        /// <summary>
+        /// 订阅某个模块的事件
+        /// </summary>
+        /// <param name="subscribed">被注册的组件</param>
+        /// <param name="eventType">要注册的组件的事件</param>
+        /// <param name="handler">处理该事件的方法</param>
+        /// <param name="token">事件令牌，只有拥有该令牌的模块才能接收该事件并进行处理</param>
+        protected void SubscribeEvent(ModuleBase subscribed, object eventType, ModuleEventDlg handler, object token)
+        {
+        }
+
+        /// <summary>
+        /// 发布一个事件，该事件只有订阅了该事件的模块才能收到
+        /// </summary>
+        /// <param name="eventType">事件代码</param>
+        /// <param name="eventData">事件参数</param>
+        protected void PubEvent(object eventType, object eventData)
+        {
+        }
+
         protected T GetInputValue<T>(string key)
         {
             return this.InputParameters.GetValue<T>(key);
@@ -201,19 +229,6 @@ namespace DotNEToolkit.Modular
             }
 
             return JSONHelper.Parse<T>(json, defaultObject);
-        }
-
-        /// <summary>
-        /// 发布一个事件，该事件只有订阅了该事件的模块才能收到
-        /// </summary>
-        /// <param name="eventType">事件代码</param>
-        /// <param name="eventData">事件参数</param>
-        protected void PubEvent(int eventType, object eventData)
-        {
-            if (this.PublishEvent != null)
-            {
-                this.PublishEvent(this, eventType, eventData);
-            }
         }
 
         protected void PubMessage(string message, params object[] param)

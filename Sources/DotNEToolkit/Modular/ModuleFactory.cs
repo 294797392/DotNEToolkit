@@ -46,6 +46,11 @@ namespace DotNEToolkit.Modular
 
         private List<ModuleMetadata> metadataList;
 
+        /// <summary>
+        /// 事件管理器
+        /// </summary>
+        private EventDispatcher eventDispatcher;
+
         #endregion
 
         #region 属性
