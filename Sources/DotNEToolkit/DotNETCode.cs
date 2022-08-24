@@ -71,6 +71,11 @@ namespace DotNEToolkit
         /// </summary>
         public const int SYS_ERROR = 10;
 
+        /// <summary>
+        /// 解析配置文件失败
+        /// </summary>
+        public const int PARSE_CONFIG_FAILED = 11;
+
         #region 100 - 200 ModuleFactory
 
         public const int MODULE_NOT_FOUND = 100;
@@ -148,6 +153,7 @@ namespace DotNEToolkit
                 case DotNETCode.READ_FAILED: return "读取数据失败";
                 case DotNETCode.WRITE_FAILED: return "写数据失败";
                 case DotNETCode.TIMEOUT: return "操作超时";
+                case DotNETCode.PARSE_CONFIG_FAILED: return "解析配置文件失败";
 
                 case DotNETCode.MYSQL_INSTALL_SVC_FAILED: return "安装Mysql服务失败";
                 case DotNETCode.MYSQL_INITIALIZE_FAILED: return "初始化Mysql数据库失败";

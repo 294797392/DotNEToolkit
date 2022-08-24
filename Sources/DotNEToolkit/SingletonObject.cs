@@ -36,22 +36,5 @@ namespace DotNEToolkit
 
         protected SingletonObject()
         { }
-
-        /// <summary>
-        /// 单例对象初始化
-        /// </summary>
-        /// <returns></returns>
-        public virtual int Initialize()
-        {
-            return DotNETCode.SUCCESS;
-        }
-
-        /// <summary>
-        /// 释放单例对象占用的资源
-        /// </summary>
-        /// <returns></returns>
-        public virtual void Release()
-        {
-        }
     }
 }

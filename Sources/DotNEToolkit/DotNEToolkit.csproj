@@ -127,12 +127,12 @@
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
+    <Compile Include="ModularApp.cs" />
     <Compile Include="Modular\EventDispatcher.cs" />
     <Compile Include="Packaging\FilePackage.cs" />
     <Compile Include="ImageEncoder.cs" />
     <Compile Include="Log4net.cs" />
     <Compile Include="Modular\Exceptions\ModuleNotFoundException.cs" />
-    <Compile Include="Modular\ModuleBasedContext.cs" />
     <Compile Include="MySQLInstaller.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="Packaging\FilePackages.cs" />
