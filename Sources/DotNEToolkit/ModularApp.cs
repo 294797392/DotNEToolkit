@@ -38,6 +38,14 @@ namespace DotNEToolkit
         private const string KEY_CONFIG_PATH = "appConfig";
         private const string DefaultConfigFileName = "app.json";
 
+        #region 实例变量
+
+        private string configPath;
+
+        #endregion
+
+        #region 属性
+
         /// <summary>
         /// 模块工厂
         /// </summary>
@@ -47,6 +55,8 @@ namespace DotNEToolkit
         /// App的配置文件
         /// </summary>
         public TManifest Manifest { get; private set; }
+
+        #endregion
 
         /// <summary>
         /// 初始化App
@@ -69,6 +79,8 @@ namespace DotNEToolkit
                 logger.InfoFormat("使用用户配置的配置文件, 路径:{0}", configPath);
             }
 
+            this.configPath = configPath;
+
             try
             {
                 this.Manifest = JSONHelper.ParseFile<TManifest>(configPath);
@@ -86,7 +98,7 @@ namespace DotNEToolkit
             logger.Info("开始加载ModuleFactory...");
             this.Factory = ModuleFactory.CreateFactory();
             this.Factory.Initialized += Factory_Initialized;
-            this.Factory.ModuleEvent += Factory_ModuleEvent;
+            this.Factory.ModuleStatusChanged += Factory_ModuleStatusChanged;
             this.Factory.SetupModulesAsync(this.Manifest.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)), 2000);
 
             #endregion
@@ -94,9 +106,32 @@ namespace DotNEToolkit
             return this.OnInitialize();
         }
 
+        /// <summary>
+        /// 释放App占用的资源
+        /// </summary>
         public void Release()
         {
+            this.Factory.Initialized -= this.Factory_Initialized;
+            this.Factory.ModuleStatusChanged -= this.Factory_ModuleStatusChanged;
+
             this.OnRelease();
+        }
+
+        /// <summary>
+        /// 保存Manifest文件
+        /// </summary>
+        public int SaveManifest()
+        {
+            try
+            {
+                JSONHelper.Object2File<TManifest>(this.configPath, this.Manifest);
+                return DotNETCode.SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                logger.Error("保存配置文件异常", ex);
+                return DotNETCode.FAILED;
+            }
         }
 
         #region 受保护方法
@@ -105,30 +140,42 @@ namespace DotNEToolkit
 
         #region 事件处理器
 
-        private void Factory_ModuleEvent(ModuleFactory factory, IModuleInstance moduleInst, int eventType, object eventData)
-        {
-            this.HandleModuleEvent(moduleInst, eventType, eventData);
-        }
-
         private void Factory_Initialized(ModuleFactory factory)
         {
+            this.HandleModuleInitialized();
+        }
+
+        private void Factory_ModuleStatusChanged(ModuleFactory factory, IModuleInstance moduleInst, ModuleStatus status)
+        {
+            this.HandleModuleStatusEvent(moduleInst, status);
         }
 
         #endregion
 
         #region 抽象方法
 
+        /// <summary>
+        /// 子类初始化
+        /// </summary>
+        /// <returns></returns>
         protected abstract int OnInitialize();
 
+        /// <summary>
+        /// 子类释放资源
+        /// </summary>
         protected abstract void OnRelease();
 
         /// <summary>
         /// 处理模块状态改变事件
         /// </summary>
         /// <param name="moduleInst"></param>
-        /// <param name="eventType"></param>
-        /// <param name="eventData"></param>
-        public abstract void HandleModuleEvent(IModuleInstance moduleInst, int eventType, object eventData);
+        /// <param name="status">模块状态</param>
+        protected abstract void HandleModuleStatusEvent(IModuleInstance moduleInst, ModuleStatus status);
+
+        /// <summary>
+        /// 处理所有模块都初始化成功的事件
+        /// </summary>
+        protected abstract void HandleModuleInitialized();
 
         #endregion
     }

@@ -129,6 +129,7 @@
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
     <Compile Include="ModularApp.cs" />
     <Compile Include="Modular\EventDispatcher.cs" />
+    <Compile Include="Modular\ModuleEventDlg.cs" />
     <Compile Include="Packaging\FilePackage.cs" />
     <Compile Include="ImageEncoder.cs" />
     <Compile Include="Log4net.cs" />
@@ -195,7 +196,6 @@
     <Compile Include="Modular\IModuleInstance.cs" />
     <Compile Include="Modular\ModuleBase.cs" />
     <Compile Include="Modular\ModuleDefinition.cs" />
-    <Compile Include="Modular\ModuleEvent.cs" />
     <Compile Include="Modular\ModuleFactory.cs" />
     <Compile Include="Modular\ModuleFactoryDescription.cs" />
     <Compile Include="Modular\ModuleFlags.cs" />

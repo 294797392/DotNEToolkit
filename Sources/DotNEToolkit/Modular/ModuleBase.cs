@@ -14,14 +14,6 @@ using System.Text;
 namespace DotNEToolkit.Modular
 {
     /// <summary>
-    /// 处理模块事件的委托
-    /// </summary>
-    /// <param name="sender">发布该事件的模块实例</param>
-    /// <param name="eventType">事件类型</param>
-    /// <param name="eventData">事件数据</param>
-    public delegate void ModuleEventDlg(ModuleBase sender, object eventType, object eventData);
-
-    /// <summary>
     /// 表示一个抽象的模块
     /// </summary>
     public abstract class ModuleBase : IModuleInstance
@@ -34,14 +26,6 @@ namespace DotNEToolkit.Modular
 
         #region 公开事件
 
-        /// <summary>
-        /// 当前模块有事件触发的时候触发
-        /// 第一个参数：事件发送者
-        /// 第二个参数：事件代码
-        /// 第二个参数：eventXml（由用户定义）
-        /// </summary>
-        public event Action<IModuleInstance, int, object> PublishEvent;
-
         #endregion
 
         #region 实例变量
@@ -49,6 +33,12 @@ namespace DotNEToolkit.Modular
         #endregion
 
         #region 属性
+
+        /// <summary>
+        /// 存储该模块的事件订阅信息
+        /// eventType -> 订阅列表
+        /// </summary>
+        internal Dictionary<int, List<Subscribtion>> EventSubscribtions { get; private set; }
 
         /// <summary>
         /// 模块当前的状态
@@ -100,6 +90,7 @@ namespace DotNEToolkit.Modular
         public ModuleBase()
         {
             this.Properties = new Dictionary<string, object>();
+            this.EventSubscribtions = new Dictionary<int, List<Subscribtion>>();
         }
 
         #endregion
@@ -171,26 +162,6 @@ namespace DotNEToolkit.Modular
 
         #region 公开接口
 
-        /// <summary>
-        /// 订阅某个模块的事件
-        /// </summary>
-        /// <param name="subscribed">被注册的组件</param>
-        /// <param name="eventType">要注册的组件的事件</param>
-        /// <param name="handler">处理该事件的方法</param>
-        /// <param name="token">事件令牌，只有拥有该令牌的模块才能接收该事件并进行处理</param>
-        protected void SubscribeEvent(ModuleBase subscribed, object eventType, ModuleEventDlg handler, object token)
-        {
-        }
-
-        /// <summary>
-        /// 发布一个事件，该事件只有订阅了该事件的模块才能收到
-        /// </summary>
-        /// <param name="eventType">事件代码</param>
-        /// <param name="eventData">事件参数</param>
-        protected void PubEvent(object eventType, object eventData)
-        {
-        }
-
         protected T GetInputValue<T>(string key)
         {
             return this.InputParameters.GetValue<T>(key);
@@ -229,11 +200,6 @@ namespace DotNEToolkit.Modular
             }
 
             return JSONHelper.Parse<T>(json, defaultObject);
-        }
-
-        protected void PubMessage(string message, params object[] param)
-        {
-            this.PubEvent(ModuleEvent.MessageEvent, string.Format(message, param));
         }
 
         #endregion

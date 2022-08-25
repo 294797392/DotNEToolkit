@@ -11,11 +11,6 @@ namespace DotNEToolkit.Modular
 {
     /// <summary>
     /// 模块工厂
-    /// 
-    /// 功能描述：
-    ///     模块工厂通过读取JSON配置文件，加载JSON配置文件里的所有模块并提供接口获取某个模块
-    ///     自动识别modules.*.json的文件为模块元数据文件
-    ///     ModuleFactory从模块元数据文件里根据MetadataID去查找对应模块的ClassName
     /// </summary>
     public class ModuleFactory
     {
@@ -36,20 +31,15 @@ namespace DotNEToolkit.Modular
         public event Action<ModuleFactory> Initialized;
 
         /// <summary>
-        /// 当模块出发了一个事件的时候触发
+        /// 当模块状态改变的时候触发
         /// </summary>
-        public event Action<ModuleFactory, IModuleInstance, int, object> ModuleEvent;
+        public event Action<ModuleFactory, IModuleInstance, ModuleStatus> ModuleStatusChanged;
 
         #endregion
 
         #region 实例变量
 
         private List<ModuleMetadata> metadataList;
-
-        /// <summary>
-        /// 事件管理器
-        /// </summary>
-        private EventDispatcher eventDispatcher;
 
         #endregion
 
@@ -95,20 +85,20 @@ namespace DotNEToolkit.Modular
             int code = DotNETCode.SUCCESS;
 
             moduleInst.Status = ModuleStatus.Initializing;
-            this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Initializing);
+            this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.Initializing);
 
             try
             {
                 if ((code = moduleInst.Initialize(moduleInst.Definition.InputParameters)) != DotNETCode.SUCCESS)
                 {
                     moduleInst.Status = ModuleStatus.InitializeFailed;
-                    this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.InitializeFailed);
+                    this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.InitializeFailed);
                     logger.WarnFormat("初始化模块失败, module = {0}, code = {1}", moduleInst.Name, code);
                     return code;
                 }
 
                 moduleInst.Status = ModuleStatus.Initialized;
-                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.Initialized);
+                this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.Initialized);
 
                 logger.InfoFormat("模块初始化成功, module = {0}", moduleInst.Name);
 
@@ -117,7 +107,7 @@ namespace DotNEToolkit.Modular
             catch (Exception ex)
             {
                 moduleInst.Status = ModuleStatus.InitializeException;
-                this.NotifyModuleEvent(moduleInst, DotNEToolkit.Modular.ModuleEvent.StatusChanged, ModuleStatus.InitializeException);
+                this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.InitializeException);
                 logger.Error("初始化模块异常", ex);
                 return DotNETCode.UNKNOWN_EXCEPTION;
             }
@@ -306,7 +296,6 @@ namespace DotNEToolkit.Modular
             TModule moduleInst = ConfigFactory<TModule>.CreateInstance(className);
             moduleInst.Definition = module;
             moduleInst.Factory = this;
-            moduleInst.PublishEvent += this.ModuleInstance_PublishEvent;
 
             logger.DebugFormat("加载模块成功, {0}", module.Name);
 
@@ -332,7 +321,6 @@ namespace DotNEToolkit.Modular
 
             try
             {
-                moduleInst.PublishEvent -= this.ModuleInstance_PublishEvent;
                 moduleInst.Release();
                 this.ModuleList.Remove(moduleInst);
             }
@@ -371,46 +359,16 @@ namespace DotNEToolkit.Modular
             return this.ModuleList.OfType<TModuleInstance>().FirstOrDefault();
         }
 
-        /// <summary>
-        /// 判断某个Module是否派生自baseType
-        /// </summary>
-        /// <param name="definition"></param>
-        /// <param name="baseType"></param>
-        /// <returns></returns>
-        public bool SubclassOf(ModuleDefinition definition, Type baseType)
-        {
-            ModuleMetadata metadata = this.metadataList.FirstOrDefault(v => v.ID == definition.MetadataID);
-            if (metadata == null)
-            {
-                return false;
-            }
-
-            Type t = Type.GetType(metadata.ClassName);
-            if (t.IsSubclassOf(baseType))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         #endregion
 
-        #region 事件处理器
+        #region 实例方法
 
-        private void NotifyModuleEvent(IModuleInstance moduleInst, int eventType, object eventParams)
+        private void NotifyModuleStatusChanged(IModuleInstance moduleInst, ModuleStatus status)
         {
-            if (this.ModuleEvent != null)
+            if (this.ModuleStatusChanged != null)
             {
-                this.ModuleEvent(this, moduleInst, eventType, eventParams);
+                this.ModuleStatusChanged(this, moduleInst, status);
             }
-        }
-
-        private void ModuleInstance_PublishEvent(IModuleInstance module, int eventType, object eventParams)
-        {
-            this.NotifyModuleEvent(module, eventType, eventParams);
         }
 
         #endregion

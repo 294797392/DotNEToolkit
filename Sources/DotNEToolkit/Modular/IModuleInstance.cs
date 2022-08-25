@@ -10,16 +10,8 @@ namespace DotNEToolkit.Modular
     /// <summary>
     /// 模块实例公共接口
     /// </summary>
-    public interface IModuleInstance
+    public interface IModuleInstance : IEventSubscriber
     {
-        /// <summary>
-        /// 当前模块有事件触发的时候触发
-        /// 第一个参数：事件发送者
-        /// 第二个参数：事件代码
-        /// 第二个参数：eventXml（由用户定义）
-        /// </summary>
-        event Action<IModuleInstance, int, object> PublishEvent;
-
         /// <summary>
         /// 模块状态
         /// </summary>
