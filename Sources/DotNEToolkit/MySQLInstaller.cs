@@ -165,7 +165,7 @@ namespace DotNEToolkit
             StringBuilder builder = new StringBuilder();
             builder.AppendLine(string.Format("用户名:{0}", username));
             builder.AppendLine(string.Format("密码:{0}", password));
-            builder.AppendLine(string.Format("请使用mysqld -proot -u\"{0}\"指令登录mysql", password));
+            builder.AppendLine(string.Format("请使用mysql -uroot -p\"{0}\"指令登录mysql", password));
             string path = Path.Combine(this.mysqlDir, "password.txt");
             File.WriteAllText(path, builder.ToString());
 

@@ -20,6 +20,9 @@ namespace DotNEToolkit.Modular
     {
         #region 类变量
 
+        /// <summary>
+        /// 日志记录器
+        /// </summary>
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ModuleBase");
 
         #endregion
@@ -33,12 +36,6 @@ namespace DotNEToolkit.Modular
         #endregion
 
         #region 属性
-
-        /// <summary>
-        /// 存储该模块的事件订阅信息
-        /// eventType -> 订阅列表
-        /// </summary>
-        internal Dictionary<int, List<Subscribtion>> EventSubscribtions { get; private set; }
 
         /// <summary>
         /// 模块当前的状态
@@ -87,10 +84,12 @@ namespace DotNEToolkit.Modular
 
         #region 构造方法
 
+        /// <summary>
+        /// 构造方法
+        /// </summary>
         public ModuleBase()
         {
             this.Properties = new Dictionary<string, object>();
-            this.EventSubscribtions = new Dictionary<int, List<Subscribtion>>();
         }
 
         #endregion

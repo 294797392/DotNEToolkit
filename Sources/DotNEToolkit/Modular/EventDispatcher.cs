@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit.Modular
 {
-    public interface IEventSubscriber
-    {
-    }
-
-    internal class Subscribtion
+    public class Subscribtion
     {
         /// <summary>
         /// 订阅该事件的对象
@@ -47,20 +43,20 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 通过模块工厂订阅某个模块的事件
         /// </summary>
-        /// <typeparam name="TModule">要订阅的模块的类型</typeparam>
+        /// <typeparam name="TPublisher">要订阅的模块的类型</typeparam>
         /// <param name="factory">模块工厂</param>
         /// <param name="subscriber">订阅者</param>
-        /// <param name="moduleId">要订阅的模块的Id</param>
+        /// <param name="publisherId">要订阅的模块的Id</param>
         /// <param name="eventType">要订阅的事件类型</param>
         /// <param name="eventHandler">处理该事件的处理器</param>
-        public static void SubscribeEvent<TModule>(this ModuleFactory factory, string moduleId, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler)
-            where TModule : ModuleBase
+        public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, string publisherId, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler)
+            where TPublisher : IEventPublisher
         {
-            TModule moduleInst = factory.LookupModule<TModule>(moduleId);
+            TPublisher moduleInst = factory.LookupModule<TPublisher>(publisherId);
             if (moduleInst == null)
             {
                 // 如果模块不存在，那么啥都不做直接返回
-                logger.InfoFormat("订阅事件失败, 要订阅的模块不存在, 模块Id = {0}", moduleId);
+                logger.InfoFormat("订阅事件失败, 要订阅的模块不存在, 模块Id = {0}", publisherId);
                 return;
             }
 
@@ -86,30 +82,16 @@ namespace DotNEToolkit.Modular
             subscribtions.Add(subscribtion);
         }
 
-        public static void SubscribeEvent<TModule>(this ModuleFactory factory, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler)
-            where TModule : ModuleBase
+        public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler)
+            where TPublisher : IEventPublisher
         {
-            SubscribeEvent<TModule>(factory, string.Empty, subscriber, eventType, eventHandler);
+            SubscribeEvent<TPublisher>(factory, string.Empty, subscriber, eventType, eventHandler);
         }
 
-        /// <summary>
-        /// 通过ModuleBase订阅一个模块的事件
-        /// </summary>
-        /// <typeparam name="TModule"></typeparam>
-        /// <param name="subscriber"></param>
-        /// <param name="moduleId"></param>
-        /// <param name="eventType"></param>
-        /// <param name="eventHandler"></param>
-        public static void SubscribeEvent<TModule>(this ModuleBase subscriber, string moduleId, int eventType, ModuleEventDlg eventHandler)
-            where TModule : ModuleBase
+        public static void SubscribeEvent<TPublisher>(this EventableModule subscriber, int eventType, ModuleEventDlg eventHandler)
+            where TPublisher : IEventPublisher
         {
-            SubscribeEvent<TModule>(subscriber.Factory, moduleId, subscriber, eventType, eventHandler);
-        }
-
-        public static void SubscribeEvent<TModule>(this ModuleBase subscriber, int eventType, ModuleEventDlg eventHandler)
-            where TModule : ModuleBase
-        {
-            SubscribeEvent<TModule>(subscriber, string.Empty, eventType, eventHandler);
+            SubscribeEvent<TPublisher>(subscriber.Factory, subscriber, eventType, eventHandler);
         }
 
         /// <summary>
@@ -118,7 +100,7 @@ namespace DotNEToolkit.Modular
         /// <param name="publisher"></param>
         /// <param name="eventType"></param>
         /// <param name="eventData"></param>
-        public static void PublishEvent(this ModuleBase publisher, int eventType, object eventData)
+        public static void PublishEvent(this EventableModule publisher, int eventType, IEventArgs eventArgs)
         {
             List<Subscribtion> subscribtions;
             if (publisher.EventSubscribtions.TryGetValue(eventType, out subscribtions))
@@ -126,7 +108,7 @@ namespace DotNEToolkit.Modular
                 // 触发事件
                 foreach (Subscribtion subscribtion in subscribtions)
                 {
-                    subscribtion.EventHandler(publisher, eventType, eventData);
+                    subscribtion.EventHandler(publisher, eventArgs);
                 }
             }
         }

@@ -128,6 +128,7 @@
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
     <Compile Include="ModularApp.cs" />
+    <Compile Include="Modular\EventableModule.cs" />
     <Compile Include="Modular\EventDispatcher.cs" />
     <Compile Include="Modular\ModuleEventDlg.cs" />
     <Compile Include="Packaging\FilePackage.cs" />

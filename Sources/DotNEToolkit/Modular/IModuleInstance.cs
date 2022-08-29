@@ -10,7 +10,7 @@ namespace DotNEToolkit.Modular
     /// <summary>
     /// 模块实例公共接口
     /// </summary>
-    public interface IModuleInstance : IEventSubscriber
+    public interface IModuleInstance
     {
         /// <summary>
         /// 模块状态

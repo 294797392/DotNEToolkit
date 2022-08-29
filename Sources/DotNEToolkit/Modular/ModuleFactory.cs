@@ -41,6 +41,11 @@ namespace DotNEToolkit.Modular
 
         private List<ModuleMetadata> metadataList;
 
+        /// <summary>
+        /// 存储已经加载了的模块
+        /// </summary>
+        private List<ModuleBase> moduleList;
+
         #endregion
 
         #region 属性
@@ -50,18 +55,16 @@ namespace DotNEToolkit.Modular
         /// </summary>
         public ReadOnlyCollection<ModuleMetadata> MetadataList { get; private set; }
 
-        /// <summary>
-        /// 存储已经加载了的模块
-        /// </summary>
-        public List<IModuleInstance> ModuleList { get; private set; }
-
         #endregion
 
         #region 构造方法
 
+        /// <summary>
+        /// 构造方法
+        /// </summary>
         protected ModuleFactory()
         {
-            this.ModuleList = new List<IModuleInstance>();
+            this.moduleList = new List<ModuleBase>();
             this.metadataList = new List<ModuleMetadata>();
             this.metadataList.AddRange(LookupModuleMetadatas());
             this.MetadataList = new ReadOnlyCollection<ModuleMetadata>(this.metadataList);
@@ -129,7 +132,7 @@ namespace DotNEToolkit.Modular
             }
         }
 
-        private void InitializeModulesAsync(IEnumerable<IModuleInstance> moduleList, int interval)
+        private void InitializeModulesAsync(IEnumerable<ModuleBase> moduleList, int interval)
         {
             Task.Factory.StartNew(() =>
             {
@@ -214,10 +217,10 @@ namespace DotNEToolkit.Modular
             {
                 ModuleBase moduleInst = this.CreateModule<ModuleBase>(module);
 
-                this.ModuleList.Add(moduleInst);
+                this.moduleList.Add(moduleInst);
             }
 
-            this.InitializeModulesAsync(this.ModuleList, interval);
+            this.InitializeModulesAsync(this.moduleList, interval);
         }
 
         /// <summary>
@@ -257,14 +260,14 @@ namespace DotNEToolkit.Modular
                 return code;
             }
 
-            this.ModuleList.Add(moduleInst);
+            this.moduleList.Add(moduleInst);
 
             return DotNETCode.SUCCESS;
         }
 
         public List<TModuleInstance> LookupModules<TModuleInstance>() where TModuleInstance : IModuleInstance
         {
-            return this.ModuleList.OfType<TModuleInstance>().ToList();
+            return this.moduleList.OfType<TModuleInstance>().ToList();
         }
 
         /// <summary>
@@ -304,7 +307,7 @@ namespace DotNEToolkit.Modular
 
         public bool ContainsModule(string moduleID)
         {
-            return this.ModuleList.Exists(m => m.ID == moduleID);
+            return this.moduleList.Exists(m => m.ID == moduleID);
         }
 
         /// <summary>
@@ -313,7 +316,7 @@ namespace DotNEToolkit.Modular
         /// <param name="moduleID"></param>
         public void ReleaseModule(string moduleID)
         {
-            IModuleInstance moduleInst = this.ModuleList.FirstOrDefault(v => v.ID == moduleID);
+            ModuleBase moduleInst = this.moduleList.FirstOrDefault(v => v.ID == moduleID);
             if (moduleInst == null)
             {
                 return;
@@ -322,7 +325,7 @@ namespace DotNEToolkit.Modular
             try
             {
                 moduleInst.Release();
-                this.ModuleList.Remove(moduleInst);
+                this.moduleList.Remove(moduleInst);
             }
             catch (Exception ex)
             {
@@ -341,11 +344,11 @@ namespace DotNEToolkit.Modular
         {
             if (string.IsNullOrEmpty(id))
             {
-                return this.ModuleList.OfType<TModuleInstance>().FirstOrDefault();
+                return this.moduleList.OfType<TModuleInstance>().FirstOrDefault();
             }
             else
             {
-                return this.ModuleList.OfType<TModuleInstance>().FirstOrDefault(c => c.ID == id);
+                return this.moduleList.OfType<TModuleInstance>().FirstOrDefault(c => c.ID == id);
             }
         }
 
@@ -356,7 +359,7 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public TModuleInstance LookupModule<TModuleInstance>() where TModuleInstance : IModuleInstance
         {
-            return this.ModuleList.OfType<TModuleInstance>().FirstOrDefault();
+            return this.moduleList.OfType<TModuleInstance>().FirstOrDefault();
         }
 
         #endregion
