@@ -99,6 +99,7 @@ namespace DotNEToolkit
             this.Factory = ModuleFactory.CreateFactory();
             this.Factory.Initialized += Factory_Initialized;
             this.Factory.ModuleStatusChanged += Factory_ModuleStatusChanged;
+            this.Factory.CircularReference += Factory_CircularReference;
             this.Factory.SetupModulesAsync(this.Manifest.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)), 2000);
 
             #endregion
@@ -113,6 +114,7 @@ namespace DotNEToolkit
         {
             this.Factory.Initialized -= this.Factory_Initialized;
             this.Factory.ModuleStatusChanged -= this.Factory_ModuleStatusChanged;
+            this.Factory.CircularReference -= this.Factory_CircularReference;
 
             this.OnRelease();
         }
@@ -142,12 +144,17 @@ namespace DotNEToolkit
 
         private void Factory_Initialized(ModuleFactory factory)
         {
-            this.HandleModuleInitialized();
+            this.OnModuleInitialized();
         }
 
         private void Factory_ModuleStatusChanged(ModuleFactory factory, IModuleInstance moduleInst, ModuleStatus status)
         {
-            this.HandleModuleStatusEvent(moduleInst, status);
+            this.OnModuleStatusEvent(moduleInst, status);
+        }
+
+        private void Factory_CircularReference(ModuleFactory factory, IModuleInstance moduleInst)
+        {
+            this.OnCircularReference(moduleInst);
         }
 
         #endregion
@@ -170,12 +177,18 @@ namespace DotNEToolkit
         /// </summary>
         /// <param name="moduleInst"></param>
         /// <param name="status">模块状态</param>
-        protected abstract void HandleModuleStatusEvent(IModuleInstance moduleInst, ModuleStatus status);
+        protected abstract void OnModuleStatusEvent(IModuleInstance moduleInst, ModuleStatus status);
 
         /// <summary>
         /// 处理所有模块都初始化成功的事件
         /// </summary>
-        protected abstract void HandleModuleInitialized();
+        protected abstract void OnModuleInitialized();
+
+        /// <summary>
+        /// 当出现模块循环引用的时候触发
+        /// </summary>
+        /// <param name="moduleInst">存在循环引用的模块</param>
+        protected abstract void OnCircularReference(IModuleInstance moduleInst);
 
         #endregion
     }

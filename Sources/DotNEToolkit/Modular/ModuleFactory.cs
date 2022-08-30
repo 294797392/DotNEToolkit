@@ -35,6 +35,11 @@ namespace DotNEToolkit.Modular
         /// </summary>
         public event Action<ModuleFactory, IModuleInstance, ModuleStatus> ModuleStatusChanged;
 
+        /// <summary>
+        /// 某个模块出现循环引用
+        /// </summary>
+        public event Action<ModuleFactory, IModuleInstance> CircularReference;
+
         #endregion
 
         #region 实例变量
@@ -74,15 +79,6 @@ namespace DotNEToolkit.Modular
 
         #region 实例方法
 
-        /// <summary>
-        /// 读取所有的类型定义
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<ModuleMetadata> LookupModuleMetadatas()
-        {
-            return JSONHelper.ParseDirectory<ModuleMetadata>(AppDomain.CurrentDomain.BaseDirectory, ModuleMetadataFilePattern);
-        }
-
         private int InitializeModuleFinal(ModuleBase moduleInst)
         {
             int code = DotNETCode.SUCCESS;
@@ -117,18 +113,63 @@ namespace DotNEToolkit.Modular
         }
 
         /// <summary>
-        /// 初始化一个模块，直到该模块初始化成功为止
-        /// 如果初始化失败，那么会一直初始化
+        /// 初始化一个模块，会解析依赖项
         /// </summary>
         /// <param name="moduleInst">要初始化的模块</param>
-        /// <param name="interval">重新初始化的间隔时间</param>
-        private void InitializeModule(ModuleBase moduleInst, int interval)
+        /// <param name="interval">
+        /// > 0  : 重新初始化的间隔时间，如果初始化失败，那么会一直初始化
+        /// = -1 : 失败直接返回，不尝试重新初始化
+        /// </param>
+        /// <param name="baseModule">当前初始化的模块</param>
+        private int InitializeModule(ModuleBase moduleInst, int interval, ModuleBase baseModule)
         {
             int code = DotNETCode.SUCCESS;
 
-            while ((code = this.InitializeModuleFinal(moduleInst)) != DotNETCode.SUCCESS)
+            // 如果模块已经初始化过了，那么返回
+            // 因为存在依赖关系，有可能一个模块会调用多次这个方法
+            if (moduleInst.Status == ModuleStatus.Initialized)
             {
-                Thread.Sleep(interval);
+                return DotNETCode.SUCCESS;
+            }
+
+            // 开始初始化依赖项
+            if (moduleInst.References.Count > 0)
+            {
+                if (moduleInst.References.Contains(baseModule.ID))
+                {
+                    // 此时说明有循环引用
+                    // 循环引用直接返回，不初始化
+                    logger.ErrorFormat("模块{0}存在循环引用, 请检查Dependencies配置", baseModule.Name);
+                    return DotNETCode.MODULE_CIRCULAR_REFERENCE;
+                }
+
+                foreach (string dependencyModuleId in moduleInst.References)
+                {
+                    ModuleBase dependencyModule = this.moduleList.FirstOrDefault(v => v.ID == dependencyModuleId);
+                    if (dependencyModule.Status != ModuleStatus.Initialized)
+                    {
+                        // 如果模块状态不是初始化成功，那么说明该依赖模块还没初始化，开始初始化
+                        if ((code = this.InitializeModule(dependencyModule, interval, baseModule)) != DotNETCode.SUCCESS)
+                        {
+                            // 只要有一个模块初始化失败, 那么就返回
+                            return code;
+                        }
+                    }
+                }
+            }
+
+            if (interval == -1)
+            {
+                return this.InitializeModuleFinal(moduleInst);
+            }
+            else
+            {
+                while ((code = this.InitializeModuleFinal(moduleInst)) != DotNETCode.SUCCESS)
+                {
+                    Thread.Sleep(interval);
+                }
+
+                return DotNETCode.SUCCESS;
             }
         }
 
@@ -138,7 +179,14 @@ namespace DotNEToolkit.Modular
             {
                 foreach (ModuleBase moduleInst in moduleList)
                 {
-                    this.InitializeModule(moduleInst, interval);
+                    int code = this.InitializeModule(moduleInst, interval, moduleInst);
+                    if (code == DotNETCode.MODULE_CIRCULAR_REFERENCE)
+                    {
+                        if (this.CircularReference != null)
+                        {
+                            this.CircularReference(this, moduleInst);
+                        }
+                    }
                 }
 
                 if (this.Initialized != null)
@@ -148,20 +196,40 @@ namespace DotNEToolkit.Modular
             });
         }
 
+        /// <summary>
+        /// 创建模块的实例
+        /// 只创建实例，不调用Initialize方法
+        /// </summary>
+        /// <param name="initialModules"></param>
+        /// <returns>返回创建了的模块个数</returns>
+        private int CreateModuleInstance(IEnumerable<ModuleDefinition> initialModules)
+        {
+            if (initialModules.Count() == 0)
+            {
+                return 0;
+            }
+
+            foreach (ModuleDefinition module in initialModules)
+            {
+                ModuleBase moduleInst = this.CreateModule<ModuleBase>(module);
+
+                this.moduleList.Add(moduleInst);
+            }
+
+            return this.moduleList.Count;
+        }
+
         #endregion
 
         #region 公开接口
 
         /// <summary>
-        /// 根据配置文件加载ModuleFactory
-        /// 同步接口
+        /// 读取所有的类型定义
         /// </summary>
-        /// <param name="moduleFile">模块文件</param>
         /// <returns></returns>
-        public static ModuleFactory CreateFactory(string moduleFile)
+        public static IEnumerable<ModuleMetadata> LookupModuleMetadatas()
         {
-            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(moduleFile, new ModuleFactoryDescription());
-            return CreateFactory(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)));
+            return JSONHelper.ParseDirectory<ModuleMetadata>(AppDomain.CurrentDomain.BaseDirectory, ModuleMetadataFilePattern);
         }
 
         /// <summary>
@@ -191,15 +259,6 @@ namespace DotNEToolkit.Modular
         }
 
         /// <summary>
-        /// 异步初始化ModuleFactory
-        /// </summary>
-        public void SetupAsync(string descFile, int interval = 1000)
-        {
-            ModuleFactoryDescription description = JSONHelper.ParseFile<ModuleFactoryDescription>(descFile, new ModuleFactoryDescription());
-            this.SetupModulesAsync(description.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)), 1000);
-        }
-
-        /// <summary>
         /// 异步加载模块
         /// 如果模块连接失败，该函数会自动重连模块
         /// </summary>
@@ -208,16 +267,10 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public void SetupModulesAsync(IEnumerable<ModuleDefinition> initialModules, int interval)
         {
-            if (initialModules.Count() == 0)
+            int modules = this.CreateModuleInstance(initialModules);
+            if (modules == 0)
             {
                 return;
-            }
-
-            foreach (ModuleDefinition module in initialModules)
-            {
-                ModuleBase moduleInst = this.CreateModule<ModuleBase>(module);
-
-                this.moduleList.Add(moduleInst);
             }
 
             this.InitializeModulesAsync(this.moduleList, interval);
@@ -226,21 +279,26 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 同步加载一组组件，加载失败会直接返回，不会尝试重新加载
         /// </summary>
-        /// <param name="modules">要加载的模块列表</param>
+        /// <param name="initialModules">要加载的模块列表</param>
         /// <returns>是否加载成功</returns>
-        public int SetupModules(IEnumerable<ModuleDefinition> modules)
+        public int SetupModules(IEnumerable<ModuleDefinition> initialModules)
         {
-            int code = DotNETCode.SUCCESS;
-
-            foreach (ModuleDefinition module in modules)
+            int modules = this.CreateModuleInstance(initialModules);
+            if (modules == 0)
             {
-                if ((code = this.SetupModule(module)) != DotNETCode.SUCCESS)
+                return DotNETCode.SUCCESS;
+            }
+
+            foreach (ModuleBase moduleInst in moduleList)
+            {
+                int code = this.InitializeModule(moduleInst, -1, moduleInst);
+                if (code != DotNETCode.SUCCESS)
                 {
                     return code;
                 }
             }
 
-            return code;
+            return DotNETCode.SUCCESS;
         }
 
         /// <summary>

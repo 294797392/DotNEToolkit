@@ -127,7 +127,7 @@
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
-    <Compile Include="ModularApp.cs" />
+    <Compile Include="Modular\ModularApp.cs" />
     <Compile Include="Modular\EventableModule.cs" />
     <Compile Include="Modular\EventDispatcher.cs" />
     <Compile Include="Modular\ModuleEventDlg.cs" />
@@ -198,7 +198,6 @@
     <Compile Include="Modular\ModuleBase.cs" />
     <Compile Include="Modular\ModuleDefinition.cs" />
     <Compile Include="Modular\ModuleFactory.cs" />
-    <Compile Include="Modular\ModuleFactoryDescription.cs" />
     <Compile Include="Modular\ModuleFlags.cs" />
     <Compile Include="Modular\ModuleStatus.cs" />
     <Compile Include="Modular\ModuleMetadata.cs" />
@@ -235,12 +234,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Modular\ModuleMetadata.json" />
-    <None Include="Modular\ModuleFactory.json" />
+    <None Include="Modular\app.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
+      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

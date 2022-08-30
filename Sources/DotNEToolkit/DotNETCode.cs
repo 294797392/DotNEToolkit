@@ -80,6 +80,11 @@ namespace DotNEToolkit
 
         public const int MODULE_NOT_FOUND = 100;
 
+        /// <summary>
+        /// 模块与模块之间存在循环依赖关系
+        /// </summary>
+        public const int MODULE_CIRCULAR_REFERENCE = 101;
+
         #endregion
 
         #region 201 - 300 JSON

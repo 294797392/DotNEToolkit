@@ -38,6 +38,11 @@ namespace DotNEToolkit.Modular
         #region 属性
 
         /// <summary>
+        /// 该模块引用的其他模块ID
+        /// </summary>
+        internal List<string> References { get { return this.Definition.References; } }
+
+        /// <summary>
         /// 模块当前的状态
         /// </summary>
         public ModuleStatus Status { get; internal set; }

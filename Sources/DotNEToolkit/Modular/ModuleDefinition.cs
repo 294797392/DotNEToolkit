@@ -61,12 +61,20 @@ namespace DotNEToolkit.Modular
         public IDictionary InputParameters { get; private set; }
 
         /// <summary>
+        /// 该模块所依赖的其他模块ID
+        /// 模块工厂会先初始化依赖的模块
+        /// </summary>
+        [JsonProperty("Dependencies")]
+        public List<string> References { get; private set; }
+
+        /// <summary>
         /// 构造方法
         /// </summary>
         public ModuleDefinition()
         {
             this.ID = Guid.NewGuid().ToString();
             this.InputParameters = new Dictionary<string, object>();
+            this.References = new List<string>();
         }
 
         /// <summary>
@@ -96,11 +104,6 @@ namespace DotNEToolkit.Modular
         {
             string json = JsonConvert.SerializeObject(this.InputParameters);
             return JsonConvert.DeserializeObject<IDictionary>(json);
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0}:{1}", this.MetadataID, this.Name);
         }
     }
 }
