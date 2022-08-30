@@ -65,8 +65,24 @@ namespace DotNEToolkit
                 else if (valueType.IsEnum)
                 {
                     // 枚举需要单独转换
-                    string name = Enum.GetName(valueType, v);
-                    return (T)Enum.Parse(valueType, name);
+
+                    if (v is string)
+                    {
+                        // 枚举的值是字符串，当成枚举名字处理
+                        return (T)Enum.Parse(valueType, v.ToString());
+                    }
+                    else if (v is Int64)    // 数字的话，JSON库把它序列化成64位数
+                    {
+                        // 枚举的值是数字，当成枚举值处理
+                        string name = Enum.GetName(valueType, v);
+                        return (T)Enum.Parse(valueType, name);
+                    }
+                    else
+                    {
+                        // 既不是数字也不是字符串，那么就返回默认值
+                        logger.InfoFormat("枚举类型参数的值既不是数字也不是字符串，返回默认值:{0}", defaultValue);
+                        return defaultValue;
+                    }
                 }
                 else
                 {

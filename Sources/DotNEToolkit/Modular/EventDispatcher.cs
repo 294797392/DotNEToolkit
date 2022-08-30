@@ -82,12 +82,27 @@ namespace DotNEToolkit.Modular
             subscribtions.Add(subscribtion);
         }
 
+        /// <summary>
+        /// 订阅一个模块的事件
+        /// </summary>
+        /// <typeparam name="TPublisher"></typeparam>
+        /// <param name="factory"></param>
+        /// <param name="subscriber">订阅者</param>
+        /// <param name="eventType">要订阅的事件类型</param>
+        /// <param name="eventHandler">事件处理器</param>
         public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler)
             where TPublisher : IEventPublisher
         {
             SubscribeEvent<TPublisher>(factory, string.Empty, subscriber, eventType, eventHandler);
         }
 
+        /// <summary>
+        /// 订阅一个模块的事件
+        /// </summary>
+        /// <typeparam name="TPublisher"></typeparam>
+        /// <param name="subscriber">订阅者</param>
+        /// <param name="eventType">要订阅的事件类型</param>
+        /// <param name="eventHandler">事件处理器</param>
         public static void SubscribeEvent<TPublisher>(this EventableModule subscriber, int eventType, ModuleEventDlg eventHandler)
             where TPublisher : IEventPublisher
         {
