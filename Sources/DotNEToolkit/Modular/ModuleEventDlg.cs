@@ -19,5 +19,5 @@ namespace DotNEToolkit.Modular
     /// </summary>
     /// <param name="sender">发布该事件的模块实例</param>
     /// <param name="eventArgs">事件参数</param>
-    public delegate void ModuleEventDlg(IModuleInstance sender, IEventArgs eventArgs);
+    public delegate int ModuleEventDlg(IModuleInstance sender, IEventArgs eventArgs);
 }

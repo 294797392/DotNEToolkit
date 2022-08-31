@@ -12,19 +12,19 @@ namespace DotNEToolkit
     public static class DotNETCode
     {
         /// <summary>
-        /// 成功
+        /// 异常
         /// </summary>
-        public const int SUCCESS = 0;
+        public const int UNKNOWN_EXCEPTION = -2;
 
         /// <summary>
         /// 失败
         /// </summary>
-        public const int FAILED = 1;
+        public const int FAILED = -1;
 
         /// <summary>
-        /// 异常
+        /// 成功
         /// </summary>
-        public const int UNKNOWN_EXCEPTION = -1;
+        public const int SUCCESS = 0;
 
         /// <summary>
         /// 加载配置文件失败

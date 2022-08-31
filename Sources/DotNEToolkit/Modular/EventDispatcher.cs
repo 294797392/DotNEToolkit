@@ -69,9 +69,10 @@ namespace DotNEToolkit.Modular
                 subscribtions = new List<Subscribtion>();
             }
 
+            // 判断该事件是否被subscriber订阅过
             if (subscribtions.Exists(v => v.Subscriber == subscriber))
             {
-                logger.InfoFormat("事件{0}已经被{1}订阅过, 忽略本地订阅", eventType, moduleInst.Name);
+                logger.InfoFormat("事件{0}已经被{1}订阅过, 忽略本次订阅", eventType, moduleInst.Name);
                 return;
             }
 
@@ -116,8 +117,13 @@ namespace DotNEToolkit.Modular
         /// </summary>
         /// <param name="publisher"></param>
         /// <param name="eventType"></param>
-        /// <param name="eventData"></param>
-        public static void PublishEvent(this EventableModule publisher, int eventType, IEventArgs eventArgs)
+        /// <param name="eventArgs"></param>
+        /// <returns>
+        /// 订阅者是否执行成功
+        /// 如果有多个订阅号者，其中一个订阅者执行失败的话就返回失败
+        /// 只有所有的订阅者都执行成功才返回成功
+        /// </returns>
+        public static int PublishEvent(this EventableModule publisher, int eventType, IEventArgs eventArgs)
         {
             List<Subscribtion> subscribtions;
             if (publisher.EventSubscribtions.TryGetValue(eventType, out subscribtions))
@@ -125,9 +131,15 @@ namespace DotNEToolkit.Modular
                 // 触发事件
                 foreach (Subscribtion subscribtion in subscribtions)
                 {
-                    subscribtion.EventHandler(publisher, eventArgs);
+                    int code = subscribtion.EventHandler(publisher, eventArgs);
+                    if (code != DotNETCode.SUCCESS)
+                    {
+                        return code;
+                    }
                 }
             }
+
+            return DotNETCode.SUCCESS;
         }
     }
 }

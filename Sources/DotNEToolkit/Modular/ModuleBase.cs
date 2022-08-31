@@ -166,7 +166,7 @@ namespace DotNEToolkit.Modular
 
         #region 公开接口
 
-        protected T GetInputValue<T>(string key)
+        public T GetInputValue<T>(string key)
         {
             return this.InputParameters.GetValue<T>(key);
         }
@@ -178,7 +178,7 @@ namespace DotNEToolkit.Modular
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        protected T GetInputValue<T>(string key, T defaultValue)
+        public T GetInputValue<T>(string key, T defaultValue)
         {
             return this.InputParameters.GetValue<T>(key, defaultValue);
         }
@@ -190,7 +190,7 @@ namespace DotNEToolkit.Modular
         /// <param name="key"></param>
         /// <param name="defaultObject">如果不存在该对象，那么要返回的默认值</param>
         /// <returns></returns>
-        protected T GetInputObject<T>(string key, T defaultObject)
+        public T GetInputObject<T>(string key, T defaultObject)
         {
             if (!this.InputParameters.Contains(key))
             {
