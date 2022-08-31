@@ -67,6 +67,7 @@ namespace DotNEToolkit.Modular
             {
                 // 该事件从没被订阅过
                 subscribtions = new List<Subscribtion>();
+                moduleInst.EventSubscribtions[eventType] = subscribtions;
             }
 
             // 判断该事件是否被subscriber订阅过
@@ -76,7 +77,7 @@ namespace DotNEToolkit.Modular
                 return;
             }
 
-            logger.InfoFormat("模块{0}订阅事件:{1}", moduleInst.Name, eventType);
+            logger.InfoFormat("{0}订阅事件:{1}", moduleInst.Name, eventType);
             Subscribtion subscribtion = new Subscribtion()
             {
                 Subscriber = subscriber,
