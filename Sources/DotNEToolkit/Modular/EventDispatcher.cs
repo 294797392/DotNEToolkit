@@ -6,17 +6,35 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit.Modular
 {
+    /// <summary>
+    /// 用来记录订阅的事件信息
+    /// </summary>
     public class Subscribtion
     {
+        /// <summary>
+        /// 发布事件的对象
+        /// </summary>
+        public IEventPublisher Publisher { get; set; }
+
         /// <summary>
         /// 订阅该事件的对象
         /// </summary>
         public IEventSubscriber Subscriber { get; set; }
 
         /// <summary>
+        /// 发布的事件类型
+        /// </summary>
+        public int EventType { get; set; }
+
+        /// <summary>
         /// 处理该事件的处理器
         /// </summary>
         public ModuleEventDlg EventHandler { get; set; }
+
+        /// <summary>
+        /// 当事件执行失败的时候，要执行的回滚操作
+        /// </summary>
+        public EventRollbackDlg RollbackHandler { get; set; }
     }
 
     /// <summary>
@@ -51,11 +69,13 @@ namespace DotNEToolkit.Modular
         /// <param name="publisherId">要订阅的模块的Id</param>
         /// <param name="eventType">要订阅的事件类型</param>
         /// <param name="eventHandler">处理该事件的处理器</param>
-        public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, string publisherId, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler)
+        /// <param name="rollbackDlg">当事件执行失败的时候，要执行的回滚操作</param>
+        public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, string publisherId, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler, EventRollbackDlg rollbackDlg)
             where TPublisher : IEventPublisher
         {
-            TPublisher moduleInst = factory.LookupModule<TPublisher>(publisherId);
-            if (moduleInst == null)
+            // 先找到对应的发布者
+            TPublisher publisher = factory.LookupModule<TPublisher>(publisherId);
+            if (publisher == null)
             {
                 // 如果模块不存在，那么啥都不做直接返回
                 logger.InfoFormat("订阅事件失败, 要订阅的模块不存在, 模块Id = {0}", publisherId);
@@ -63,25 +83,28 @@ namespace DotNEToolkit.Modular
             }
 
             List<Subscribtion> subscribtions;
-            if (!moduleInst.EventSubscribtions.TryGetValue(eventType, out subscribtions))
+            if (!publisher.EventSubscribtions.TryGetValue(eventType, out subscribtions))
             {
                 // 该事件从没被订阅过
                 subscribtions = new List<Subscribtion>();
-                moduleInst.EventSubscribtions[eventType] = subscribtions;
+                publisher.EventSubscribtions[eventType] = subscribtions;
             }
 
             // 判断该事件是否被subscriber订阅过
             if (subscribtions.Exists(v => v.Subscriber == subscriber))
             {
-                logger.InfoFormat("事件{0}已经被{1}订阅过, 忽略本次订阅", eventType, moduleInst.Name);
+                logger.InfoFormat("事件{0}已经被{1}订阅过, 忽略本次订阅", eventType, publisher.Name);
                 return;
             }
 
-            logger.InfoFormat("{0}订阅事件:{1}", moduleInst.Name, eventType);
+            logger.InfoFormat("{0}订阅事件:{1}", publisher.Name, eventType);
             Subscribtion subscribtion = new Subscribtion()
             {
                 Subscriber = subscriber,
-                EventHandler = eventHandler
+                EventHandler = eventHandler,
+                Publisher = publisher,
+                EventType = eventType,
+                RollbackHandler = rollbackDlg
             };
             subscribtions.Add(subscribtion);
         }
@@ -97,7 +120,7 @@ namespace DotNEToolkit.Modular
         public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler)
             where TPublisher : IEventPublisher
         {
-            SubscribeEvent<TPublisher>(factory, string.Empty, subscriber, eventType, eventHandler);
+            SubscribeEvent<TPublisher>(factory, string.Empty, subscriber, eventType, eventHandler, null);
         }
 
         /// <summary>
@@ -113,6 +136,20 @@ namespace DotNEToolkit.Modular
             SubscribeEvent<TPublisher>(subscriber.Factory, subscriber, eventType, eventHandler);
         }
 
+
+
+        public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler, EventRollbackDlg rollbackDlg)
+            where TPublisher : IEventPublisher
+        {
+            SubscribeEvent<TPublisher>(factory, string.Empty, subscriber, eventType, eventHandler, rollbackDlg);
+        }
+
+        public static void SubscribeEvent<TPublisher>(this EventableModule subscriber, int eventType, ModuleEventDlg eventHandler, EventRollbackDlg rollbackDlg)
+            where TPublisher : IEventPublisher
+        {
+            SubscribeEvent<TPublisher>(subscriber.Factory, subscriber, eventType, eventHandler, rollbackDlg);
+        }
+
         /// <summary>
         /// 模块发布一个事件
         /// </summary>
@@ -124,7 +161,7 @@ namespace DotNEToolkit.Modular
         /// 如果有多个订阅号者，其中一个订阅者执行失败的话就返回失败
         /// 只有所有的订阅者都执行成功才返回成功
         /// </returns>
-        public static int PublishEvent(this EventableModule publisher, int eventType, IEventArgs eventArgs)
+        public static int PublishEvent(this EventableModule publisher, int eventType, object eventArgs)
         {
             List<Subscribtion> subscribtions;
             if (publisher.EventSubscribtions.TryGetValue(eventType, out subscribtions))
