@@ -61,25 +61,19 @@ namespace DotNEToolkit
         /// <summary>
         /// 初始化App
         /// </summary>
+        /// <param name="configFile">App配置文件路径</param>
         /// <returns></returns>
-        public int Initialize()
+        public int Initialize(string configFile)
         {
+            if (!File.Exists(configFile))
+            {
+                logger.ErrorFormat("配置文件不存在, {0}", configFile);
+                return DotNETCode.FILE_NOT_FOUND;
+            }
+
+            this.configPath = configFile;
+
             #region 加载配置文件
-
-            // 先查找exe.config文件里是否配置了配置文件的路径
-            string configPath = ConfigurationManager.AppSettings.Get(KEY_CONFIG_PATH);
-            if (string.IsNullOrEmpty(configPath))
-            {
-                // 如果exe.config文件里没配置，那么使用根目录下的app.json文件
-                configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultConfigFileName);
-                logger.InfoFormat("客户端没配置配置文件的路径, 使用默认路径:{0}", configPath);
-            }
-            else
-            {
-                logger.InfoFormat("使用用户配置的配置文件, 路径:{0}", configPath);
-            }
-
-            this.configPath = configPath;
 
             try
             {
@@ -105,6 +99,28 @@ namespace DotNEToolkit
             #endregion
 
             return this.OnInitialize();
+        }
+
+        /// <summary>
+        /// 初始化App
+        /// </summary>
+        /// <returns></returns>
+        public int Initialize()
+        {
+            // 先查找exe.config文件里是否配置了配置文件的路径
+            string configPath = ConfigurationManager.AppSettings.Get(KEY_CONFIG_PATH);
+            if (string.IsNullOrEmpty(configPath))
+            {
+                // 如果exe.config文件里没配置，那么使用根目录下的app.json文件
+                configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultConfigFileName);
+                logger.InfoFormat("客户端没配置配置文件的路径, 使用默认路径:{0}", configPath);
+            }
+            else
+            {
+                logger.InfoFormat("使用用户配置的配置文件, 路径:{0}", configPath);
+            }
+
+            return this.Initialize(configPath);
         }
 
         /// <summary>
