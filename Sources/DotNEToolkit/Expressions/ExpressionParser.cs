@@ -607,7 +607,7 @@ namespace DotNEToolkit.Expressions
         /// 对表达式树进行求值
         /// 从树形结构的儿子节点递归计算表达式的值，直到把根节点的值计算出来
         /// </summary>
-        /// <param name="parent">要计算的表达式根节点/param>
+        /// <param name="parent">要计算的表达式根节点</param>
         /// <param name="context">计算表达式的时候需要的额外数据</param>
         /// <returns>返回null则表示失败，否则成功</returns>
         public object Evaluate(Expression parent, IEvaluationContext context)

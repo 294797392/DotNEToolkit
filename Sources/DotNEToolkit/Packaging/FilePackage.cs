@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -166,8 +167,6 @@ namespace DotNEToolkit.Packaging
                     throw new NotImplementedException();
             }
 
-            filePackage.Open();
-
             return filePackage;
         }
 
@@ -228,4 +227,3 @@ namespace DotNEToolkit.Packaging
         #endregion
     }
 }
-

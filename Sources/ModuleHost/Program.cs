@@ -48,27 +48,27 @@ namespace ModuleHost
                 Exit();
             }
 
-            // 创建IHostedModule实例
-            IHostedModule hostedModule = null;
-            string moduleEntry = parameters.GetValue<string>(KEY_MODULE_ENTRY);
-            try
-            {
-                hostedModule = ConfigFactory<IHostedModule>.CreateInstance(moduleEntry);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("创建HostedModule异常", ex);
-                Console.WriteLine(DotNETCode.CREATE_HOSTED_MODULE_FAILED.ToString());
-                return;
-            }
+            //// 创建IHostedModule实例
+            //IHostedModule hostedModule = null;
+            //string moduleEntry = parameters.GetValue<string>(KEY_MODULE_ENTRY);
+            //try
+            //{
+            //    hostedModule = ConfigFactory<IHostedModule>.CreateInstance(moduleEntry);
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.ErrorFormat("创建HostedModule异常", ex);
+            //    Console.WriteLine(DotNETCode.CREATE_HOSTED_MODULE_FAILED.ToString());
+            //    return;
+            //}
 
-            // 初始化HostedModule
-            int code = hostedModule.Initialize(parameters);
-            if (code != DotNETCode.SUCCESS)
-            {
-                Console.WriteLine(DotNETCode.INIT_HOSTED_MODULE_FAILED.ToString());
-                return;
-            }
+            //// 初始化HostedModule
+            //int code = hostedModule.Initialize(parameters);
+            //if (code != DotNETCode.SUCCESS)
+            //{
+            //    Console.WriteLine(DotNETCode.INIT_HOSTED_MODULE_FAILED.ToString());
+            //    return;
+            //}
 
             Console.WriteLine(DotNETCode.SUCCESS.ToString());
             Console.ReadLine();

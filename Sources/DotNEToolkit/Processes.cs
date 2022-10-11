@@ -99,5 +99,35 @@ namespace DotNEToolkit
 
             return Process.Start(psi);
         }
+
+        public static void WaitProcessClosed(int pid)
+        {
+            while (true)
+            {
+                Process[] procList = Process.GetProcesses();
+                Process proc = procList.FirstOrDefault(v => v.Id == pid);
+                if (proc == null)
+                {
+                    logger.InfoFormat("进程{0}已退出", pid);
+                    return;
+                }
+                else
+                {
+                    logger.InfoFormat("进程{0}还未退出..", pid);
+                    Thread.Sleep(2000);
+                }
+            }
+        }
+
+        public static void WaitProcessClosed(string procName)
+        {
+            Process[] processes = Process.GetProcessesByName(procName);
+            if (processes == null || processes.Length == 0)
+            {
+                return;
+            }
+
+            WaitProcessClosed(processes[0].Id);
+        }
     }
 }

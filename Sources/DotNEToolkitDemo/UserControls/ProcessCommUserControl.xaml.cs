@@ -21,7 +21,6 @@ namespace DotNEToolkitDemo.UserControls
     public partial class ProcessCommUserControl : UserControl
     {
         private ProcessCommClient commClient;
-        private ProcessCommSvc commSvc;
 
         public ProcessCommUserControl()
         {
@@ -30,11 +29,6 @@ namespace DotNEToolkitDemo.UserControls
 
         private void ButtonStartServiceProcess_Click(object sender, RoutedEventArgs e)
         {
-            this.commSvc = ProcessCommFactory.CreateSvc(ProcessCommTypes.WCFNamedPipe);
-            this.commSvc.DataReceived += CommSvc_DataReceived;
-            this.commSvc.URI = TextBoxURI.Text;
-            this.commSvc.Initialize();
-            this.commSvc.Start();
         }
 
         private void CommSvc_DataReceived(ProcessCommObject commClient, int cmdType, object cmdParam)
@@ -44,12 +38,6 @@ namespace DotNEToolkitDemo.UserControls
 
         private void ButtonStartClientProcess_Click(object sender, RoutedEventArgs e)
         {
-            this.commClient = ProcessCommFactory.CreateClient(ProcessCommTypes.WCFNamedPipe);
-            this.commClient.ServiceURI = TextBoxURI.Text;
-            this.commClient.StatusChanged += CommClient_StatusChanged;
-            this.commClient.DataReceived += CommClient_DataReceived;
-            this.commClient.Initialize();
-            this.commClient.Connect();
         }
 
         private void CommClient_DataReceived(ProcessCommObject commClient, int cmdType, object cmdParam)
@@ -81,7 +69,7 @@ namespace DotNEToolkitDemo.UserControls
         private void ButtonService2Client_Click(object sender, RoutedEventArgs e)
         {
             //byte[] data = Encoding.ASCII.GetBytes(TextBoxData.Text);
-            this.commSvc.Send(1, TextBoxData.Text);
+            //this.commSvc.Send(1, TextBoxData.Text);
         }
     }
 }

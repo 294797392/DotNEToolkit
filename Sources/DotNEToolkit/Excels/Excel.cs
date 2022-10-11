@@ -1,5 +1,4 @@
 ﻿using DotNEToolkit.Excels;
-using DotNEToolkit.Excels.Attributes;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -52,6 +51,32 @@ namespace DotNEToolkit
             }
         }
 
+        private static void WriteSheet(ISheet sheet, TableData table)
+        {
+            int startRow = sheet.PhysicalNumberOfRows;
+            int rows = table.GetRows();
+
+            for (int row = 0; row < rows; row++)
+            {
+                int cols = table.GetColumns(row);
+
+                IRow irow = sheet.CreateRow(startRow++);
+
+                for (int col = 0; col < cols; col++)
+                {
+                    object value = table.Get(row, col);
+                    if (value == null)
+                    {
+                        irow.CreateCell(col, CellType.String);
+                    }
+                    else
+                    {
+                        CreateCell(irow, col, value);
+                    }
+                }
+            }
+        }
+
         private static void WriteSheet(ISheet sheet, object[,] excelData)
         {
             int startRow = sheet.PhysicalNumberOfRows;
@@ -75,6 +100,115 @@ namespace DotNEToolkit
                     }
                 }
             }
+        }
+
+        #region 公开接口
+
+        /// <summary>
+        /// TableData转成Excel
+        /// </summary>
+        /// <returns></returns>
+        public static int TableData2Excel(TableData tableData, string filePath, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        {
+            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            {
+                IWorkbook workbook = OpenWrite(version);
+                ISheet sheet = workbook.CreateSheet(sheetName);
+                WriteSheet(sheet, tableData);
+                workbook.Write(fs);
+                fs.Close();
+                return DotNETCode.SUCCESS;
+            }
+        }
+
+        /// <summary>
+        /// Excel文件转换成TableData
+        /// </summary>
+        /// <param name="filePath">要转换的Excel文件的完整路径</param>
+        /// <returns></returns>
+        public static TableData ExcelFile2TableData(string filePath)
+        {
+            TableData tableData = TableData.Create();
+
+            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                string extention = Path.GetExtension(filePath);
+                IWorkbook workbook = OpenRead(extention, fs);
+
+                ISheet sheet = workbook.GetSheetAt(0);
+
+                // 还剩leftRow行没读取
+                int leftRow = sheet.PhysicalNumberOfRows;
+
+                int row = 0;
+
+                // 要注意处理空行
+                while (leftRow > 0)
+                {
+                    IRow irow = sheet.GetRow(row);
+                    if (irow == null)
+                    {
+                        // 该行是空行，不计算在内
+                        row++;
+                        continue;
+                    }
+
+                    int numCell = irow.PhysicalNumberOfCells;
+
+                    for (int col = 0; col < numCell; col++)
+                    {
+                        ICell icell = irow.GetCell(col);
+                        if (icell == null || icell.CellType == CellType.Blank)
+                        {
+                            // 空的单元格，直接写一个空字符串
+                            continue;
+                        }
+
+                        switch (icell.CellType)
+                        {
+                            case CellType.Numeric:
+                                {
+                                    tableData.Set(row, col, icell.NumericCellValue);
+                                    break;
+                                }
+
+                            case CellType.String:
+                                {
+                                    tableData.Set(row, col, icell.StringCellValue);
+                                    break;
+                                }
+
+                            case CellType.Blank:
+                                {
+                                    tableData.Set(row, col, string.Empty);
+                                    break;
+                                }
+
+                            default:
+                                logger.ErrorFormat("不支持的Cell数据类型, {0}", icell.CellType);
+                                continue;
+                        }
+                    }
+
+                    leftRow--;
+                    row++;
+                }
+
+                fs.Close();
+            }
+
+            return tableData;
+        }
+
+        /// <summary>
+        /// Excel文件转换成CSV
+        /// </summary>
+        /// <param name="excelPath">要转换的Excel文件的完整路径</param>
+        /// <param name="csvPath">要保存的CSV文件的完整路径</param>
+        public static void Excel2CSV(string excelPath, string csvPath)
+        {
+            TableData tableData = ExcelFile2TableData(excelPath);
+            CSV.TableData2CSV(tableData, csvPath);
         }
 
         public static int QuickWrite(string filePath, DataTable table, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
@@ -111,6 +245,16 @@ namespace DotNEToolkit
             }
         }
 
+        /// <summary>
+        /// 把一个二维数组和一个DataTable写到Excel里
+        /// 先写二维数组，再写DataTable
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="firstWrite"></param>
+        /// <param name="secondWrite"></param>
+        /// <param name="sheetName"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
         public static int QuickWrite(string filePath, object[,] firstWrite, DataTable secondWrite, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
             using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
@@ -125,125 +269,7 @@ namespace DotNEToolkit
             }
         }
 
-        public static int QuickWrite(ExcelSheet excelSheet, string filePath, ExcelVersions version = ExcelVersions.Xls)
-        {
-            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-            {
-                IWorkbook workbook = OpenWrite(version);
-                ISheet sheet = workbook.CreateSheet(string.IsNullOrEmpty(excelSheet.Name) ? "sheet1" : excelSheet.Name);
-
-                for (int i = 0; i < excelSheet.Rows.Count; i++)
-                {
-                    IRow row = sheet.CreateRow(i);
-
-                    ExcelRow excelRow = excelSheet.Rows[i];
-
-                    for (int j = 0; j < excelRow.Cells.Count; j++)
-                    {
-                        ExcelCell excelCell = excelRow.GetCell(j);
-
-                        ICell cell = CreateCell(row, j, excelCell);
-                    }
-                }
-
-                workbook.Write(fs);
-                fs.Close();
-                return DotNETCode.SUCCESS;
-            }
-        }
-
-        public static int QuickRead(string filePath, ReadOptions options, out ExcelSheet excelSheet)
-        {
-            excelSheet = null;
-
-            if (!File.Exists(filePath))
-            {
-                return DotNETCode.FILE_NOT_FOUND;
-            }
-
-            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                string extention = Path.GetExtension(filePath);
-                IWorkbook workbook = OpenRead(extention, fs);
-
-                ISheet sheet = workbook.GetSheetAt(0);
-
-                // 还剩leftRow行没读取
-                int leftRow = sheet.PhysicalNumberOfRows;
-
-                excelSheet = new ExcelSheet();
-                excelSheet.Name = sheet.SheetName;
-                int currentRow = 0;
-
-                // 要注意处理空行
-                while (leftRow > 0)
-                {
-                    IRow row = sheet.GetRow(currentRow);
-                    if (row == null)
-                    {
-                        // 该行是空行，不计算在内
-                        currentRow++;
-                        continue;
-                    }
-
-                    int numCell = row.PhysicalNumberOfCells;
-
-                    ExcelRow excelRow = new ExcelRow();
-
-                    for (int cellnum = 0; cellnum < numCell; cellnum++)
-                    {
-                        ICell cell = row.GetCell(cellnum);
-                        if (cell == null || cell.CellType == CellType.Blank)
-                        {
-                            // 空列，根据选项进行处理
-                            if (options.HasFlag(ReadOptions.IgnoreEmptyCell))
-                            {
-
-                            }
-                            else if (options.HasFlag(ReadOptions.KeepEmptyCell))
-                            {
-                                excelRow.AddCell(null, ExcelCellTypes.Null);
-                            }
-                            continue;
-                        }
-
-                        switch (cell.CellType)
-                        {
-                            case CellType.Numeric:
-                                {
-                                    excelRow.AddCell(cell.NumericCellValue, ExcelCellTypes.Numberic);
-                                    break;
-                                }
-
-                            case CellType.String:
-                                {
-                                    excelRow.AddCell(cell.StringCellValue, ExcelCellTypes.String);
-                                    break;
-                                }
-
-                            case CellType.Blank:
-                                {
-                                    // 空列，在107行进行了处理
-                                    break;
-                                }
-
-                            default:
-                                logger.ErrorFormat("不支持的Cell数据类型, {0}", cell.CellType);
-                                return DotNETCode.NOT_SUPPORTED;
-                        }
-                    }
-
-                    excelSheet.AddRow(excelRow);
-
-                    leftRow--;
-                    currentRow++;
-                }
-
-                fs.Close();
-            }
-
-            return DotNETCode.SUCCESS;
-        }
+        #endregion
 
         private static IWorkbook OpenRead(string extension, FileStream fs)
         {
@@ -330,35 +356,6 @@ namespace DotNEToolkit
 
                 default:
                     throw new NotSupportedException("不支持的Excel格式");
-            }
-        }
-
-        private static ICell CreateCell(IRow row, int cellIndex, ExcelCell excelCell)
-        {
-            switch (excelCell.Type)
-            {
-                case ExcelCellTypes.Numberic:
-                    {
-                        ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
-                        cell.SetCellValue((double)excelCell.Value);
-                        return cell;
-                    }
-
-                case ExcelCellTypes.String:
-                    {
-                        ICell cell = row.CreateCell(cellIndex, CellType.String);
-                        cell.SetCellValue(excelCell.Value.ToString());
-                        return cell;
-                    }
-
-                case ExcelCellTypes.Null:
-                    {
-                        ICell cell = row.CreateCell(cellIndex, CellType.Blank);
-                        return cell;
-                    }
-
-                default:
-                    throw new NotSupportedException("不支持的数据格式");
             }
         }
 

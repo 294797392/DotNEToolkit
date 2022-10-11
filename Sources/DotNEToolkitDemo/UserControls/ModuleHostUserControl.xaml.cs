@@ -15,13 +15,6 @@ using System.Windows.Shapes;
 
 namespace DotNEToolkitDemo.UserControls
 {
-    public class HostedImageQueueProxy : ModuleHostProxy
-    {
-        protected override void OnDataReceived(int cmdType, object cmdParam)
-        {
-        }
-    }
-
     /// <summary>
     /// ModuleHostUserControl.xaml 的交互逻辑
     /// </summary>
@@ -40,8 +33,6 @@ namespace DotNEToolkitDemo.UserControls
         {
             this.moduleFactory = ModuleFactory.CreateFactory();
             this.moduleFactory.Initialized += ModuleFactory_Initialized;
-            this.moduleFactory.ModuleEvent += ModuleFactory_ModuleEvent;
-            this.moduleFactory.SetupAsync("ModuleHost.json");
         }
 
         private void ModuleFactory_ModuleEvent(ModuleFactory arg1, IModuleInstance arg2, int arg3, object arg4)
@@ -50,20 +41,6 @@ namespace DotNEToolkitDemo.UserControls
 
         private void ModuleFactory_Initialized(ModuleFactory factory)
         {
-            ModuleHostProxy proxy = factory.LookupModule<ModuleHostProxy>();
-
-            byte[] data = System.IO.File.ReadAllBytes("FlyPRO.exe");
-
-            for (int i = 0; i < 50; i++)
-            {
-                System.Threading.Tasks.Task.Factory.StartNew(() => 
-                {
-                    while (true)
-                    {
-                        proxy.Send(1, Guid.NewGuid().ToString());
-                    }
-                });
-            }
         }
     }
 }

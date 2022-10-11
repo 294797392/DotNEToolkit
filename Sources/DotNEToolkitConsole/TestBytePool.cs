@@ -22,7 +22,6 @@ namespace DotNEToolkitConsole
             ByteBlock block4 = pool.Obtain(Convert.ToInt32(2.5 * 1024 * 1024));
 
             ByteBlock block5 = pool.Obtain(Convert.ToInt32(2.5 * 1024 * 1024));
-
         }
     }
 }
