@@ -39,7 +39,7 @@ namespace DotNEToolkit
         }
 
         /// <summary>
-        /// 
+        /// 把一个JSON字符串转换成一个JSON对象
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="json"></param>
@@ -52,15 +52,7 @@ namespace DotNEToolkit
                 return defaultValue;
             }
 
-            try
-            {
-                return JsonConvert.DeserializeObject<TResult>(json);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(string.Format("解析JSON异常, json = {0}", json), ex);
-                return defaultValue;
-            }
+            return JsonConvert.DeserializeObject<TResult>(json);
         }
 
         /// <summary>
@@ -78,7 +70,8 @@ namespace DotNEToolkit
         }
 
         /// <summary>
-        /// 
+        /// 把一个文件序列化成JSON对象
+        /// 需要调用者捕获解析的时候出现的异常
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="filePath"></param>
@@ -91,16 +84,8 @@ namespace DotNEToolkit
                 return defaultValue;
             }
 
-            try
-            {
-                string json = File.ReadAllText(filePath);
-                return JsonConvert.DeserializeObject<TResult>(json);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(string.Format("解析JSON文件异常, path = {0}", filePath), ex);
-                return defaultValue;
-            }
+            string json = File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<TResult>(json);
         }
 
         /// <summary>
@@ -177,7 +162,7 @@ namespace DotNEToolkit
         /// <returns></returns>
         public static void Insert<T>(string jsonFile, T item)
         {
-            List<T> list = JSONHelper.Parse<List<T>>(jsonFile, new List<T>());
+            List<T> list = JSONHelper.ParseFile<List<T>>(jsonFile, new List<T>());
             list.Add(item);
             JSONHelper.Object2File<List<T>>(jsonFile, list);
         }
@@ -212,7 +197,7 @@ namespace DotNEToolkit
 
         public static int Update<TSource>(string jsonFile, Func<TSource, bool> predicate, TSource item)
         {
-            List<TSource> list = JSONHelper.Parse<List<TSource>>(jsonFile, new List<TSource>());
+            List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile, new List<TSource>());
 
             TSource exist = list.FirstOrDefault(predicate);
             if (exist == null)
