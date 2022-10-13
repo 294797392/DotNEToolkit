@@ -127,7 +127,7 @@ namespace DotNEToolkit.Packaging
 
         public override void Open()
         {
-            this.tarFs = new FileStream(this.packagePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            this.tarFs = new FileStream(this.packagePath, FileMode.Open, FileAccess.ReadWrite);
             this.baseStream = new TarOutputStream(this.tarFs, Encoding.Default);
         }
 

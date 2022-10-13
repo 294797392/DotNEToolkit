@@ -21,6 +21,7 @@ namespace DotNEToolkit.Packaging
 
         /// <summary>
         /// 在压缩包内的完整路径
+        /// 包含文件名
         /// </summary>
         public string PathRelativePackage { get; set; }
 
@@ -140,7 +141,7 @@ namespace DotNEToolkit.Packaging
         /// <param name="packagePath">压缩包的路径，如果没有这个压缩包文件，则会创建一个</param>
         /// <param name="package"></param>
         /// <returns></returns>
-        public static FilePackage Open(string packagePath, FilePackages package)
+        public static FilePackage Create(string packagePath, FilePackages package)
         {
             FilePackage filePackage = null;
 

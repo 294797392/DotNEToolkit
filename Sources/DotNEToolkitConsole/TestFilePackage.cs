@@ -54,7 +54,7 @@ namespace DotNEToolkitConsole
 
         public static void PackDirectoryUseFileItem(string dir, string packagePath)
         {
-            FilePackage package = FilePackage.Open(packagePath, FilePackages.TarArchive);
+            FilePackage package = FilePackage.Create(packagePath, FilePackages.TarArchive);
 
             List<string> fileList = Directory.EnumerateFiles(dir).ToList();
 
@@ -79,7 +79,7 @@ namespace DotNEToolkitConsole
 
         public static void PackDirectory(string dir, string packagePath)
         {
-            FilePackage package = FilePackage.Open(packagePath, FilePackages.TarArchive);
+            FilePackage package = FilePackage.Create(packagePath, FilePackages.TarArchive);
             package.PackDirectory(dir);
             package.Close();
         }
@@ -98,7 +98,8 @@ namespace DotNEToolkitConsole
                 Offset = 0
             });
 
-            FilePackage package = FilePackage.Open(packagePath, FilePackages.TarArchive);
+            FilePackage package = FilePackage.Create(packagePath, FilePackages.Zip);
+            package.Open();
             package.PackFile(fileItems);
             package.Close();
         }
@@ -126,10 +127,36 @@ namespace DotNEToolkitConsole
                 Offset = 0
             });
 
-            FilePackage package = FilePackage.Open(packagePath, FilePackages.TarArchive);
+            FilePackage package = FilePackage.Create(packagePath, FilePackages.TarArchive);
             package.PackFile(fileItems);
             package.Close();
         }
+
+
+        public static void PackBinary()
+        {
+            FilePackage package = FilePackage.Create("test.tar", FilePackages.TarArchive);
+            package.Open();
+
+            byte[] content = File.ReadAllBytes("1.bmp");
+
+            for (int i = 0; i < 10000; i++)
+            {
+                FileItem fileItem = new FileItem()
+                {
+                    Content = content,
+                    Size = content.Length,
+                    Offset = 0,
+                    Name = i.ToString(),
+                    PathRelativePackage = string.Format("test/{0}", i)
+                };
+
+                package.PackFile(new List<FileItem>() { fileItem });
+            }
+
+            package.Close();
+        }
+
     }
 }
 

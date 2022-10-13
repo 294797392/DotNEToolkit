@@ -17,10 +17,20 @@ namespace DotNEToolkitConsole
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().Id);
+
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TableData tableData = CSV.CSVFile2TableData("2718BOT-2.csv");
-            Excel.TableData2Excel(tableData, "1.xls");
+            TestFilePackage.PackBinary();
+
+            //TableData tableData = CSV.CSVFile2TableData("2718BOT-2.csv");
+            //Excel.TableData2Excel(tableData, "1.xls");
+
+            //while (true)
+            //{
+            //    TestFilePackage.PackFile("DotNEToolkit.dll", "1.zip");
+            //    System.Threading.Thread.Sleep(2000);
+            //}
 
             Console.WriteLine("运行结束...");
 

@@ -20,6 +20,11 @@ namespace DotNEToolkit.Packaging
         /// <summary>
         /// tar包
         /// </summary>
-        TarArchive
+        TarArchive,
+
+        /// <summary>
+        /// 把所有的数据打包成一个文件
+        /// </summary>
+        Binary
     }
 }
