@@ -11,6 +11,8 @@ namespace DotNEToolkitConsole
 {
     public class TestFilePackage
     {
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("TestFilePackage");
+
         public static void WriteOnce()
         {
             List<byte> fileBytes = new List<byte>();
@@ -79,7 +81,8 @@ namespace DotNEToolkitConsole
 
         public static void PackDirectory(string dir, string packagePath)
         {
-            FilePackage package = FilePackage.Create(packagePath, FilePackages.TarArchive);
+            FilePackage package = FilePackage.Create(packagePath, FilePackages.Zip);
+            package.Open();
             package.PackDirectory(dir);
             package.Close();
         }
@@ -140,7 +143,7 @@ namespace DotNEToolkitConsole
 
             byte[] content = File.ReadAllBytes("1.bmp");
 
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 1; i++)
             {
                 FileItem fileItem = new FileItem()
                 {
@@ -151,7 +154,9 @@ namespace DotNEToolkitConsole
                     PathRelativePackage = string.Format("test/{0}", i)
                 };
 
+                DateTime start = DateTime.Now;
                 package.PackFile(new List<FileItem>() { fileItem });
+                logger.InfoFormat("pack结束, 耗时:{0}ms", (DateTime.Now - start).TotalMilliseconds);
             }
 
             package.Close();

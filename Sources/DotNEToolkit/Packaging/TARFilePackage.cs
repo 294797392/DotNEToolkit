@@ -17,6 +17,17 @@ namespace DotNEToolkit.Packaging
     {
         private static readonly byte[] MagicBytes = new byte[] { (byte)'u', (byte)'s', (byte)'t', (byte)'a', (byte)'r', (byte)' ' };
 
+        #region 常量
+
+        /// <summary>
+        /// 默认的每次写入tar包的大小
+        /// 默认是2M
+        /// 这个值越大，磁盘的写入速度越高
+        /// </summary>
+        private const int DefaultWriteBufferSize = 1 * 1024 * 1024;
+
+        #endregion
+
         #region 实例变量
 
         private FileStream tarFs;
@@ -28,6 +39,12 @@ namespace DotNEToolkit.Packaging
 
         public override FilePackages Type => FilePackages.TarArchive;
 
+        /// <summary>
+        /// 每次写入文件的大小
+        /// 单位字节
+        /// </summary>
+        public int WriteBufferSize { get; set; }
+
         #endregion
 
         #region 构造方法
@@ -35,7 +52,7 @@ namespace DotNEToolkit.Packaging
         internal TARFilePackage(string packagePath) :
             base(packagePath)
         {
-
+            this.WriteBufferSize = DefaultWriteBufferSize;
         }
 
         #endregion
@@ -127,8 +144,9 @@ namespace DotNEToolkit.Packaging
 
         public override void Open()
         {
-            this.tarFs = new FileStream(this.packagePath, FileMode.Open, FileAccess.ReadWrite);
-            this.baseStream = new TarOutputStream(this.tarFs, Encoding.Default);
+            this.tarFs = new FileStream(this.packagePath, FileMode.CreateNew, FileAccess.ReadWrite);
+            int blockFactor = this.WriteBufferSize / 512;
+            this.baseStream = new TarOutputStream(this.tarFs, blockFactor, Encoding.Default);
         }
 
         public override void Close()

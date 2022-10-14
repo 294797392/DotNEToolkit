@@ -151,7 +151,7 @@ namespace DotNEToolkit.Packaging
                     {
                         filePackage = new ZIPFilePackage(packagePath)
                         {
-                            CompressionMethod = CompressionMethod.Deflated
+                            CompressionMethod = CompressionMethod.Stored
                         };
                         break;
                     }

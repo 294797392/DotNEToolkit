@@ -21,7 +21,7 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestFilePackage.PackBinary();
+            TestFilePackage.PackDirectory("Expressions", "1.pkg");
 
             //TableData tableData = CSV.CSVFile2TableData("2718BOT-2.csv");
             //Excel.TableData2Excel(tableData, "1.xls");
