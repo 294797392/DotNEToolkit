@@ -24,7 +24,7 @@ namespace DotNEToolkit.Packaging
         /// 默认是2M
         /// 这个值越大，磁盘的写入速度越高
         /// </summary>
-        private const int DefaultWriteBufferSize = 1 * 1024 * 1024;
+        private const int DefaultWriteBufferSize = 2 * 1024 * 1024;
 
         #endregion
 

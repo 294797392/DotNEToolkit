@@ -186,10 +186,15 @@ namespace DotNEToolkit
         public static void Delete<TSource>(string jsonFile, Func<TSource, bool> predicate)
         {
             List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile, new List<TSource>());
-            TSource toDelete = list.FirstOrDefault(predicate);
-            if (toDelete != null)
+            List<TSource> toDelete = list.Where(predicate).ToList();
+            if (toDelete == null || toDelete.Count == 0)
             {
-                list.Remove(toDelete);
+                return;
+            }
+
+            foreach (TSource source in toDelete)
+            {
+                list.Remove(source);
             }
 
             JSONHelper.Object2File<List<TSource>>(jsonFile, list);
