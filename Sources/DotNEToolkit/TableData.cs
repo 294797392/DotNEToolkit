@@ -47,7 +47,7 @@ namespace DotNEToolkit
         }
     }
 
-    public class ListTableData : TableData
+    internal class ListTableData : TableData
     {
         #region 实例变量
 

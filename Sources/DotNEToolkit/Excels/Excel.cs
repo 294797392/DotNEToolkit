@@ -17,9 +17,15 @@ namespace DotNEToolkit
     /// </summary>
     public static class Excel
     {
+        #region 类变量
+
         private static log4net.ILog logger = log4net.LogManager.GetLogger("Excel");
 
-        private static void WriteSheet(ISheet sheet, DataTable table)
+        #endregion
+
+        #region 类方法
+
+        private static void WriteDataTable(ISheet sheet, DataTable table)
         {
             int startRow = sheet.PhysicalNumberOfRows;
             int columns = table.Columns.Count;
@@ -51,7 +57,7 @@ namespace DotNEToolkit
             }
         }
 
-        private static void WriteSheet(ISheet sheet, TableData table)
+        private static void WriteTableData(ISheet sheet, TableData table)
         {
             int startRow = sheet.PhysicalNumberOfRows;
             int rows = table.GetRows();
@@ -77,11 +83,11 @@ namespace DotNEToolkit
             }
         }
 
-        private static void WriteSheet(ISheet sheet, object[,] excelData)
+        private static void WriteArray(ISheet sheet, object[,] array)
         {
             int startRow = sheet.PhysicalNumberOfRows;
-            int rows = excelData.GetLength(0);
-            int columns = excelData.GetLength(1);
+            int rows = array.GetLength(0);
+            int columns = array.GetLength(1);
 
             for (int rowIndex = 0; rowIndex < rows; rowIndex++)
             {
@@ -89,7 +95,7 @@ namespace DotNEToolkit
 
                 for (int columnIndex = 0; columnIndex < columns; columnIndex++)
                 {
-                    object value = excelData[rowIndex, columnIndex];
+                    object value = array[rowIndex, columnIndex];
                     if (value == null)
                     {
                         row.CreateCell(columnIndex, CellType.String);
@@ -102,7 +108,7 @@ namespace DotNEToolkit
             }
         }
 
-        private static ISheet OpenOrCreateSheet(IWorkbook workbook, string sheetName, WriteOptions options)
+        private static ISheet OpenSheet(IWorkbook workbook, string sheetName, WriteOptions options)
         {
             switch (options)
             {
@@ -126,41 +132,178 @@ namespace DotNEToolkit
             }
         }
 
-        private static FileMode GetFileMode(WriteOptions writeOptions)
+        private static void SaveExcel(string excelPath, IWorkbook workbook)
         {
-            switch (writeOptions)
+            using (FileStream fs = new FileStream(excelPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
-                case WriteOptions.Append: return FileMode.OpenOrCreate;
-                case WriteOptions.CreateNew: return FileMode.CreateNew;
-                default: throw new NotImplementedException();
-            }
-        }
-
-        #region 公开接口
-
-        /// <summary>
-        /// TableData转成Excel文件
-        /// </summary>
-        /// <param name="excelPath"></param>
-        /// <param name="tableData"></param>
-        /// <param name="options"></param>
-        /// <param name="sheetName"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        public static int TableData2Excel(string excelPath, TableData tableData, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
-        {
-            FileMode fileMode = GetFileMode(options);
-
-            using (FileStream fs = File.Open(excelPath, fileMode, FileAccess.ReadWrite))
-            {
-                IWorkbook workbook = OpenWrite(version);
-                ISheet sheet = OpenOrCreateSheet(workbook, sheetName, options);
-                WriteSheet(sheet, tableData);
                 workbook.Write(fs);
                 fs.Close();
-                return DotNETCode.SUCCESS;
             }
         }
+
+        private static IWorkbook OpenRead(string extension, FileStream fs)
+        {
+            IWorkbook workbook = null;
+
+            // 先根据后缀名判断不同格式的文件并打开
+
+            if (string.Compare(extension, ".xlsx", true) == 0)
+            {
+                try
+                {
+                    workbook = new XSSFWorkbook(fs);
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        workbook = new HSSFWorkbook(fs);
+                    }
+                    catch (Exception ex1)
+                    {
+                        logger.Error("打开Excel文件失败", ex1);
+                        return null;
+                    }
+                }
+            }
+            else if (string.Compare(extension, ".xls", true) == 0)
+            {
+                try
+                {
+                    workbook = new HSSFWorkbook(fs);
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        workbook = new XSSFWorkbook(fs);
+                    }
+                    catch (Exception ex1)
+                    {
+                        logger.Error("打开Excel文件失败", ex1);
+                        return null;
+                    }
+                }
+            }
+            else
+            {
+                // 扩展名不是excel的扩展名，那么直接打开
+                try
+                {
+                    workbook = new HSSFWorkbook(fs);
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        workbook = new XSSFWorkbook(fs);
+                    }
+                    catch (Exception ex1)
+                    {
+                        logger.Error("打开Excel文件失败", ex1);
+                        return null;
+                    }
+                }
+            }
+
+            // 到这里打开成功了
+            return workbook;
+        }
+
+        private static IWorkbook OpenWrite(string excelPath, ExcelVersions version, WriteOptions options)
+        {
+            switch (options)
+            {
+                case WriteOptions.Append:
+                    {
+                        using (FileStream fs = new FileStream(excelPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                        {
+                            switch (version)
+                            {
+                                case ExcelVersions.Xls:
+                                    {
+                                        return new HSSFWorkbook(fs);
+                                    }
+
+                                case ExcelVersions.Xlsx:
+                                    {
+                                        return new XSSFWorkbook(fs);
+                                    }
+
+                                default:
+                                    throw new NotImplementedException();
+                            }
+                        }
+                    }
+
+                case WriteOptions.CreateNew:
+                    {
+                        switch (version)
+                        {
+                            case ExcelVersions.Xls:
+                                {
+                                    return new HSSFWorkbook();
+                                }
+
+                            case ExcelVersions.Xlsx:
+                                {
+                                    return new XSSFWorkbook();
+                                }
+
+                            default:
+                                throw new NotImplementedException();
+                        }
+                    }
+
+                default:
+                    {
+                        throw new NotImplementedException();
+                    }
+            }
+        }
+
+        private static ICell CreateCell(IRow row, int cellIndex, object value)
+        {
+            Type valueType = value.GetType();
+            if (valueType == typeof(int))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellValue((int)value);
+                return cell;
+            }
+            else if (valueType == typeof(float))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellValue((float)value);
+                return cell;
+            }
+            else if (valueType == typeof(double))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellValue((double)value);
+                return cell;
+            }
+            else if (valueType == typeof(string))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.String);
+                cell.SetCellValue(value.ToString());
+                return cell;
+            }
+            else if (valueType == typeof(DateTime))
+            {
+                ICell cell = row.CreateCell(cellIndex, CellType.String);
+                cell.SetCellValue((DateTime)value);
+                return cell;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        #endregion
+
+        #region 公开接口
 
         /// <summary>
         /// Excel文件转换成TableData
@@ -253,6 +396,24 @@ namespace DotNEToolkit
         }
 
         /// <summary>
+        /// TableData转成Excel文件
+        /// </summary>
+        /// <param name="excelPath"></param>
+        /// <param name="tableData"></param>
+        /// <param name="options"></param>
+        /// <param name="sheetName"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public static int TableData2Excel(string excelPath, TableData tableData, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        {
+            IWorkbook workbook = OpenWrite(excelPath, version, options);
+            ISheet sheet = OpenSheet(workbook, sheetName, options);
+            WriteTableData(sheet, tableData);
+            SaveExcel(excelPath, workbook);
+            return DotNETCode.SUCCESS;
+        }
+
+        /// <summary>
         /// DataTable转成Excel文件
         /// </summary>
         /// <param name="excelPath"></param>
@@ -263,170 +424,31 @@ namespace DotNEToolkit
         /// <returns></returns>
         public static int DataTable2Excel(string excelPath, DataTable table, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            FileMode fileMode = GetFileMode(options);
-
-            using (FileStream fs = File.Open(excelPath, fileMode, FileAccess.ReadWrite))
-            {
-                IWorkbook workbook = OpenWrite(version);
-                ISheet sheet = OpenOrCreateSheet(workbook, sheetName, options);
-                WriteSheet(sheet, table);
-                workbook.Write(fs);
-                fs.Close();
-                return DotNETCode.SUCCESS;
-            }
+            IWorkbook workbook = OpenWrite(excelPath, version, options);
+            ISheet sheet = OpenSheet(workbook, sheetName, options);
+            WriteDataTable(sheet, table);
+            SaveExcel(excelPath, workbook);
+            return DotNETCode.SUCCESS;
         }
 
         /// <summary>
         /// 把一个二维数组写到Excel里
         /// </summary>
         /// <param name="excelPath"></param>
-        /// <param name="excelData">一维是行，二维是列</param>
+        /// <param name="array">一维是行，二维是列</param>
         /// <param name="options"></param>
         /// <param name="sheetName"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static int Array2Excel(string excelPath, object[,] excelData, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static int Array2Excel(string excelPath, object[,] array, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            FileMode fileMode = GetFileMode(options);
-
-            using (FileStream fs = File.Open(excelPath, fileMode, FileAccess.ReadWrite))
-            {
-                IWorkbook workbook = OpenWrite(version);
-                ISheet sheet = OpenOrCreateSheet(workbook, sheetName, options);
-                WriteSheet(sheet, excelData);
-                workbook.Write(fs);
-                fs.Close();
-                return DotNETCode.SUCCESS;
-            }
+            IWorkbook workbook = OpenWrite(excelPath, version, options);
+            ISheet sheet = OpenSheet(workbook, sheetName, options);
+            WriteArray(sheet, array);
+            SaveExcel(excelPath, workbook);
+            return DotNETCode.SUCCESS;
         }
 
         #endregion
-
-        private static IWorkbook OpenRead(string extension, FileStream fs)
-        {
-            IWorkbook workbook = null;
-
-            // 先根据后缀名判断不同格式的文件并打开
-
-            if (string.Compare(extension, ".xlsx", true) == 0)
-            {
-                try
-                {
-                    workbook = new XSSFWorkbook(fs);
-                }
-                catch (Exception ex)
-                {
-                    try
-                    {
-                        workbook = new HSSFWorkbook(fs);
-                    }
-                    catch (Exception ex1)
-                    {
-                        logger.Error("打开Excel文件失败", ex1);
-                        return null;
-                    }
-                }
-            }
-            else if (string.Compare(extension, ".xls", true) == 0)
-            {
-                try
-                {
-                    workbook = new HSSFWorkbook(fs);
-                }
-                catch (Exception ex)
-                {
-                    try
-                    {
-                        workbook = new XSSFWorkbook(fs);
-                    }
-                    catch (Exception ex1)
-                    {
-                        logger.Error("打开Excel文件失败", ex1);
-                        return null;
-                    }
-                }
-            }
-            else
-            {
-                // 扩展名不是excel的扩展名，那么直接打开
-                try
-                {
-                    workbook = new HSSFWorkbook(fs);
-                }
-                catch (Exception ex)
-                {
-                    try
-                    {
-                        workbook = new XSSFWorkbook(fs);
-                    }
-                    catch (Exception ex1)
-                    {
-                        logger.Error("打开Excel文件失败", ex1);
-                        return null;
-                    }
-                }
-            }
-
-            // 到这里打开成功了
-            return workbook;
-        }
-
-        private static IWorkbook OpenWrite(ExcelVersions version)
-        {
-            switch (version)
-            {
-                case ExcelVersions.Xls:
-                    {
-                        return new HSSFWorkbook();
-                    }
-
-                case ExcelVersions.Xlsx:
-                    {
-                        return new XSSFWorkbook();
-                    }
-
-                default:
-                    throw new NotSupportedException("不支持的Excel格式");
-            }
-        }
-
-        private static ICell CreateCell(IRow row, int cellIndex, object value)
-        {
-            Type valueType = value.GetType();
-            if (valueType == typeof(int))
-            {
-                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
-                cell.SetCellValue((int)value);
-                return cell;
-            }
-            else if (valueType == typeof(float))
-            {
-                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
-                cell.SetCellValue((float)value);
-                return cell;
-            }
-            else if (valueType == typeof(double))
-            {
-                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
-                cell.SetCellValue((double)value);
-                return cell;
-            }
-            else if (valueType == typeof(string))
-            {
-                ICell cell = row.CreateCell(cellIndex, CellType.String);
-                cell.SetCellValue(value.ToString());
-                return cell;
-            }
-            else if (valueType == typeof(DateTime))
-            {
-                ICell cell = row.CreateCell(cellIndex, CellType.String);
-                cell.SetCellValue((DateTime)value);
-                return cell;
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
     }
 }
