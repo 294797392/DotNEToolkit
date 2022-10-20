@@ -21,7 +21,15 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestExcel.CreateNew();
+            TableData tableData = TableData.Create();
+            tableData.Set(0, 0, Guid.NewGuid().ToString());
+            tableData.Set(0, 1, Guid.NewGuid().ToString());
+            tableData.Set(0, 2, Guid.NewGuid().ToString());
+            tableData.Set(0, 4, Guid.NewGuid().ToString());
+            Excel.TableData2Excel("1.xls", tableData, WriteOptions.Append);
+
+
+            //TestExcel.CreateNew();
             //while (true)
             //{
             //    TestExcel.CreateOrAppend();

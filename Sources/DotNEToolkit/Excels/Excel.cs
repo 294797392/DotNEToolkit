@@ -73,7 +73,8 @@ namespace DotNEToolkit
                     object value = table.Get(row, col);
                     if (value == null)
                     {
-                        irow.CreateCell(col, CellType.String);
+                        ICell cell = irow.CreateCell(col, CellType.String);
+                        cell.SetCellValue(string.Empty);
                     }
                     else
                     {
@@ -212,53 +213,47 @@ namespace DotNEToolkit
 
         private static IWorkbook OpenWrite(string excelPath, ExcelVersions version, WriteOptions options)
         {
+            FileStream fs = null;
+
             switch (options)
             {
                 case WriteOptions.Append:
                     {
-                        using (FileStream fs = new FileStream(excelPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                        if (File.Exists(excelPath))
                         {
-                            switch (version)
-                            {
-                                case ExcelVersions.Xls:
-                                    {
-                                        return new HSSFWorkbook(fs);
-                                    }
-
-                                case ExcelVersions.Xlsx:
-                                    {
-                                        return new XSSFWorkbook(fs);
-                                    }
-
-                                default:
-                                    throw new NotImplementedException();
-                            }
+                            fs = new FileStream(excelPath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                         }
+                        break;
                     }
 
                 case WriteOptions.CreateNew:
                     {
-                        switch (version)
+                        if (File.Exists(excelPath))
                         {
-                            case ExcelVersions.Xls:
-                                {
-                                    return new HSSFWorkbook();
-                                }
-
-                            case ExcelVersions.Xlsx:
-                                {
-                                    return new XSSFWorkbook();
-                                }
-
-                            default:
-                                throw new NotImplementedException();
+                            File.Delete(excelPath);
                         }
+                        break;
                     }
 
                 default:
+                    throw new NotImplementedException();
+            }
+
+
+            switch (version)
+            {
+                case ExcelVersions.Xls:
                     {
-                        throw new NotImplementedException();
+                        return fs == null ? new HSSFWorkbook() : new HSSFWorkbook(fs);
                     }
+
+                case ExcelVersions.Xlsx:
+                    {
+                        return fs == null ? new XSSFWorkbook() : new XSSFWorkbook(fs);
+                    }
+
+                default:
+                    throw new NotImplementedException();
             }
         }
 
