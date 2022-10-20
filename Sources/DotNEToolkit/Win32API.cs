@@ -64,6 +64,7 @@ namespace DotNEToolkit
             public IntPtr table;
         }
 
+        [DllImport("123")]
         public static extern int GetExtendedTcpTable(IntPtr pTcpTable, out int pdwSize, bool bOrder, int ulAf, TCP_TABLE_CLASS TableClass, int Reserved);
     }
 

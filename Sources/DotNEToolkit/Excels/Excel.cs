@@ -102,18 +102,59 @@ namespace DotNEToolkit
             }
         }
 
+        private static ISheet OpenOrCreateSheet(IWorkbook workbook, string sheetName, WriteOptions options)
+        {
+            switch (options)
+            {
+                case WriteOptions.Append:
+                    {
+                        ISheet sheet = workbook.GetSheet(sheetName);
+                        if (sheet == null)
+                        {
+                            sheet = workbook.CreateSheet(sheetName);
+                        }
+                        return sheet;
+                    }
+
+                case WriteOptions.CreateNew:
+                    {
+                        return workbook.CreateSheet(sheetName);
+                    }
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private static FileMode GetFileMode(WriteOptions writeOptions)
+        {
+            switch (writeOptions)
+            {
+                case WriteOptions.Append: return FileMode.OpenOrCreate;
+                case WriteOptions.CreateNew: return FileMode.CreateNew;
+                default: throw new NotImplementedException();
+            }
+        }
+
         #region 公开接口
 
         /// <summary>
-        /// TableData转成Excel
+        /// TableData转成Excel文件
         /// </summary>
+        /// <param name="excelPath"></param>
+        /// <param name="tableData"></param>
+        /// <param name="options"></param>
+        /// <param name="sheetName"></param>
+        /// <param name="version"></param>
         /// <returns></returns>
-        public static int TableData2Excel(TableData tableData, string filePath, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static int TableData2Excel(string excelPath, TableData tableData, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            FileMode fileMode = GetFileMode(options);
+
+            using (FileStream fs = File.Open(excelPath, fileMode, FileAccess.ReadWrite))
             {
                 IWorkbook workbook = OpenWrite(version);
-                ISheet sheet = workbook.CreateSheet(sheetName);
+                ISheet sheet = OpenOrCreateSheet(workbook, sheetName, options);
                 WriteSheet(sheet, tableData);
                 workbook.Write(fs);
                 fs.Close();
@@ -124,15 +165,15 @@ namespace DotNEToolkit
         /// <summary>
         /// Excel文件转换成TableData
         /// </summary>
-        /// <param name="filePath">要转换的Excel文件的完整路径</param>
+        /// <param name="excelPath">要转换的Excel文件的完整路径</param>
         /// <returns></returns>
-        public static TableData ExcelFile2TableData(string filePath)
+        public static TableData Excel2TableData(string excelPath)
         {
             TableData tableData = TableData.Create();
 
-            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (FileStream fs = File.Open(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                string extention = Path.GetExtension(filePath);
+                string extention = Path.GetExtension(excelPath);
                 IWorkbook workbook = OpenRead(extention, fs);
 
                 ISheet sheet = workbook.GetSheetAt(0);
@@ -207,16 +248,27 @@ namespace DotNEToolkit
         /// <param name="csvPath">要保存的CSV文件的完整路径</param>
         public static void Excel2CSV(string excelPath, string csvPath)
         {
-            TableData tableData = ExcelFile2TableData(excelPath);
-            CSV.TableData2CSV(tableData, csvPath);
+            TableData tableData = Excel2TableData(excelPath);
+            CSV.TableData2CSV(csvPath, tableData);
         }
 
-        public static int QuickWrite(string filePath, DataTable table, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        /// <summary>
+        /// DataTable转成Excel文件
+        /// </summary>
+        /// <param name="excelPath"></param>
+        /// <param name="table"></param>
+        /// <param name="options"></param>
+        /// <param name="sheetName"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public static int DataTable2Excel(string excelPath, DataTable table, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            FileMode fileMode = GetFileMode(options);
+
+            using (FileStream fs = File.Open(excelPath, fileMode, FileAccess.ReadWrite))
             {
                 IWorkbook workbook = OpenWrite(version);
-                ISheet sheet = workbook.CreateSheet(sheetName);
+                ISheet sheet = OpenOrCreateSheet(workbook, sheetName, options);
                 WriteSheet(sheet, table);
                 workbook.Write(fs);
                 fs.Close();
@@ -227,42 +279,21 @@ namespace DotNEToolkit
         /// <summary>
         /// 把一个二维数组写到Excel里
         /// </summary>
-        /// <param name="filePath"></param>
+        /// <param name="excelPath"></param>
         /// <param name="excelData">一维是行，二维是列</param>
+        /// <param name="options"></param>
         /// <param name="sheetName"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static int QuickWrite(string filePath, object[,] excelData, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static int Array2Excel(string excelPath, object[,] excelData, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-            {
-                IWorkbook workbook = OpenWrite(version);
-                ISheet sheet = workbook.CreateSheet(sheetName);
-                WriteSheet(sheet, excelData);
-                workbook.Write(fs);
-                fs.Close();
-                return DotNETCode.SUCCESS;
-            }
-        }
+            FileMode fileMode = GetFileMode(options);
 
-        /// <summary>
-        /// 把一个二维数组和一个DataTable写到Excel里
-        /// 先写二维数组，再写DataTable
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="firstWrite"></param>
-        /// <param name="secondWrite"></param>
-        /// <param name="sheetName"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        public static int QuickWrite(string filePath, object[,] firstWrite, DataTable secondWrite, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
-        {
-            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using (FileStream fs = File.Open(excelPath, fileMode, FileAccess.ReadWrite))
             {
                 IWorkbook workbook = OpenWrite(version);
-                ISheet sheet = workbook.CreateSheet(sheetName);
-                WriteSheet(sheet, firstWrite);
-                WriteSheet(sheet, secondWrite);
+                ISheet sheet = OpenOrCreateSheet(workbook, sheetName, options);
+                WriteSheet(sheet, excelData);
                 workbook.Write(fs);
                 fs.Close();
                 return DotNETCode.SUCCESS;

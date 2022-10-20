@@ -33,8 +33,8 @@ namespace DotNEToolkit
         /// 把TableData保存成一个CSV文件
         /// </summary>
         /// <param name="tableData"></param>
-        /// <param name="filePath"></param>
-        public static void TableData2CSV(TableData tableData, string filePath)
+        /// <param name="csvPath"></param>
+        public static void TableData2CSV(string csvPath, TableData tableData)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -54,7 +54,7 @@ namespace DotNEToolkit
                 builder.Replace(",", Environment.NewLine, builder.Length - 1, 1);
             }
 
-            File.WriteAllText(filePath, builder.ToString());
+            File.WriteAllText(csvPath, builder.ToString());
         }
 
         private static TableData CSV2TableData(string[] lines)
@@ -107,17 +107,17 @@ namespace DotNEToolkit
             return CSV2TableData(lines);
         }
 
-
         /// <summary>
         /// 把CSV文件转换成Excel
         /// </summary>
         /// <param name="csvPath"></param>
         /// <param name="excelPath"></param>
+        /// <param name="options">写入Excel文件的选项</param>
         /// <returns></returns>
-        public static void CSV2Excel(string csvPath, string excelPath)
+        public static void CSV2Excel(string csvPath, string excelPath, WriteOptions options)
         {
             TableData tableData = CSVFile2TableData(csvPath);
-            Excel.TableData2Excel(tableData, excelPath);
+            Excel.TableData2Excel(excelPath, tableData, options);
         }
 
         /// <summary>
@@ -125,10 +125,11 @@ namespace DotNEToolkit
         /// </summary>
         /// <param name="csvText"></param>
         /// <param name="excelPath"></param>
-        public static void CSVContent2Excel(string csvText, string excelPath)
+        /// <param name="options">写入Excel文件的选项</param>
+        public static void CSVContent2Excel(string csvText, string excelPath, WriteOptions options)
         {
             TableData tableData = CSV2TableData(csvText);
-            Excel.TableData2Excel(tableData, excelPath);
+            Excel.TableData2Excel(excelPath, tableData, options);
         }
     }
 }
