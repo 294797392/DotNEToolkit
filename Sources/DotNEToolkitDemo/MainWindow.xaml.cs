@@ -2,6 +2,7 @@ using DotNEToolkit;
 using DotNEToolkit.linux;
 using DotNEToolkit.Modular;
 using DotNEToolkitDemo;
+using DotNEToolkitDemo.Forms;
 using DotNEToolkitDemo.Modules;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -54,6 +55,9 @@ namespace DotNETClient
         public MainWindow()
         {
             InitializeComponent();
+
+            libVLCForm vlcForm = new libVLCForm();
+            vlcForm.Show();
         }
 
         private void T_callback1(tail arg1, tail.tail_event_type arg2, object arg3, object arg4)

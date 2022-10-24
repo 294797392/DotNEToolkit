@@ -123,7 +123,9 @@
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
-    <Compile Include="Media\VideoRenderer\VideoRenderer.cs" />
+    <Compile Include="Media\Video\libvlcPlay.cs" />
+    <Compile Include="Media\Video\VideoPlay.cs" />
+    <Compile Include="Media\Video\VideoPlayFactory.cs" />
     <Compile Include="Modular\ModularApp.cs" />
     <Compile Include="Modular\EventableModule.cs" />
     <Compile Include="Modular\EventDispatcher.cs" />
@@ -146,19 +148,19 @@
     <Compile Include="ProcessComm\ProcessCommObject.cs" />
     <Compile Include="ProcessComm\ProcessCommTypes.cs" />
     <Compile Include="StringEnumerator.cs" />
-    <Compile Include="Media\AudioPlay.cs" />
-    <Compile Include="Media\AudioPlayFactory.cs" />
-    <Compile Include="Media\AudioRecordFactory.cs" />
-    <Compile Include="Media\Audio.cs" />
-    <Compile Include="Media\DirectSoundPlay.cs" />
+    <Compile Include="Media\Audio\AudioPlay.cs" />
+    <Compile Include="Media\Audio\AudioPlayFactory.cs" />
+    <Compile Include="Media\Audio\AudioRecordFactory.cs" />
+    <Compile Include="Media\Audio\Audio.cs" />
+    <Compile Include="Media\Audio\DirectSoundPlay.cs" />
     <Compile Include="Media\G711.cs" />
-    <Compile Include="Media\WaveAPIPlay.cs" />
-    <Compile Include="Media\WaveAPIRecord.cs" />
+    <Compile Include="Media\Audio\WaveAPIPlay.cs" />
+    <Compile Include="Media\Audio\WaveAPIRecord.cs" />
     <Compile Include="Networks.cs" />
     <Compile Include="Numberics.cs" />
     <Compile Include="Marshals.cs" />
-    <Compile Include="Media\AudioRecord.cs" />
-    <Compile Include="Media\DirectSoundRecord.cs" />
+    <Compile Include="Media\Audio\AudioRecord.cs" />
+    <Compile Include="Media\Audio\DirectSoundRecord.cs" />
     <Compile Include="Bindings\BindableBase.cs" />
     <Compile Include="Bindings\BindableProperties.cs" />
     <Compile Include="Bindings\BindableProperty.cs" />
@@ -239,7 +241,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
+      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

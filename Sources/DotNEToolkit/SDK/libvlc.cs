@@ -7,9 +7,57 @@ using System.Threading;
 
 namespace DotNEToolkit.SDK
 {
+    using libvlc_media_t = IntPtr;
+    using libvlc_instance_t = IntPtr;
+
     public static class libvlc
     {
         private const string libvlcDll = "libvlc.dll";
+
+        #region 委托
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="opaque">private pointer as passed to libvlc_media_new_callbacks()</param>
+        /// <param name="datap">storage space for a private data pointer [OUT]</param>
+        /// <param name="sizep">byte length of the bitstream or UINT64_MAX if unknown [OUT]</param>
+        /// <returns>
+        /// 0 on success, non-zero on error. In case of failure, the other
+        /// callbacks will not be invoked and any value stored in *datap and *sizep is
+        /// discarded.
+        /// </returns>
+        public delegate int libvlc_media_open_cb(IntPtr opaque, out IntPtr datap, out ulong sizep);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="opaque">private pointer as set by the @ref libvlc_media_open_cb callback</param>
+        /// <param name="buf">start address of the buffer to read data into</param>
+        /// <param name="len">bytes length of the buffer</param>
+        /// <remarks>
+        /// If no data is immediately available, then the callback should sleep.
+        /// </remarks>
+        /// <returns>
+        /// strictly positive number of bytes read, 0 on end-of-stream, or -1 on non-recoverable error
+        /// </returns>
+        public delegate ulong libvlc_media_read_cb(IntPtr opaque, IntPtr buf, int len);
+
+        /// <summary>
+        /// Callback prototype to seek a custom bitstream input media.
+        /// </summary>
+        /// <param name="opaque">private pointer as set by the @ref libvlc_media_open_cb callback</param>
+        /// <param name="offset">absolute byte offset to seek to</param>
+        /// <returns>0 on success, -1 on error.</returns>
+        public delegate int libvlc_media_seek_cb(IntPtr opaque, ulong offset);
+
+        /// <summary>
+        /// Callback prototype to seek a custom bitstream input media.
+        /// </summary>
+        /// <param name="opaque">private pointer as set by the @ref libvlc_media_open_cb callback</param>
+        public delegate void libvlc_media_close_cb(IntPtr opaque);
+
+        #endregion
 
         public enum libvlc_state_t
         {
@@ -27,7 +75,10 @@ namespace DotNEToolkit.SDK
         public static extern libvlc_state_t libvlc_media_get_state(IntPtr p_md);
 
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr libvlc_new(int argc, IntPtr argv);
+        public static extern libvlc_instance_t libvlc_new(int argc, IntPtr argv);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libvlc_release(libvlc_instance_t p_instnace);
 
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_new_location(IntPtr vlcptr, string url);
@@ -36,7 +87,7 @@ namespace DotNEToolkit.SDK
         public static extern IntPtr libvlc_media_release(IntPtr mediaPtr);
 
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr libvlc_media_player_new_from_media(IntPtr media_ptr);
+        public static extern IntPtr libvlc_media_player_new_from_media(libvlc_media_t linvlc_media_t);
 
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr libvlc_media_player_release(IntPtr mediaPlayerPtr);
@@ -61,6 +112,17 @@ namespace DotNEToolkit.SDK
 
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void libvlc_video_set_mouse_input(IntPtr mediaPlayerPtr, uint on);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libvlc_media_add_option(libvlc_media_t libvlc_media_t, string psz_options);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern libvlc_media_t libvlc_media_new_callbacks(libvlc_instance_t instance,
+                                                                        libvlc_media_open_cb open_cb,
+                                                                        libvlc_media_read_cb read_cb,
+                                                                        libvlc_media_seek_cb seek_cb,
+                                                                        libvlc_media_close_cb close_cb,
+                                                                        IntPtr opaque);
 
         /// <summary>
         /// 封装libvlc的快速播放逻辑，传递一个窗口句柄即可
