@@ -1,6 +1,7 @@
 ﻿using DotNEToolkit.Excels;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
+using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
@@ -25,8 +26,18 @@ namespace DotNEToolkit
 
         #region 类方法
 
-        private static void WriteDataTable(ISheet sheet, DataTable table)
+        private static ICellStyle CreateDefaultCellStyle(IWorkbook workbook)
         {
+            ICellStyle cellStyle = workbook.CreateCellStyle();
+            cellStyle.VerticalAlignment = VerticalAlignment.Center;
+            cellStyle.Alignment = HorizontalAlignment.Center;
+            return cellStyle;
+        }
+
+        private static void WriteDataTable(IWorkbook workbook, ISheet sheet, DataTable table)
+        {
+            ICellStyle cellStyle = CreateDefaultCellStyle(workbook);
+
             int startRow = sheet.PhysicalNumberOfRows;
             int columns = table.Columns.Count;
 
@@ -47,18 +58,23 @@ namespace DotNEToolkit
                     object value = dataRow[columnIndex];
                     if (value == null || value == DBNull.Value)
                     {
-                        row.CreateCell(columnIndex, CellType.String);
+                        //ICell cell = row.CreateCell(columnIndex, CellType.String);
+                        //cell.SetCellValue(string.Empty);
+
                     }
                     else
                     {
-                        CreateCell(row, columnIndex, value);
+                        CreateCell(row, columnIndex, value, cellStyle);
                     }
                 }
             }
         }
 
-        private static void WriteTableData(ISheet sheet, TableData table)
+        private static void WriteTableData(IWorkbook workbook, ISheet sheet, TableData table)
         {
+            // 新建一个内容居中显示的单元格样式
+            ICellStyle cellStyle = CreateDefaultCellStyle(workbook);
+
             int startRow = sheet.PhysicalNumberOfRows;
             int rows = table.GetRows();
 
@@ -66,26 +82,60 @@ namespace DotNEToolkit
             {
                 int cols = table.GetColumns(row);
 
-                IRow irow = sheet.CreateRow(startRow++);
+                IRow irow = sheet.CreateRow(startRow);
 
                 for (int col = 0; col < cols; col++)
                 {
-                    object value = table.Get(row, col);
-                    if (value == null)
+                    CellData cellData = table.Get(row, col);
+
+                    if (cellData == null)
                     {
-                        ICell cell = irow.CreateCell(col, CellType.String);
-                        cell.SetCellValue(string.Empty);
+                        //ICell cell = irow.CreateCell(col, CellType.String);
+                        //cell.SetCellValue(string.Empty);
                     }
                     else
                     {
-                        CreateCell(irow, col, value);
+                        object value = cellData.Value;
+
+                        switch (cellData.SpanType)
+                        {
+                            case CellSpan.None:
+                                {
+                                    CreateCell(irow, col, value, cellStyle);
+                                    break;
+                                }
+
+                            case CellSpan.ColSpan:
+                                {
+                                    CreateCell(irow, col, value, cellStyle);
+                                    CellRangeAddress cra = new CellRangeAddress(startRow, startRow + cellData.Span, col, col);
+                                    sheet.AddMergedRegion(cra);
+                                    break;
+                                }
+
+                            case CellSpan.RowSpan:
+                                {
+                                    CreateCell(irow, col, value, cellStyle);
+                                    CellRangeAddress cra = new CellRangeAddress(startRow, startRow, col, col + cellData.Span);
+                                    sheet.AddMergedRegion(cra);
+                                    break;
+                                }
+
+                            default:
+                                throw new NotImplementedException();
+                        }
                     }
                 }
+
+                // 行数加一
+                startRow++;
             }
         }
 
-        private static void WriteArray(ISheet sheet, object[,] array)
+        private static void WriteArray(IWorkbook workbook, ISheet sheet, object[,] array)
         {
+            ICellStyle cellStyle = CreateDefaultCellStyle(workbook);
+
             int startRow = sheet.PhysicalNumberOfRows;
             int rows = array.GetLength(0);
             int columns = array.GetLength(1);
@@ -99,11 +149,11 @@ namespace DotNEToolkit
                     object value = array[rowIndex, columnIndex];
                     if (value == null)
                     {
-                        row.CreateCell(columnIndex, CellType.String);
+                        //row.CreateCell(columnIndex, CellType.String);
                     }
                     else
                     {
-                        CreateCell(row, columnIndex, value);
+                        CreateCell(row, columnIndex, value, cellStyle);
                     }
                 }
             }
@@ -257,37 +307,42 @@ namespace DotNEToolkit
             }
         }
 
-        private static ICell CreateCell(IRow row, int cellIndex, object value)
+        private static ICell CreateCell(IRow row, int cellIndex, object value, ICellStyle cellStyle)
         {
             Type valueType = value.GetType();
             if (valueType == typeof(int))
             {
                 ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
                 cell.SetCellValue((int)value);
+                cell.CellStyle = cellStyle;
                 return cell;
             }
             else if (valueType == typeof(float))
             {
                 ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
                 cell.SetCellValue((float)value);
+                cell.CellStyle = cellStyle;
                 return cell;
             }
             else if (valueType == typeof(double))
             {
                 ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
                 cell.SetCellValue((double)value);
+                cell.CellStyle = cellStyle;
                 return cell;
             }
             else if (valueType == typeof(string))
             {
                 ICell cell = row.CreateCell(cellIndex, CellType.String);
                 cell.SetCellValue(value.ToString());
+                cell.CellStyle = cellStyle;
                 return cell;
             }
             else if (valueType == typeof(DateTime))
             {
                 ICell cell = row.CreateCell(cellIndex, CellType.String);
                 cell.SetCellValue((DateTime)value);
+                cell.CellStyle = cellStyle;
                 return cell;
             }
             else
@@ -403,7 +458,7 @@ namespace DotNEToolkit
         {
             IWorkbook workbook = OpenWrite(excelPath, version, options);
             ISheet sheet = OpenSheet(workbook, sheetName, options);
-            WriteTableData(sheet, tableData);
+            WriteTableData(workbook, sheet, tableData);
             SaveExcel(excelPath, workbook);
             return DotNETCode.SUCCESS;
         }
@@ -421,7 +476,7 @@ namespace DotNEToolkit
         {
             IWorkbook workbook = OpenWrite(excelPath, version, options);
             ISheet sheet = OpenSheet(workbook, sheetName, options);
-            WriteDataTable(sheet, table);
+            WriteDataTable(workbook, sheet, table);
             SaveExcel(excelPath, workbook);
             return DotNETCode.SUCCESS;
         }
@@ -439,7 +494,7 @@ namespace DotNEToolkit
         {
             IWorkbook workbook = OpenWrite(excelPath, version, options);
             ISheet sheet = OpenSheet(workbook, sheetName, options);
-            WriteArray(sheet, array);
+            WriteArray(workbook, sheet, array);
             SaveExcel(excelPath, workbook);
             return DotNETCode.SUCCESS;
         }

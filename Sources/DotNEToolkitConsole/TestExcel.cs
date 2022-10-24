@@ -62,5 +62,23 @@ namespace DotNEToolkitConsole
             tableData.Set(0, 4, value++.ToString());
             Excel.TableData2Excel(excelPath, tableData, WriteOptions.Append);
         }
+
+        public static void CreateSpan()
+        {
+            string excelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "1.xls");
+
+            TableData tableData = TableData.Create();
+            tableData.Set(0, 0, CellSpan.ColSpan, 10, 0);
+            tableData.Set(0, 1, CellSpan.ColSpan, 9, 1);
+            tableData.Set(0, 2, CellSpan.ColSpan, 8, 2);
+            tableData.Set(0, 3, CellSpan.ColSpan, 7, 3);
+            tableData.Set(0, 4, CellSpan.ColSpan, 6, 4);
+            tableData.Set(0, 5, CellSpan.ColSpan, 5, 5);
+            tableData.Set(0, 6, CellSpan.ColSpan, 4, 6);
+            tableData.Set(0, 7, CellSpan.ColSpan, 3, 7);
+            tableData.Set(0, 8, CellSpan.ColSpan, 2, 8);
+            tableData.Set(0, 9, CellSpan.ColSpan, 1, 9);
+            Excel.TableData2Excel(excelPath, tableData, WriteOptions.Append);
+        }
     }
 }

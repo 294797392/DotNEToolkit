@@ -86,7 +86,7 @@
     <Compile Include="Commnications\TcpClientCommObject.cs" />
     <Compile Include="Commnications\TcpServiceCommObject.cs" />
     <Compile Include="Crypto\CRC16.cs" />
-    <Compile Include="CSV.cs" />
+    <Compile Include="Excels\CSV.cs" />
     <Compile Include="DataModels\ModelBaseInt.cs" />
     <Compile Include="DateTimeFormat.cs" />
     <Compile Include="DbConnectionString.cs" />
@@ -123,6 +123,7 @@
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
+    <Compile Include="Media\VideoRenderer\VideoRenderer.cs" />
     <Compile Include="Modular\ModularApp.cs" />
     <Compile Include="Modular\EventableModule.cs" />
     <Compile Include="Modular\EventDispatcher.cs" />
@@ -211,7 +212,7 @@
     <Compile Include="Reflections.cs" />
     <Compile Include="SDK\libvlc.cs" />
     <Compile Include="SingletonObject.cs" />
-    <Compile Include="TableData.cs" />
+    <Compile Include="Excels\TableData.cs" />
     <Compile Include="TcpFramework\IDataResolver.cs" />
     <Compile Include="TcpFramework\NetEvent.cs" />
     <Compile Include="TcpFramework\Session.cs" />
