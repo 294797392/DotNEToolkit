@@ -27,12 +27,34 @@ namespace DotNEToolkit
         ColSpan
     }
 
+    /// <summary>
+    /// 存储一个单元格的数据
+    /// </summary>
     public class CellData
     {
+        /// <summary>
+        /// 该单元格所在行
+        /// </summary>
+        public int Row { get; set; }
+
+        /// <summary>
+        /// 单元格所在列
+        /// </summary>
+        public int Column { get; set; }
+
+        /// <summary>
+        /// 单元格的值
+        /// </summary>
         public object Value { get; set; }
 
+        /// <summary>
+        /// 单元格的跨行或跨列方式
+        /// </summary>
         public CellSpan SpanType { get; set; }
 
+        /// <summary>
+        /// 单元格跨了几个单元格
+        /// </summary>
         public int Span { get; set; }
 
         /// <summary>
@@ -71,6 +93,7 @@ namespace DotNEToolkit
 
         /// <summary>
         /// 设置某个单元格的值
+        /// 如果重复设置，那么会覆盖之前的值
         /// </summary>
         /// <param name="row"></param>
         /// <param name="col"></param>
@@ -79,6 +102,7 @@ namespace DotNEToolkit
 
         /// <summary>
         /// 设置某个跨行或者跨列单元格的值
+        /// 如果重复设置，那么会覆盖之前的值
         /// </summary>
         /// <param name="row"></param>
         /// <param name="col"></param>
@@ -104,7 +128,7 @@ namespace DotNEToolkit
         public abstract void Clear(int row, int col);
 
         /// <summary>
-        /// 获取总函数
+        /// 获取总行数
         /// </summary>
         /// <returns></returns>
         public abstract int GetRows();
@@ -215,7 +239,8 @@ namespace DotNEToolkit
 
                 case CellSpan.ColSpan:
                     {
-                        CellData cellData = this.GetCellData(row + span, col);
+                        this.EnsureSpace(row + span, col);
+                        CellData cellData = this.GetCellData(row, col);
                         cellData.Value = value;
                         cellData.SpanType = spanType;
                         cellData.Span = span;
@@ -224,10 +249,17 @@ namespace DotNEToolkit
 
                 case CellSpan.RowSpan:
                     {
-                        
+                        this.EnsureSpace(row, col + span);
+                        CellData cellData = this.GetCellData(row, col);
+                        cellData.Value = value;
+                        cellData.SpanType = spanType;
+                        cellData.Span = span;
+                        break;
                     }
-            }
 
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         public override CellData Get(int row, int col)

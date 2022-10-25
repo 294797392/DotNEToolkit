@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotNEToolkit.Excels;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -8,20 +9,6 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit
 {
-    public enum WriteOptions
-    {
-        /// <summary>
-        /// 创建一个新文件并写入
-        /// 如果源文件存在，那么覆盖源文件
-        /// </summary>
-        CreateNew,
-
-        /// <summary>
-        /// 向源文件追加新文件
-        /// </summary>
-        Append,
-    }
-
     /// <summary>
     /// 提供操作CSV格式文件的方法
     /// </summary>
