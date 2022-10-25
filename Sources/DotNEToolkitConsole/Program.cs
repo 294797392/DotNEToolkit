@@ -21,7 +21,8 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestExcel.CreateSpan();
+            //TestExcel.CreateSpan();
+            TestExcel.CreateOrAppend();
 
             //TestExcel.CreateNew();
             //while (true)

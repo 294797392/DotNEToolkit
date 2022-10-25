@@ -60,7 +60,6 @@ namespace DotNEToolkit
                     {
                         //ICell cell = row.CreateCell(columnIndex, CellType.String);
                         //cell.SetCellValue(string.Empty);
-
                     }
                     else
                     {
@@ -108,7 +107,7 @@ namespace DotNEToolkit
                             case CellSpan.ColSpan:
                                 {
                                     CreateCell(irow, col, value, cellStyle);
-                                    CellRangeAddress cra = new CellRangeAddress(startRow, startRow + cellData.Span, col, col);
+                                    CellRangeAddress cra = new CellRangeAddress(startRow, startRow, col, col + cellData.Span - 1);
                                     sheet.AddMergedRegion(cra);
                                     break;
                                 }
@@ -116,7 +115,7 @@ namespace DotNEToolkit
                             case CellSpan.RowSpan:
                                 {
                                     CreateCell(irow, col, value, cellStyle);
-                                    CellRangeAddress cra = new CellRangeAddress(startRow, startRow, col, col + cellData.Span);
+                                    CellRangeAddress cra = new CellRangeAddress(startRow, startRow + cellData.Span - 1, col, col);
                                     sheet.AddMergedRegion(cra);
                                     break;
                                 }

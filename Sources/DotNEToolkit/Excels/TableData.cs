@@ -65,6 +65,12 @@ namespace DotNEToolkit
             this.Value = null;
         }
 
+        public CellData(int row, int col)
+        {
+            this.Row = row;
+            this.Column = col;
+        }
+
         public CellData(object value)
         {
             this.Value = value;
@@ -128,14 +134,28 @@ namespace DotNEToolkit
         public abstract void Clear(int row, int col);
 
         /// <summary>
-        /// 获取总行数
+        /// 获取最后一行的位置
         /// </summary>
         /// <returns></returns>
         public abstract int GetRows();
 
         /// <summary>
-        /// 获取某行的列数
+        /// 获取最后一列的位置
         /// </summary>
+        /// <returns></returns>
+        public abstract int GetColumns();
+
+        /// <summary>
+        /// 获取某一列的最后一个行的位置
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public abstract int GetRows(int column);
+
+        /// <summary>
+        /// 获取某一行的最后一列的位置
+        /// </summary>
+        /// <param name="row"></param>
         /// <returns></returns>
         public abstract int GetColumns(int row);
 
@@ -160,7 +180,7 @@ namespace DotNEToolkit
     {
         #region 实例变量
 
-        private List<List<CellData>> list;
+        private List<CellData> cellDatas;
 
         #endregion
 
@@ -168,48 +188,68 @@ namespace DotNEToolkit
 
         public ListTableData()
         {
-            this.list = new List<List<CellData>>();
+            this.cellDatas = new List<CellData>();
         }
 
         #endregion
 
         #region 实例方法
 
-        /// <summary>
-        /// 保证至少有row行和col列
-        /// 如果小于row行或者col列，那么用空补齐
-        /// </summary>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
-        private void EnsureSpace(int row, int col)
+        private CellData EnsureCellData(int row, int col, CellSpan spanType, int span)
         {
-            int rows = this.GetRows();
-            if (row >= rows)
+            switch (spanType)
             {
-                // 缺少的行数
-                int num = row - rows + 1;
-                for (int i = 0; i < num; i++)
-                {
-                    this.list.Add(new List<CellData>());
-                }
-            }
+                case CellSpan.None:
+                    {
+                        CellData cellData = this.cellDatas.FirstOrDefault(v => v.Row == row && v.Column == col);
+                        if (cellData == null)
+                        {
+                            cellData = new CellData(row, col);
+                            this.cellDatas.Add(cellData);
+                        }
 
-            int cols = this.GetColumns(row);
-            if (col >= cols)
-            {
-                // 缺少的列数
-                int num = col - cols + 1;
-                for (int i = 0; i < num; i++)
-                {
-                    this.list[row].Add(new CellData());
-                }
-            }
-        }
+                        return cellData;
+                    }
 
-        private CellData GetCellData(int row, int col)
-        {
-            this.EnsureSpace(row, col);
-            return this.list[row][col];
+                case CellSpan.ColSpan:
+                    {
+                        int startCol = col;
+                        int endCol = startCol + span;
+
+                        for (int i = startCol; i < endCol; i++)
+                        {
+                            CellData cellData = this.cellDatas.FirstOrDefault(v => v.Row == row && v.Column == i);
+                            if (cellData == null)
+                            {
+                                cellData = new CellData(row, i);
+                                this.cellDatas.Add(cellData);
+                            }
+                        }
+
+                        return this.cellDatas.FirstOrDefault(v => v.Row == row && v.Column == col);
+                    }
+
+                case CellSpan.RowSpan:
+                    {
+                        int startRow = row;
+                        int endRow = startRow + span;
+
+                        for (int i = startRow; i < endRow; i++)
+                        {
+                            CellData cellData = this.cellDatas.FirstOrDefault(v => v.Row == i && v.Column == col);
+                            if (cellData == null)
+                            {
+                                cellData = new CellData(i, col);
+                                this.cellDatas.Add(cellData);
+                            }
+                        }
+
+                        return this.cellDatas.FirstOrDefault(v => v.Row == row && v.Column == col);
+                    }
+
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         #endregion
@@ -218,17 +258,22 @@ namespace DotNEToolkit
 
         public override bool IsEmpty()
         {
-            return this.list.Count == 0;
+            return this.cellDatas.Count == 0;
         }
 
         public override void Set(int row, int col, object value)
         {
-            this.EnsureSpace(row, col);
-            this.list[row][col].Value = value;
+            CellData cellData = this.EnsureCellData(row, col, CellSpan.None, 0);
+            cellData.Value = value;
         }
 
         public override void Set(int row, int col, CellSpan spanType, int span, object value)
         {
+            if (span == 0)
+            {
+                spanType = CellSpan.None;
+            }
+
             switch (spanType)
             {
                 case CellSpan.None:
@@ -239,8 +284,7 @@ namespace DotNEToolkit
 
                 case CellSpan.ColSpan:
                     {
-                        this.EnsureSpace(row + span, col);
-                        CellData cellData = this.GetCellData(row, col);
+                        CellData cellData = this.EnsureCellData(row, col, spanType, span);
                         cellData.Value = value;
                         cellData.SpanType = spanType;
                         cellData.Span = span;
@@ -249,8 +293,7 @@ namespace DotNEToolkit
 
                 case CellSpan.RowSpan:
                     {
-                        this.EnsureSpace(row, col + span);
-                        CellData cellData = this.GetCellData(row, col);
+                        CellData cellData = this.EnsureCellData(row, col, spanType, span);
                         cellData.Value = value;
                         cellData.SpanType = spanType;
                         cellData.Span = span;
@@ -264,43 +307,66 @@ namespace DotNEToolkit
 
         public override CellData Get(int row, int col)
         {
-            int rows = this.GetRows();
-            if (row >= rows)
-            {
-                return null;
-            }
-
-            int cols = this.GetColumns(row);
-            if (col >= cols)
-            {
-                return null;
-            }
-
-            return this.list[row][col];
+            return this.cellDatas.FirstOrDefault(v => v.Row == row && v.Column == col);
         }
 
         public override void Clear(int row, int col)
         {
-            CellData cellData = this.GetCellData(row, col);
-            cellData.Span = 0;
-            cellData.SpanType = CellSpan.None;
-            cellData.Value = string.Empty;
+            CellData cellData = this.cellDatas.FirstOrDefault(v => v.Row == row && v.Column == col);
+            if (cellData != null)
+            {
+                cellData.Span = 0;
+                cellData.SpanType = CellSpan.None;
+                cellData.Value = string.Empty;
+            }
         }
 
         public override int GetRows()
         {
-            return this.list.Count;
+            if (this.cellDatas.Count == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.cellDatas.Max(v => v.Row) + 1;
+            }
+        }
+
+        public override int GetColumns()
+        {
+            if (this.cellDatas.Count == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.cellDatas.Max(v => v.Column) + 1;
+            }
+        }
+
+        public override int GetRows(int column)
+        {
+            if (this.cellDatas.Exists(v => v.Column == column))
+            {
+                return this.cellDatas.Where(v => v.Column == column).Max(v => v.Row) + 1;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public override int GetColumns(int row)
         {
-            if (row >= this.list.Count)
+            if (this.cellDatas.Exists(v => v.Row == row))
+            {
+                return this.cellDatas.Where(v => v.Row == row).Max(v => v.Column) + 1;
+            }
+            else
             {
                 return 0;
             }
-
-            List<CellData> rowData = this.list[row];
-            return rowData.Count;
         }
 
         public override void Merge(TableData tableData)
@@ -316,6 +382,10 @@ namespace DotNEToolkit
                 for (int col = 0; col < cols; col++)
                 {
                     CellData cellData = tableData.Get(row, col);
+                    if (cellData == null)
+                    {
+                        continue;
+                    }
 
                     this.Set(thisRows + row, col, cellData.SpanType, cellData.Span, cellData.Value);
                 }
