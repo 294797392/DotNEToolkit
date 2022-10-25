@@ -289,7 +289,6 @@ namespace DotNEToolkit
                     throw new NotImplementedException();
             }
 
-
             switch (version)
             {
                 case ExcelVersions.Xls:
