@@ -35,16 +35,24 @@ namespace DotNEToolkit
 
         public int Span { get; set; }
 
-        public CellData(object data)
+        /// <summary>
+        /// 创建一个空的CellData
+        /// </summary>
+        public CellData()
         {
-            this.Value = data;
+            this.Value = null;
+        }
+
+        public CellData(object value)
+        {
+            this.Value = value;
             this.SpanType = CellSpan.None;
             this.Span = 0;
         }
 
-        public CellData(object data, CellSpan ts, int span)
+        public CellData(object value, CellSpan ts, int span)
         {
-            this.Value = data;
+            this.Value = value;
             this.SpanType = ts;
             this.Span = span;
         }
@@ -66,8 +74,8 @@ namespace DotNEToolkit
         /// </summary>
         /// <param name="row"></param>
         /// <param name="col"></param>
-        /// <param name="data"></param>
-        public abstract void Set(int row, int col, object data);
+        /// <param name="value">该单元格的值</param>
+        public abstract void Set(int row, int col, object value);
 
         /// <summary>
         /// 设置某个跨行或者跨列单元格的值
@@ -76,8 +84,8 @@ namespace DotNEToolkit
         /// <param name="col"></param>
         /// <param name="spanType"></param>
         /// <param name="span"></param>
-        /// <param name="data"></param>
-        public abstract void Set(int row, int col, CellSpan spanType, int span, object data);
+        /// <param name="value">该单元格的值</param>
+        public abstract void Set(int row, int col, CellSpan spanType, int span, object value);
 
         /// <summary>
         /// 读取某个单元格的值
@@ -106,6 +114,13 @@ namespace DotNEToolkit
         /// </summary>
         /// <returns></returns>
         public abstract int GetColumns(int row);
+
+        /// <summary>
+        /// 和tableData合并
+        /// 把tableData追加到该tableData下面
+        /// </summary>
+        /// <param name="tableData">要合并的tableData</param>
+        public abstract void Merge(TableData tableData);
 
         /// <summary>
         /// 创建一个TableData的实例
@@ -162,7 +177,7 @@ namespace DotNEToolkit
                 int num = col - cols + 1;
                 for (int i = 0; i < num; i++)
                 {
-                    this.list[row].Add(new CellData(string.Empty));
+                    this.list[row].Add(new CellData());
                 }
             }
         }
@@ -182,18 +197,37 @@ namespace DotNEToolkit
             return this.list.Count == 0;
         }
 
-        public override void Set(int row, int col, object data)
+        public override void Set(int row, int col, object value)
         {
             this.EnsureSpace(row, col);
-            this.list[row][col].Value = data;
+            this.list[row][col].Value = value;
         }
 
-        public override void Set(int row, int col, CellSpan spanType, int span, object data)
+        public override void Set(int row, int col, CellSpan spanType, int span, object value)
         {
-            CellData cellData = this.GetCellData(row, col);
-            cellData.Value = data;
-            cellData.SpanType = spanType;
-            cellData.Span = span;
+            switch (spanType)
+            {
+                case CellSpan.None:
+                    {
+                        this.Set(row, col, value);
+                        break;
+                    }
+
+                case CellSpan.ColSpan:
+                    {
+                        CellData cellData = this.GetCellData(row + span, col);
+                        cellData.Value = value;
+                        cellData.SpanType = spanType;
+                        cellData.Span = span;
+                        break;
+                    }
+
+                case CellSpan.RowSpan:
+                    {
+                        
+                    }
+            }
+
         }
 
         public override CellData Get(int row, int col)
@@ -235,6 +269,25 @@ namespace DotNEToolkit
 
             List<CellData> rowData = this.list[row];
             return rowData.Count;
+        }
+
+        public override void Merge(TableData tableData)
+        {
+            int thisRows = this.GetRows();
+
+            int rows = tableData.GetRows();
+
+            for (int row = 0; row < rows; row++)
+            {
+                int cols = tableData.GetColumns(row);
+
+                for (int col = 0; col < cols; col++)
+                {
+                    CellData cellData = tableData.Get(row, col);
+
+                    this.Set(thisRows + row, col, cellData.SpanType, cellData.Span, cellData.Value);
+                }
+            }
         }
 
         #endregion

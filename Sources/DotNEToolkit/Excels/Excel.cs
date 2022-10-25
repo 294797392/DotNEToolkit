@@ -88,7 +88,7 @@ namespace DotNEToolkit
                 {
                     CellData cellData = table.Get(row, col);
 
-                    if (cellData == null)
+                    if (cellData == null || cellData.Value == null)
                     {
                         //ICell cell = irow.CreateCell(col, CellType.String);
                         //cell.SetCellValue(string.Empty);

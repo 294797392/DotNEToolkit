@@ -78,6 +78,9 @@ namespace DotNEToolkitConsole
             tableData.Set(0, 7, CellSpan.ColSpan, 3, 7);
             tableData.Set(0, 8, CellSpan.ColSpan, 2, 8);
             tableData.Set(0, 9, CellSpan.ColSpan, 1, 9);
+
+            tableData.Merge(tableData);
+
             Excel.TableData2Excel(excelPath, tableData, WriteOptions.Append);
         }
     }
