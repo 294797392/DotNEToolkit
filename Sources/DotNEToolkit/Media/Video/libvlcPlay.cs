@@ -56,6 +56,7 @@ namespace DotNEToolkit.Media.Video
         {
             this.libvlc_instance_t = libvlc.libvlc_new(0, IntPtr.Zero);
             this.libvlc_media_t = libvlc.libvlc_media_new_callbacks(libvlc_instance_t, this.libvlc_media_open_func, this.libvlc_media_read_func, this.libvlc_media_seek_func, this.libvlc_media_close_func, IntPtr.Zero);
+            this.AddVlcOptions(this.libvlc_media_t);
             this.libvlc_media_player_t = libvlc.libvlc_media_player_new_from_media(libvlc_media_t);
             libvlc.libvlc_media_player_set_hwnd(libvlc_media_player_t, this.Hwnd);
             libvlc.libvlc_media_player_play(libvlc_media_player_t);
@@ -73,6 +74,39 @@ namespace DotNEToolkit.Media.Video
             this.libvlc_media_t = IntPtr.Zero;
             this.libvlc_media_player_t = IntPtr.Zero;
             this.libvlc_instance_t = IntPtr.Zero;
+        }
+
+        #endregion
+
+        #region 实例方法
+
+        private void AddVlcOptions(IntPtr libvlc_media_t)
+        {
+            switch (this.format)
+            {
+                case VideoFormats.Unkown:
+                    {
+                        break;
+                    }
+
+                case VideoFormats.H264:
+                    {
+                        libvlc.libvlc_media_add_option(libvlc_media_t, "demux=h264");
+                        break;
+                    }
+
+                default:
+                    throw new NotImplementedException();
+            }
+
+            List<string> media_options = this.GetInputObject<List<string>>("media_options", null);
+            if (media_options != null)
+            {
+                foreach (string option in media_options)
+                {
+                    libvlc.libvlc_media_add_option(libvlc_media_t, option);
+                }
+            }
         }
 
         #endregion

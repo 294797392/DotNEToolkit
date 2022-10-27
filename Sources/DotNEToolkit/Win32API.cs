@@ -82,8 +82,8 @@ namespace DotNEToolkit
         [DllImport(DllName)]
         public static extern int GetExtendedTcpTable(IntPtr pTcpTable, out int pdwSize, bool bOrder, int ulAf, TCP_TABLE_CLASS TableClass, int Reserved);
 
-        [DllImport(DllName)]
-        public static extern int GetExtendedUdpTable(out IntPtr pUdpTable, ref int pdwSize, bool bOrder, int ulAf, );
+        //[DllImport(DllName)]
+        //public static extern int GetExtendedUdpTable(out IntPtr pUdpTable, ref int pdwSize, bool bOrder, int ulAf, );
     }
 
     public static class Kernel32

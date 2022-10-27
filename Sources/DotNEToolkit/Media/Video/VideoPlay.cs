@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DotNEToolkit.Media
+namespace DotNEToolkit.Media.Video
 {
     /// <summary>
     /// 封装实时视频播放器
@@ -50,6 +50,11 @@ namespace DotNEToolkit.Media
         /// </summary>
         protected int timeout;
 
+        /// <summary>
+        /// 视频格式
+        /// </summary>
+        protected VideoFormats format;
+
         #endregion
 
         #region 属性
@@ -77,6 +82,7 @@ namespace DotNEToolkit.Media
         protected override int OnInitialize()
         {
             this.timeout = this.GetInputValue<int>("timeout", DefaultTimeout);
+            this.format = this.GetInputValue<VideoFormats>("format", VideoFormats.Unkown);
 
             this.bufferLock = new object();
             this.bufferList = new List<byte>();
