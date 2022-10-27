@@ -13,12 +13,14 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 模块被禁用
         /// 告诉ModuleFactory不要加载该模块
+        /// 该模块不会被加到缓存里
         /// </summary>
         public const int Disabled = 1;
 
         /// <summary>
-        /// 该模块是一个可等待的任务
+        /// 不初始化
+        /// 该模块会被加到缓存里，但是不调用初始化
         /// </summary>
-        public const int WaitableTask = 2;
+        public const int NotInitial = 2;
     }
 }

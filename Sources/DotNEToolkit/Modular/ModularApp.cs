@@ -61,49 +61,6 @@ namespace DotNEToolkit
         /// <summary>
         /// 初始化App
         /// </summary>
-        /// <param name="configFile">App配置文件路径</param>
-        /// <returns></returns>
-        public int Initialize(string configFile)
-        {
-            if (!File.Exists(configFile))
-            {
-                logger.ErrorFormat("配置文件不存在, {0}", configFile);
-                return DotNETCode.FILE_NOT_FOUND;
-            }
-
-            this.configPath = configFile;
-
-            #region 加载配置文件
-
-            try
-            {
-                this.Manifest = JSONHelper.ParseFile<TManifest>(configPath);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(string.Format("解析App配置文件异常, {0}", configPath), ex);
-                return DotNETCode.PARSE_CONFIG_FAILED;
-            }
-
-            #endregion
-
-            #region 加载ModuleFactory
-
-            logger.Info("开始加载ModuleFactory...");
-            this.Factory = ModuleFactory.CreateFactory();
-            this.Factory.Initialized += Factory_Initialized;
-            this.Factory.ModuleStatusChanged += Factory_ModuleStatusChanged;
-            this.Factory.CircularReference += Factory_CircularReference;
-            this.Factory.SetupModulesAsync(this.Manifest.ModuleList.Where(v => !v.HasFlag(ModuleFlags.Disabled)), 2000);
-
-            #endregion
-
-            return this.OnInitialize();
-        }
-
-        /// <summary>
-        /// 初始化App
-        /// </summary>
         /// <returns></returns>
         public int Initialize()
         {
@@ -124,13 +81,68 @@ namespace DotNEToolkit
         }
 
         /// <summary>
+        /// 指定一个配置文件的路径初始化App
+        /// </summary>
+        /// <param name="configFile">App配置文件路径</param>
+        /// <returns></returns>
+        public int Initialize(string configFile)
+        {
+            if (!File.Exists(configFile))
+            {
+                logger.ErrorFormat("配置文件不存在, {0}", configFile);
+                return DotNETCode.FILE_NOT_FOUND;
+            }
+
+            this.configPath = configFile;
+
+            #region 加载配置文件
+
+            TManifest manifest = default(TManifest);
+
+            try
+            {
+                manifest = JSONHelper.ParseFile<TManifest>(configPath);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("解析App配置文件异常, {0}", configPath), ex);
+                return DotNETCode.PARSE_CONFIG_FAILED;
+            }
+
+            #endregion
+
+            return this.Initialize(manifest);
+        }
+
+        /// <summary>
+        /// 使用AppManifest的实例初始化App
+        /// </summary>
+        /// <param name="manifest"></param>
+        /// <returns></returns>
+        public int Initialize(TManifest manifest)
+        {
+            this.Manifest = manifest;
+
+            #region 加载ModuleFactory
+
+            logger.Info("开始加载ModuleFactory...");
+            this.Factory = ModuleFactory.CreateFactory();
+            this.Factory.Initialized += Factory_Initialized;
+            this.Factory.ModuleStatusChanged += Factory_ModuleStatusChanged;
+            this.Factory.SetupModulesAsync(this.Manifest.ModuleList, 2000);
+
+            #endregion
+
+            return this.OnInitialize();
+        }
+
+        /// <summary>
         /// 释放App占用的资源
         /// </summary>
         public void Release()
         {
             this.Factory.Initialized -= this.Factory_Initialized;
             this.Factory.ModuleStatusChanged -= this.Factory_ModuleStatusChanged;
-            this.Factory.CircularReference -= this.Factory_CircularReference;
 
             this.OnRelease();
         }
