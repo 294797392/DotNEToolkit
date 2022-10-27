@@ -10,7 +10,22 @@ namespace DotNEToolkit
 {
     public static class Iphlpapi
     {
+        private const string DllName = "Iphlpapi.dll";
+
         private const int TCPIP_OWNING_MODULE_SIZE = 16;
+
+        public const int MIB_TCP_STATE_CLOSED = 1;
+        public const int MIB_TCP_STATE_LISTEN = 2;
+        public const int MIB_TCP_STATE_SYN_SENT = 3;
+        public const int MIB_TCP_STATE_SYN_RCVD = 4;
+        public const int MIB_TCP_STATE_ESTAB = 5;
+        public const int MIB_TCP_STATE_FIN_WAIT1 = 6;
+        public const int MIB_TCP_STATE_FIN_WAIT2 = 7;
+        public const int MIB_TCP_STATE_CLOSE_WAIT = 8;
+        public const int MIB_TCP_STATE_CLOSING = 9;
+        public const int MIB_TCP_STATE_LAST_ACK = 10;
+        public const int MIB_TCP_STATE_TIME_WAIT = 11;
+        public const int MIB_TCP_STATE_DELETE_TCB = 12;
 
         public enum TCP_TABLE_CLASS
         {
@@ -64,8 +79,11 @@ namespace DotNEToolkit
             public IntPtr table;
         }
 
-        [DllImport("123")]
+        [DllImport(DllName)]
         public static extern int GetExtendedTcpTable(IntPtr pTcpTable, out int pdwSize, bool bOrder, int ulAf, TCP_TABLE_CLASS TableClass, int Reserved);
+
+        [DllImport(DllName)]
+        public static extern int GetExtendedUdpTable(out IntPtr pUdpTable, ref int pdwSize, bool bOrder, int ulAf, );
     }
 
     public static class Kernel32
