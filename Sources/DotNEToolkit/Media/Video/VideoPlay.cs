@@ -26,9 +26,16 @@ namespace DotNEToolkit.Media
         private const int DefaultTimeout = 5000;
 
         /// <summary>
-        /// 视频播放超时事件
+        /// 视频播放超时
+        /// 当播放的是实时流的时候，才可能会触发这个事件
         /// </summary>
         public const int EV_TIMEOUT = 1;
+
+        /// <summary>
+        /// 视频播放结束
+        /// 当播放的是文件的时候，才可能会触发这个事件
+        /// </summary>
+        public const int EV_EOF = 2;
 
         #endregion
 

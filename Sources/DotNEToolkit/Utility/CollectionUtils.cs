@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit
 {
-    public static class Collections
+    public static class CollectionUtils
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("Collections");
 

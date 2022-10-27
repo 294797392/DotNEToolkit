@@ -10,7 +10,7 @@ namespace DotNEToolkit
     /// <summary>
     /// 封装对流的一些操作
     /// </summary>
-    public static class Streams
+    public static class StreamUtils
     {
         /// <summary>
         /// 一次读取1024个字节

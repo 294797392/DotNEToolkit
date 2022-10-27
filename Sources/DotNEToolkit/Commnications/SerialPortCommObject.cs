@@ -99,7 +99,7 @@ namespace DotNEToolkit.Communictions
 
         public override byte[] ReadBytes(int size)
         {
-            return Streams.ReadFull(this.serialPort.Read, size);
+            return StreamUtils.ReadFull(this.serialPort.Read, size);
         }
 
         public override void WriteBytes(byte[] bytes)

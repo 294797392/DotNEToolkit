@@ -186,8 +186,8 @@
     <Compile Include="Bytes.cs" />
     <Compile Include="DirectoryExtentions.cs" />
     <Compile Include="Enumerations.cs" />
-    <Compile Include="Streams.cs" />
-    <Compile Include="Sockets.cs" />
+    <Compile Include="Utility\StreamUtils.cs" />
+    <Compile Include="Utility\SocketUtils.cs" />
     <Compile Include="HttpClient.cs" />
     <Compile Include="INIReader.cs" />
     <Compile Include="Keyboard.cs" />
@@ -203,7 +203,7 @@
     <Compile Include="Modular\ModuleFlags.cs" />
     <Compile Include="Modular\ModuleStatus.cs" />
     <Compile Include="Modular\ModuleMetadata.cs" />
-    <Compile Include="Collections.cs" />
+    <Compile Include="Utility\CollectionUtils.cs" />
     <Compile Include="Internals\Confguration.cs" />
     <Compile Include="JSONHelper.cs" />
     <Compile Include="MouseScanner.cs" />
