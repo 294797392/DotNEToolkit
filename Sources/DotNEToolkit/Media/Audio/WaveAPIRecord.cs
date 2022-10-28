@@ -7,7 +7,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace DotNEToolkit.Media
+namespace DotNEToolkit.Media.Audio
 {
     /// <summary>
     /// 使用waveIn API开发的录音程序

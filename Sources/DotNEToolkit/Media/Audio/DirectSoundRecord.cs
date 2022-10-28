@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static DotNEToolkit.Win32API;
 
-namespace DotNEToolkit.Media
+namespace DotNEToolkit.Media.Audio
 {
     /// <summary>
     /// DirectSound录音出来的数据是小尾端的数据

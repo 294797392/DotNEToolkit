@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DotNEToolkit.Media
+namespace DotNEToolkit.Media.Audio
 {
     /// <summary>
     /// 录音机类型

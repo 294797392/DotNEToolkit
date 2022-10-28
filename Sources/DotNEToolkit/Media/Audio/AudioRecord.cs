@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace DotNEToolkit.Media
+namespace DotNEToolkit.Media.Audio
 {
     /// <summary>
     /// 表示一个声卡设备

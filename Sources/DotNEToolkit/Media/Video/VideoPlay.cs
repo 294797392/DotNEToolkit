@@ -16,7 +16,7 @@ namespace DotNEToolkit.Media.Video
     /// 当外部调用者收到了视频流的时候，调用PutData把视频流放入缓冲区
     /// 播放器会自动使用缓冲区里的视频流数据
     /// </summary>
-    public abstract class VideoPlay : EventableModule
+    public abstract class VideoPlay : MediaPlay
     {
         #region 类变量
 
@@ -41,8 +41,7 @@ namespace DotNEToolkit.Media.Video
 
         #region 实例变量
 
-        private object bufferLock;
-        private List<byte> bufferList;
+        internal RealtimeStream videoStream;
 
         /// <summary>
         /// 播放超时时间
@@ -68,24 +67,11 @@ namespace DotNEToolkit.Media.Video
 
         #region ModuleBase
 
-        /// <summary>
-        /// 开始播放
-        /// </summary>
-        /// <returns></returns>
-        public abstract int Start();
-
-        /// <summary>
-        /// 停止播放
-        /// </summary>
-        public abstract void Stop();
-
         protected override int OnInitialize()
         {
             this.timeout = this.GetInputValue<int>("timeout", DefaultTimeout);
             this.format = this.GetInputValue<VideoFormats>("format", VideoFormats.Unkown);
-
-            this.bufferLock = new object();
-            this.bufferList = new List<byte>();
+            this.videoStream = RealtimeStream.Create();
 
             return DotNETCode.SUCCESS;
         }
@@ -98,94 +84,13 @@ namespace DotNEToolkit.Media.Video
 
         #region 实例方法
 
-        #endregion
-
-        #region 公开接口
-
         /// <summary>
-        /// 把视频数据放入缓冲区
+        /// 写入媒体数据
         /// </summary>
         /// <param name="videoData"></param>
-        public void PutData(byte[] videoData)
+        public void Write(byte[] videoData)
         {
-            lock (this.bufferLock)
-            {
-                this.bufferList.AddRange(videoData);
-            }
-        }
-
-        /// <summary>
-        /// 一次性返回缓冲区里的所有数据
-        /// </summary>
-        /// <returns></returns>
-        protected byte[] RequestData()
-        {
-            lock (this.bufferLock)
-            {
-                if (this.bufferList.Count == 0)
-                {
-                    return null;
-                }
-
-                byte[] videoData = this.bufferList.ToArray();
-                this.bufferList.Clear();
-                return videoData;
-            }
-        }
-
-        /// <summary>
-        /// 从缓冲区里拿到小于等于requestSize长度的数据
-        /// 如果缓冲区里没有数据，那么会返回false，否则返回true
-        /// </summary>
-        /// <param name="requestSize">要获取的数据长度</param>
-        /// <param name="buffer">存储视频数据的缓冲区</param>
-        /// <returns></returns>
-        protected bool RequestData(int requestSize, out byte[] buffer)
-        {
-            buffer = null;
-
-            lock (this.bufferLock)
-            {
-                if (this.bufferList.Count == 0)
-                {
-                    // 此时缓冲区里没有数据
-                    return false;
-                }
-
-                if (requestSize > this.bufferList.Count)
-                {
-                    // 缓冲区里的数不够用的
-                    buffer = this.bufferList.ToArray();
-                    this.bufferList.Clear();
-                    return true;
-                }
-
-                buffer = new byte[requestSize];
-                this.bufferList.CopyTo(0, buffer, 0, requestSize);
-                this.bufferList.RemoveRange(0, requestSize);
-                return true;
-            }
-        }
-
-        protected bool RequestData(int requestSize, int timeout, out byte[] buffer)
-        {
-            buffer = null;
-
-            int timeoutRemain = timeout;
-
-            while (timeoutRemain > 0)
-            {
-                if (!this.RequestData(requestSize, out buffer))
-                {
-                    Thread.Sleep(100);
-                    timeoutRemain -= 100;
-                    continue;
-                }
-
-                return true;
-            }
-
-            return false;
+            this.videoStream.Write(videoData);
         }
 
         #endregion

@@ -130,7 +130,7 @@ namespace DotNEToolkit.Media.Video
             logger.InfoFormat("libvlc_media_read_cb, byteSize = {0}", len);
 
             byte[] videoBytes;
-            if (!this.RequestData(len, this.timeout, out videoBytes))
+            if (!this.videoStream.Read(len, this.timeout, out videoBytes))
             {
                 this.PublishEvent(EV_TIMEOUT, null);
                 // 返回0表示end-of-stream

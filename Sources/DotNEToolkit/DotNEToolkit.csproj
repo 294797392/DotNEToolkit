@@ -124,6 +124,10 @@
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
     <Compile Include="Expressions\PredifinedEvaluators\AccessPropertyEvaluator.cs" />
+    <Compile Include="Media\MediaPlay.cs" />
+    <Compile Include="Media\MediaPlayFactory.cs" />
+    <Compile Include="Media\MediaRecord.cs" />
+    <Compile Include="Media\RealtimeStream.cs" />
     <Compile Include="Media\Video\libvlcPlay.cs" />
     <Compile Include="Media\Video\VideoFormats.cs" />
     <Compile Include="Media\Video\VideoPlay.cs" />
@@ -153,7 +157,7 @@
     <Compile Include="Media\Audio\AudioPlay.cs" />
     <Compile Include="Media\Audio\AudioPlayFactory.cs" />
     <Compile Include="Media\Audio\AudioRecordFactory.cs" />
-    <Compile Include="Media\Audio\Audio.cs" />
+    <Compile Include="Media\Audio\AudioUtils.cs" />
     <Compile Include="Media\Audio\DirectSoundPlay.cs" />
     <Compile Include="Media\G711.cs" />
     <Compile Include="Media\Audio\WaveAPIPlay.cs" />
@@ -243,7 +247,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
+      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DotNEToolkit.Media
+namespace DotNEToolkit.Media.Audio
 {
     /// <summary>
     /// 一个简单的PCM播放器
     /// </summary>
-    public abstract class AudioPlay : ModuleBase
+    public abstract class AudioPlay : MediaPlay
     {
         #region 属性
 

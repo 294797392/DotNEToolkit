@@ -34,7 +34,7 @@ namespace DotNEToolkit.Media
     /// 3. 16位单声道：
     /// 4. 16位双声道：
     /// </summary>
-    public static class Audio
+    public static class AudioUtils
     {
         /// <summary>
         /// 计算音频数据的dbFS值

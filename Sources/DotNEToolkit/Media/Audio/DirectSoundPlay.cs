@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DotNEToolkit.Media
+namespace DotNEToolkit.Media.Audio
 {
     public class DirectSoundPlay : AudioPlay
     {
@@ -336,6 +336,16 @@ namespace DotNEToolkit.Media
             //{
             //    this.fileStream.Read()
             //}
+        }
+
+        public override int Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Stop()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
