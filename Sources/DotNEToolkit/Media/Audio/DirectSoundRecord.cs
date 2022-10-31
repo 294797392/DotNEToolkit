@@ -147,7 +147,7 @@ namespace DotNEToolkit.Media.Audio
                                 byte[] audioData = null;
                                 if (this.RecordCapturedData(0, (uint)this.wfx.nAvgBytesPerSec, out audioData) == DSERR.DS_OK)
                                 {
-                                    this.NotifyDataReceived(audioData);
+                                    this.ProcessAudioData(audioData);
                                 }
 
                                 Win32API.ResetEvent(this.notifyHandle_close[0]);

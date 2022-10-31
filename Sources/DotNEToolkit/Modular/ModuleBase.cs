@@ -80,10 +80,8 @@ namespace DotNEToolkit.Modular
 
         /// <summary>
         /// 模块的输入参数
-        /// 不要使用这个参数去获取配置参数，而是使用Initialize方法里穿进去的parameter去获取配置参数
-        /// 因为InputParameters参数里有可能有绑定参数，需要动态计算
         /// </summary>
-        public IDictionary InputParameters { get; private set; }
+        public IDictionary InputParameters { get; internal set; }
 
         #endregion
 
@@ -95,6 +93,7 @@ namespace DotNEToolkit.Modular
         public ModuleBase()
         {
             this.Properties = new Dictionary<string, object>();
+            this.InputParameters = new Dictionary<string, object>();
         }
 
         #endregion
@@ -104,11 +103,9 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 初始化模块
         /// </summary>
-        /// <param name="parameters">模块参数</param>
         /// <returns></returns>
-        public int Initialize(IDictionary parameters)
+        public int Initialize()
         {
-            this.InputParameters = parameters;
             this.InitializeBinding();
 
             return this.OnInitialize();
@@ -204,6 +201,17 @@ namespace DotNEToolkit.Modular
             }
 
             return JSONHelper.Parse<T>(json, defaultObject);
+        }
+
+        public void SetInputValue<T>(string key, T value)
+        {
+            this.InputParameters[key] = value;
+        }
+
+        public void SetInputObject<T>(string key, T objact)
+        {
+            string json = JsonConvert.SerializeObject(objact);
+            this.InputParameters[key] = json;
         }
 
         #endregion

@@ -167,7 +167,7 @@ namespace DotNEToolkit.Media.Audio
                         byte[] buffer = new byte[hdr.dwBytesRecorded];
                         Marshal.Copy(hdr.lpData, buffer, 0, buffer.Length);
 
-                        this.NotifyDataReceived(buffer);
+                        this.ProcessAudioData(buffer);
                     }
 
                     int code = waveIn.waveInAddBuffer(hwi, this.free_pwh, (uint)this.whSize);

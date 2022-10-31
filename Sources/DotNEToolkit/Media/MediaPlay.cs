@@ -9,8 +9,17 @@ namespace DotNEToolkit.Media
 {
     public abstract class MediaPlay : EventableModule
     {
+        protected AVFormats format;
+
+        /// <summary>
+        /// 该播放器支持的格式
+        /// </summary>
+        public AVFormats Format { get { return this.format; } }
+
         protected override int OnInitialize()
         {
+            this.format = this.GetInputValue<AVFormats>("format", AVFormats.Unkown);
+
             return DotNETCode.SUCCESS;
         }
 

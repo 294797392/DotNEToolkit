@@ -129,7 +129,7 @@
     <Compile Include="Media\MediaRecord.cs" />
     <Compile Include="Media\RealtimeStream.cs" />
     <Compile Include="Media\Video\libvlcPlay.cs" />
-    <Compile Include="Media\Video\VideoFormats.cs" />
+    <Compile Include="Media\AVFormats.cs" />
     <Compile Include="Media\Video\VideoPlay.cs" />
     <Compile Include="Media\Video\VideoPlayFactory.cs" />
     <Compile Include="Modular\ModularApp.cs" />
@@ -247,7 +247,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
+      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

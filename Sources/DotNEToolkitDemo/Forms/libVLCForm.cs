@@ -55,7 +55,7 @@ namespace DotNEToolkitDemo.Forms
                     {
                         break;
                     }
-                    this.videoPlay.PutData(buffer);
+                    this.videoPlay.Write(buffer);
                 }
             });
 

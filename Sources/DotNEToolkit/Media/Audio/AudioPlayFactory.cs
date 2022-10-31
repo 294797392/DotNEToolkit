@@ -11,9 +11,14 @@ namespace DotNEToolkit.Media.Audio
     public enum AudioPlayType
     {
         /// <summary>
-        /// 使用DirectSound录音
+        /// 使用DirectSound播放音频你
         /// </summary>
-        DirectSound
+        DirectSound,
+
+        /// <summary>
+        /// 使用libvlc播放音频
+        /// </summary>
+        libvlc
     }
 
     public static class AudioPlayFactory

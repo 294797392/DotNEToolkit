@@ -21,8 +21,11 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
+            //TestRecord.RecordAudio();
+            TestAudioPlay.libvlcPlay();
+
             //TestExcel.CreateSpan();
-            TestExcel.CreateOrAppend();
+            //TestExcel.CreateOrAppend();
 
             //TestExcel.CreateNew();
             //while (true)

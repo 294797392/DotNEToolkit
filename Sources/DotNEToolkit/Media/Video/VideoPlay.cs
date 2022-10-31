@@ -49,11 +49,6 @@ namespace DotNEToolkit.Media.Video
         /// </summary>
         protected int timeout;
 
-        /// <summary>
-        /// 视频格式
-        /// </summary>
-        protected VideoFormats format;
-
         #endregion
 
         #region 属性
@@ -69,8 +64,9 @@ namespace DotNEToolkit.Media.Video
 
         protected override int OnInitialize()
         {
+            base.OnInitialize();
+
             this.timeout = this.GetInputValue<int>("timeout", DefaultTimeout);
-            this.format = this.GetInputValue<VideoFormats>("format", VideoFormats.Unkown);
             this.videoStream = RealtimeStream.Create();
 
             return DotNETCode.SUCCESS;

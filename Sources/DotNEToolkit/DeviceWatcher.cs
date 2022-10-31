@@ -9,10 +9,6 @@ namespace DotNEToolkit
 {
     public class DeviceWatcher : ModuleBase
     {
-        public void Initialize()
-        {
-        }
-
         protected override int OnInitialize()
         {
             throw new NotImplementedException();

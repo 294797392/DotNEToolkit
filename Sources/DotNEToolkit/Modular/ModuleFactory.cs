@@ -83,7 +83,7 @@ namespace DotNEToolkit.Modular
 
             try
             {
-                if ((code = moduleInst.Initialize(moduleInst.Definition.InputParameters)) != DotNETCode.SUCCESS)
+                if ((code = moduleInst.Initialize()) != DotNETCode.SUCCESS)
                 {
                     moduleInst.Status = ModuleStatus.InitializeFailed;
                     this.NotifyModuleStatusChanged(moduleInst, ModuleStatus.InitializeFailed);
@@ -224,7 +224,7 @@ namespace DotNEToolkit.Modular
                     continue;
                 }
 
-                int code = moduleBase.Initialize(moduleBase.InputParameters);
+                int code = moduleBase.Initialize();
                 if (code != DotNETCode.SUCCESS)
                 {
                     logger.DebugFormat("模块加载失败, 错误码:{0}", code);
@@ -287,6 +287,7 @@ namespace DotNEToolkit.Modular
             TModule moduleInst = ConfigFactory<TModule>.CreateInstance(className);
             moduleInst.Definition = module;
             moduleInst.Factory = this;
+            moduleInst.InputParameters = module.InputParameters;
 
             logger.DebugFormat("加载模块成功, {0}", module.Name);
 

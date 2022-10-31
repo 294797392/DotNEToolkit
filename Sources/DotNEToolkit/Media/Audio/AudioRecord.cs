@@ -118,7 +118,7 @@ namespace DotNEToolkit.Media.Audio
 
         #region ModuleBase
 
-        protected void NotifyDataReceived(byte[] audioData)
+        protected void ProcessAudioData(byte[] audioData)
         {
             if (this.DataReceived != null)
             {

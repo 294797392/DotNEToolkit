@@ -45,9 +45,8 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 初始化模块
         /// </summary>
-        /// <param name="parameters">模块的输入参数</param>
         /// <returns></returns>
-        int Initialize(IDictionary parameters);
+        int Initialize();
 
         /// <summary>
         /// 释放模块

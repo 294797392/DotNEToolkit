@@ -84,14 +84,25 @@ namespace DotNEToolkit.Media.Video
         {
             switch (this.format)
             {
-                case VideoFormats.Unkown:
+                case AVFormats.Unkown:
                     {
                         break;
                     }
 
-                case VideoFormats.H264:
+                case AVFormats.H264:
                     {
                         libvlc.libvlc_media_add_option(libvlc_media_t, "demux=h264");
+                        break;
+                    }
+
+                // libvlc 支持直接播放pcm数据
+                // 音视频都可以播
+                case AVFormats.PCM:
+                    {
+                        // 播放pcm格式的音频需要指定demux=rawaud，
+                        // 同时需要使用--rawaud-channels和--rawaud-samplerate来指定PCM的通道数和采样频率
+                        // 例：./vlc --demux=rawaud --rawaud-channels 2 --rawaud-samplerate 44100 pcm
+                        libvlc.libvlc_media_add_option(libvlc_media_t, "demux=rawaud");
                         break;
                     }
 

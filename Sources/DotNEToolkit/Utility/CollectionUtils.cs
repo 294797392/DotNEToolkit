@@ -77,6 +77,10 @@ namespace DotNEToolkit
                         string name = Enum.GetName(valueType, v);
                         return (T)Enum.Parse(valueType, name);
                     }
+                    else if (v is Enum)
+                    {
+                        return (T)v;
+                    }
                     else
                     {
                         // 既不是数字也不是字符串，那么就返回默认值
