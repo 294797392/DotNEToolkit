@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace DotNEToolkit
+namespace DotNEToolkit.Utility
 {
     public class PropertyAttribute<TAttribute>
     {
@@ -16,19 +16,25 @@ namespace DotNEToolkit
     /// <summary>
     /// 反射工具函数
     /// </summary>
-    public static class Reflections
+    public static class ReflectionUtils
     {
-        public static List<PropertyAttribute<TAttribute>> GetPropertyAttribute<TAttribute>(Type t) where TAttribute : Attribute
+        /// <summary>
+        /// 获取某个类里的所有公开属性的某个特定类型的特性
+        /// </summary>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <param name="classType">要获取的类的类型</param>
+        /// <returns></returns>
+        public static List<PropertyAttribute<TAttribute>> GetPropertyAttribute<TAttribute>(Type classType) where TAttribute : Attribute
         {
             List<PropertyAttribute<TAttribute>> result = new List<PropertyAttribute<TAttribute>>();
 
-            PropertyInfo[] properties = t.GetProperties(System.Reflection.BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = classType.GetProperties(System.Reflection.BindingFlags.Public | BindingFlags.Instance);
             foreach (PropertyInfo property in properties)
             {
                 object[] attributes = property.GetCustomAttributes(typeof(TAttribute), true);
                 if (attributes != null && attributes.Length > 0)
                 {
-                    result.Add(new PropertyAttribute<TAttribute>() 
+                    result.Add(new PropertyAttribute<TAttribute>()
                     {
                         Property = property,
                         Attribute = attributes.Cast<TAttribute>().ElementAt(0)
@@ -40,6 +46,18 @@ namespace DotNEToolkit
         }
 
         /// <summary>
+        /// 获取某个类里的所有公开属性的某个特定类型的特性
+        /// </summary>
+        /// <typeparam name="TAttribute">要获取的特性的类型</typeparam>
+        /// <typeparam name="TClass"></typeparam>
+        /// <returns>所有属性的特性集合</returns>
+        public static List<PropertyAttribute<TAttribute>> GetPropertyAttribute<TAttribute, TClass>() where TAttribute : Attribute
+        {
+            Type t = typeof(TClass);
+            return GetPropertyAttribute<TAttribute>(t);
+        }
+
+        /// <summary>
         /// 获取某个类上的自定义特性
         /// </summary>
         /// <typeparam name="TAttribute"></typeparam>
@@ -48,7 +66,13 @@ namespace DotNEToolkit
         public static TAttribute GetClassAttribute<TAttribute, TClass>()
         {
             Type t = typeof(TClass);
-            object[] attributes = t.GetCustomAttributes(typeof(TAttribute), true);
+
+            return GetClassAttribute<TAttribute>(t);
+        }
+
+        public static TAttribute GetClassAttribute<TAttribute>(Type classType)
+        {
+            object[] attributes = classType.GetCustomAttributes(typeof(TAttribute), true);
             if (attributes == null || attributes.Length == 0)
             {
                 return default(TAttribute);

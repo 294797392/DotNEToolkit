@@ -1,3 +1,4 @@
+using DotNEToolkit.Utility;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -266,7 +267,7 @@ namespace DotNEToolkit
 
         private string GenerateDbFile<T>()
         {
-            JSONDBNameAttribute dbName = Reflections.GetClassAttribute<JSONDBNameAttribute, T>();
+            JSONDBNameAttribute dbName = ReflectionUtils.GetClassAttribute<JSONDBNameAttribute, T>();
             string fileName = dbName == null ? string.Format("{0}.json", typeof(T).Name) : dbName.Name;
             return System.IO.Path.Combine(this.baseDir, fileName);
         }
