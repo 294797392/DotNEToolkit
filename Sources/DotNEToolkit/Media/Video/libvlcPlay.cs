@@ -66,14 +66,24 @@ namespace DotNEToolkit.Media.Video
 
         public override void Stop()
         {
-            libvlc.libvlc_media_release(this.libvlc_media_t);
-            libvlc.libvlc_media_player_stop(this.libvlc_media_player_t);
-            libvlc.libvlc_media_player_release(this.libvlc_media_player_t);
-            libvlc.libvlc_release(this.libvlc_instance_t);
+            if (this.libvlc_media_t != IntPtr.Zero)
+            {
+                libvlc.libvlc_media_release(this.libvlc_media_t);
+                this.libvlc_media_t = IntPtr.Zero;
+            }
 
-            this.libvlc_media_t = IntPtr.Zero;
-            this.libvlc_media_player_t = IntPtr.Zero;
-            this.libvlc_instance_t = IntPtr.Zero;
+            if (this.libvlc_media_player_t != IntPtr.Zero)
+            {
+                libvlc.libvlc_media_player_stop(this.libvlc_media_player_t);
+                libvlc.libvlc_media_player_release(this.libvlc_media_player_t);
+                this.libvlc_media_player_t = IntPtr.Zero;
+            }
+
+            if (this.libvlc_instance_t != IntPtr.Zero)
+            {
+                libvlc.libvlc_release(this.libvlc_instance_t);
+                this.libvlc_instance_t = IntPtr.Zero;
+            }
         }
 
         #endregion
