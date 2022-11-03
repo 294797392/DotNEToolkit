@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -80,6 +81,7 @@ namespace DotNEToolkit.Utility
 
             return (TAttribute)attributes[0];
         }
+
 
         ///// <summary>
         ///// 获取集合里的元素的类型
