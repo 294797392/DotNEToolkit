@@ -78,13 +78,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BytePool.cs" />
-    <Compile Include="Commnications\CommObject.cs" />
-    <Compile Include="Commnications\CommObjectExtension.cs" />
-    <Compile Include="Commnications\CommObjectFactory.cs" />
-    <Compile Include="Commnications\CommTypes.cs" />
-    <Compile Include="Commnications\SerialPortCommObject.cs" />
-    <Compile Include="Commnications\TcpClientCommObject.cs" />
-    <Compile Include="Commnications\TcpServiceCommObject.cs" />
     <Compile Include="Crypto\CRC16.cs" />
     <Compile Include="Excels\CSV.cs" />
     <Compile Include="DataModels\ModelBaseInt.cs" />
@@ -247,7 +240,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
+      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

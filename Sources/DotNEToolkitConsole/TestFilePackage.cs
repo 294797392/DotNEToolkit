@@ -135,7 +135,6 @@ namespace DotNEToolkitConsole
             package.Close();
         }
 
-
         public static void PackBinary()
         {
             FilePackage package = FilePackage.Create("test.tar", FilePackages.TarArchive);
@@ -161,7 +160,6 @@ namespace DotNEToolkitConsole
 
             package.Close();
         }
-
     }
 }
 

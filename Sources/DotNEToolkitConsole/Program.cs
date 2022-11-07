@@ -22,7 +22,7 @@ namespace DotNEToolkitConsole
             DotNEToolkit.Log4net.InitializeLog4net();
 
             //TestRecord.RecordAudio();
-            TestAudioPlay.libvlcPlay();
+            //TestAudioPlay.libvlcPlay();
 
             //TestExcel.CreateSpan();
             //TestExcel.CreateOrAppend();
@@ -34,6 +34,8 @@ namespace DotNEToolkitConsole
             //    Console.WriteLine("请输入回车键继续Append");
             //    Console.ReadLine();
             //}
+
+            TestFilePackage.PackDirectory("E:/4", "1.zip");
 
             //TestFilePackage.PackDirectory("Expressions", "1.pkg");
 
