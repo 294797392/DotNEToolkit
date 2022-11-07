@@ -214,6 +214,14 @@ namespace DotNEToolkit.Modular
             this.InputParameters[key] = json;
         }
 
+        public void SetInput(IDictionary dictionary)
+        {
+            foreach (string key in dictionary.Keys)
+            {
+                this.InputParameters[key] = dictionary[key];
+            }
+        }
+
         #endregion
 
         /// <summary>
