@@ -148,13 +148,13 @@ namespace DotNEToolkit.Media.Video
 
         private ulong libvlc_media_read_cb(IntPtr opaque, IntPtr buf, int len)
         {
-            logger.InfoFormat("libvlc_media_read_cb, byteSize = {0}", len);
+            //logger.InfoFormat("libvlc_media_read_cb, byteSize = {0}", len);
 
             byte[] videoBytes;
             if (!this.videoStream.Read(len, this.timeout, out videoBytes))
             {
-                this.PublishEvent(EV_TIMEOUT, null);
                 // 返回0表示end-of-stream
+                this.NotifyStatusChanged(MediaPlayStatus.Timeout);
                 return 0;
             }
 

@@ -143,6 +143,7 @@ namespace DotNEToolkit.Modular
                 {
                     if (moduleInst.Definition.HasFlag(ModuleFlags.NotInitial)) 
                     {
+                        logger.InfoFormat("模块{0}不初始化", moduleInst.Name);
                         continue;
                     }
 
@@ -173,6 +174,7 @@ namespace DotNEToolkit.Modular
             {
                 if (module.HasFlag(ModuleFlags.Disabled))
                 {
+                    logger.InfoFormat("模块{0}被禁用, 不加载", module.Name);
                     continue;
                 }
 

@@ -60,28 +60,9 @@ namespace DotNEToolkit.Modular
         {
         }
 
-        /// <summary>
-        /// 通过模块工厂订阅某个模块的事件
-        /// </summary>
-        /// <typeparam name="TPublisher">要订阅的模块的类型</typeparam>
-        /// <param name="factory">模块工厂</param>
-        /// <param name="subscriber">订阅者</param>
-        /// <param name="publisherId">要订阅的模块的Id</param>
-        /// <param name="eventType">要订阅的事件类型</param>
-        /// <param name="eventHandler">处理该事件的处理器</param>
-        /// <param name="rollbackDlg">当事件执行失败的时候，要执行的回滚操作</param>
-        public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, string publisherId, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler, EventRollbackDlg rollbackDlg)
+        public static void SubscribeEvent<TPublisher>(TPublisher publisher, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler, EventRollbackDlg rollbackDlg)
             where TPublisher : IEventPublisher
         {
-            // 先找到对应的发布者
-            TPublisher publisher = factory.LookupModule<TPublisher>(publisherId);
-            if (publisher == null)
-            {
-                // 如果模块不存在，那么啥都不做直接返回
-                logger.InfoFormat("订阅事件失败, 要订阅的模块不存在, 模块Id = {0}", publisherId);
-                return;
-            }
-
             List<Subscribtion> subscribtions;
             if (!publisher.EventSubscribtions.TryGetValue(eventType, out subscribtions))
             {
@@ -107,6 +88,31 @@ namespace DotNEToolkit.Modular
                 RollbackHandler = rollbackDlg
             };
             subscribtions.Add(subscribtion);
+        }
+
+        /// <summary>
+        /// 通过模块工厂订阅某个模块的事件
+        /// </summary>
+        /// <typeparam name="TPublisher">要订阅的模块的类型</typeparam>
+        /// <param name="factory">模块工厂</param>
+        /// <param name="subscriber">订阅者</param>
+        /// <param name="publisherId">要订阅的模块的Id</param>
+        /// <param name="eventType">要订阅的事件类型</param>
+        /// <param name="eventHandler">处理该事件的处理器</param>
+        /// <param name="rollbackDlg">当事件执行失败的时候，要执行的回滚操作</param>
+        public static void SubscribeEvent<TPublisher>(this ModuleFactory factory, string publisherId, IEventSubscriber subscriber, int eventType, ModuleEventDlg eventHandler, EventRollbackDlg rollbackDlg)
+            where TPublisher : IEventPublisher
+        {
+            // 先找到对应的发布者
+            TPublisher publisher = factory.LookupModule<TPublisher>(publisherId);
+            if (publisher == null)
+            {
+                // 如果模块不存在，那么啥都不做直接返回
+                logger.InfoFormat("订阅事件失败, 要订阅的模块不存在, 模块Id = {0}", publisherId);
+                return;
+            }
+
+            SubscribeEvent<TPublisher>(publisher, subscriber, eventType, eventHandler, rollbackDlg);
         }
 
         /// <summary>

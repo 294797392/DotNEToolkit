@@ -3,11 +3,14 @@ using DotNEToolkit.Crypto;
 using DotNEToolkit.DataAccess;
 using DotNEToolkit.Expressions;
 using DotNEToolkit.Media;
+using DotNEToolkit.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -20,6 +23,12 @@ namespace DotNEToolkitConsole
             Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().Id);
 
             DotNEToolkit.Log4net.InitializeLog4net();
+
+            List<IPAddress> addresses = NetworkUtils.GetBroadcastAddresses();
+            foreach (IPAddress address in addresses)
+            {
+                Console.WriteLine(address.ToString());
+            }
 
             //TestRecord.RecordAudio();
             //TestAudioPlay.libvlcPlay();
@@ -35,7 +44,7 @@ namespace DotNEToolkitConsole
             //    Console.ReadLine();
             //}
 
-            TestFilePackage.PackDirectory("E:/4", "1.zip");
+            //TestFilePackage.PackDirectory("E:/4", "1.zip");
 
             //TestFilePackage.PackDirectory("Expressions", "1.pkg");
 
