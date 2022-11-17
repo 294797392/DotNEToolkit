@@ -72,7 +72,6 @@ namespace DotNEToolkit
 
         /// <summary>
         /// 把一个文件序列化成JSON对象
-        /// 需要调用者捕获解析的时候出现的异常
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="filePath"></param>
@@ -85,8 +84,58 @@ namespace DotNEToolkit
                 return defaultValue;
             }
 
+            try
+            {
+                string json = File.ReadAllText(filePath);
+                return JsonConvert.DeserializeObject<TResult>(json);
+            }
+            catch(Exception ex)
+            {
+                logger.Error(string.Format("反序列化JSON文件异常, path = {0}", filePath), ex);
+                return defaultValue;
+            }
+        }
+
+        /// <summary>
+        /// 把一个文件序列化成JSON对象
+        /// 如果解析失败, 不会抛异常, 会返回defaultObject
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <param name="filePath"></param>
+        /// <param name="defaultObject"></param>
+        /// <returns></returns>
+        public static TObject File2Object<TObject>(string filePath, TObject defaultObject)
+        {
+            if (!File.Exists(filePath))
+            {
+                logger.ErrorFormat("反序列化JSON文件失败, 文件不存在, {0}", filePath);
+                return defaultObject;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(filePath);
+                return JsonConvert.DeserializeObject<TObject>(json);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("反序列化JSON文件异常, path = {0}", filePath), ex);
+                return defaultObject;
+            }
+        }
+
+        /// <summary>
+        /// 把一个json文件序列化成C#对象
+        /// 该函数不会对异常做处理，异常由调用者截获并处理
+        /// 如果该函数对异常做处理，那么调用者可能不知道出现异常的详细原因
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static TObject File2Object<TObject>(string filePath)
+        {
             string json = File.ReadAllText(filePath);
-            return JsonConvert.DeserializeObject<TResult>(json);
+            return JsonConvert.DeserializeObject<TObject>(json);
         }
 
         /// <summary>
