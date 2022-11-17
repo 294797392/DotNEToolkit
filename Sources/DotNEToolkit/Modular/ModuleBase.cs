@@ -81,7 +81,7 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 模块的输入参数
         /// </summary>
-        public IDictionary InputParameters { get; internal set; }
+        internal IDictionary InputParameters { get; set; }
 
         #endregion
 
@@ -180,6 +180,12 @@ namespace DotNEToolkit.Modular
             return this.InputParameters.GetValue<T>(key, defaultValue);
         }
 
+        public T GetInputObject<T>(string key) where T : class
+        {
+            string json = this.InputParameters[key].ToString();
+            return JSONHelper.Parse<T>(json);
+        }
+
         /// <summary>
         /// 从InputParameter里读取一个JSON对象
         /// </summary>
@@ -187,7 +193,7 @@ namespace DotNEToolkit.Modular
         /// <param name="key"></param>
         /// <param name="defaultObject">如果不存在该对象，那么要返回的默认值</param>
         /// <returns></returns>
-        public T GetInputObject<T>(string key, T defaultObject)
+        public T GetInputObject<T>(string key, T defaultObject) where T : class
         {
             if (!this.InputParameters.Contains(key))
             {
@@ -208,18 +214,10 @@ namespace DotNEToolkit.Modular
             this.InputParameters[key] = value;
         }
 
-        public void SetInputObject<T>(string key, T objact)
+        public void SetInputObject<T>(string key, T objact) where T : class
         {
             string json = JsonConvert.SerializeObject(objact);
             this.InputParameters[key] = json;
-        }
-
-        public void SetInput(IDictionary dictionary)
-        {
-            foreach (string key in dictionary.Keys)
-            {
-                this.InputParameters[key] = dictionary[key];
-            }
         }
 
         #endregion

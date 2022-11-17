@@ -46,13 +46,26 @@ namespace DotNEToolkit
         /// <param name="json"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static TResult Parse<TResult>(string json, TResult defaultValue)
+        public static TResult Parse<TResult>(string json, TResult defaultValue) where TResult : class
         {
             if (string.IsNullOrEmpty(json))
             {
                 return defaultValue;
             }
 
+            try
+            {
+                return JsonConvert.DeserializeObject<TResult>(json);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("JSON字符串转对象异常, {0}", json), ex);
+                return defaultValue;
+            }
+        }
+
+        public static TResult Parse<TResult>(string json) where TResult : class
+        {
             return JsonConvert.DeserializeObject<TResult>(json);
         }
 
@@ -64,7 +77,7 @@ namespace DotNEToolkit
         /// <typeparam name="TResult">要序列化成的对象类型</typeparam>
         /// <param name="filePath">要序列化的json文件的路径</param>
         /// <returns>如果序列化失败，那么返回空</returns>
-        public static TResult ParseFile<TResult>(string filePath)
+        public static TResult ParseFile<TResult>(string filePath) where TResult : class
         {
             string json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<TResult>(json);
@@ -77,7 +90,7 @@ namespace DotNEToolkit
         /// <param name="filePath"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static TResult ParseFile<TResult>(string filePath, TResult defaultValue)
+        public static TResult ParseFile<TResult>(string filePath, TResult defaultValue) where TResult : class
         {
             if (!File.Exists(filePath))
             {
@@ -89,7 +102,7 @@ namespace DotNEToolkit
                 string json = File.ReadAllText(filePath);
                 return JsonConvert.DeserializeObject<TResult>(json);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.Error(string.Format("反序列化JSON文件异常, path = {0}", filePath), ex);
                 return defaultValue;
@@ -104,7 +117,7 @@ namespace DotNEToolkit
         /// <param name="filePath"></param>
         /// <param name="defaultObject"></param>
         /// <returns></returns>
-        public static TObject File2Object<TObject>(string filePath, TObject defaultObject)
+        public static TObject File2Object<TObject>(string filePath, TObject defaultObject) where TObject : class
         {
             if (!File.Exists(filePath))
             {
@@ -132,7 +145,7 @@ namespace DotNEToolkit
         /// <typeparam name="TObject"></typeparam>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        public static TObject File2Object<TObject>(string filePath)
+        public static TObject File2Object<TObject>(string filePath) where TObject : class
         {
             string json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<TObject>(json);
@@ -145,7 +158,7 @@ namespace DotNEToolkit
         /// <typeparam name="TObject">要写入的对象类型</typeparam>
         /// <param name="filePath">要保存的文件路径</param>
         /// <param name="obj">要写入的对象实例</param>
-        public static void Object2File<TObject>(string filePath, TObject obj)
+        public static void Object2File<TObject>(string filePath, TObject obj) where TObject : class
         {
             string jsonText = JsonConvert.SerializeObject(obj);
             File.WriteAllText(filePath, jsonText);
