@@ -16,6 +16,8 @@ namespace DotNEToolkit
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("CSV");
 
+        private static readonly char[] CSVSplitter = new char[] { ',' };
+
         /// <summary>
         /// 把TableData保存成一个CSV文件
         /// </summary>
@@ -52,11 +54,11 @@ namespace DotNEToolkit
 
             foreach (string line in lines)
             {
-                string[] substrs = line.Split(',');
+                string[] csvItems = line.Split(CSVSplitter, StringSplitOptions.None);
 
-                foreach (string substr in substrs)
+                foreach (string csvItem in csvItems)
                 {
-                    table.Set(row, col, substr);
+                    table.Set(row, col, csvItem);
                     col++;
                 }
 
