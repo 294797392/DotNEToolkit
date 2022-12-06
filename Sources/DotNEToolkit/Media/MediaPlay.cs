@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit.Media
 {
-    public abstract class MediaPlay : EventableModule
+    public abstract class MediaPlay : ModuleBase
     {
         /// <summary>
         /// 播放器状态发生改变的时候触发

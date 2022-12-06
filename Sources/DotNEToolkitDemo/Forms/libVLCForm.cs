@@ -40,7 +40,7 @@ namespace DotNEToolkitDemo.Forms
 
             this.videoPlay = VideoPlayFactory.Create(VideoPlayType.libvlc);
             this.videoPlay.Hwnd = this.Handle;
-            this.videoPlay.Initialize(settings);
+            this.videoPlay.Initialize();
             this.videoPlay.Start();
 
             this.h264Stream = new FileStream("h264", FileMode.Open, FileAccess.Read);

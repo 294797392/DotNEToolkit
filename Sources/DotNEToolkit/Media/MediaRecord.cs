@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit.Media
 {
-    public abstract class MediaRecord : EventableModule
+    public abstract class MediaRecord : ModuleBase
     {
         /// <summary>
         /// 开始录制
