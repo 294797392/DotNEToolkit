@@ -9,6 +9,7 @@ namespace DotNEToolkit.SDK
 {
     using libvlc_media_t = IntPtr;
     using libvlc_instance_t = IntPtr;
+    using libvlc_media_player_t = IntPtr;
 
     public static class libvlc
     {
@@ -123,6 +124,16 @@ namespace DotNEToolkit.SDK
                                                                         libvlc_media_seek_cb seek_cb,
                                                                         libvlc_media_close_cb close_cb,
                                                                         IntPtr opaque);
+
+        /// <summary>
+        /// Set the video scaling factor。
+        /// Zero is a special value; it will adjust the video to the output
+        /// window/drawable(in windowed mode) or the entire screen.
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="f_factor"></param>
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libvlc_video_set_scale(libvlc_media_player_t player, float f_factor);
 
         /// <summary>
         /// 封装libvlc的快速播放逻辑，传递一个窗口句柄即可

@@ -178,7 +178,29 @@ namespace DotNEToolkit.Modular
                     continue;
                 }
 
-                ModuleBase moduleInst = this.CreateModule<ModuleBase>(module);
+                // 优先加载ClassName
+                string className = module.ClassName;
+
+                // 如果ClassName不存在，那么根据MetadataID寻找ClassName
+                if (string.IsNullOrEmpty(className))
+                {
+                    ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == module.MetadataID);
+                    if (metadata == null)
+                    {
+                        logger.ErrorFormat("客户端不存在模块:{0}", module);
+                        throw new ModuleNotFoundException(module);
+                    }
+
+                    className = metadata.ClassName;
+                }
+
+                // 开始加载实例
+                ModuleBase moduleInst = ConfigFactory<ModuleBase>.CreateInstance(className);
+                moduleInst.Definition = module;
+                moduleInst.Factory = this;
+                moduleInst.InputParameters = module.InputParameters;
+
+                logger.DebugFormat("加载模块成功, {0}", module.Name);
 
                 this.moduleList.Add(moduleInst);
             }
@@ -238,6 +260,18 @@ namespace DotNEToolkit.Modular
         }
 
         /// <summary>
+        /// 创建一个模块工厂，创建模块实例，但是不初始化它
+        /// </summary>
+        /// <param name="initialModules"></param>
+        /// <returns></returns>
+        public static ModuleFactory CreateFactory2(IEnumerable<ModuleDefinition> initialModules)
+        {
+            ModuleFactory factory = new ModuleFactory();
+            factory.CreateModuleInstance(initialModules);
+            return factory;
+        }
+
+        /// <summary>
         /// 异步加载模块
         /// 如果模块连接失败，该函数会自动重连模块
         /// </summary>
@@ -258,42 +292,6 @@ namespace DotNEToolkit.Modular
         public List<TModuleInstance> LookupModules<TModuleInstance>() where TModuleInstance : IModuleInstance
         {
             return this.moduleList.OfType<TModuleInstance>().ToList();
-        }
-
-        /// <summary>
-        /// 根据模块定义创建一个模块实例
-        /// 但是不初始化它
-        /// 如果要创建并初始化，那么请调用SetupModule
-        /// </summary>
-        /// <param name="module">模块定义</param>
-        /// <returns></returns>
-        public TModule CreateModule<TModule>(ModuleDefinition module) where TModule : ModuleBase
-        {
-            // 优先加载ClassName
-            string className = module.ClassName;
-
-            // 如果ClassName不存在，那么根据MetadataID寻找ClassName
-            if (string.IsNullOrEmpty(className))
-            {
-                ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == module.MetadataID);
-                if (metadata == null)
-                {
-                    logger.ErrorFormat("客户端不存在模块:{0}", module);
-                    throw new ModuleNotFoundException(module);
-                }
-
-                className = metadata.ClassName;
-            }
-
-            // 开始加载实例
-            TModule moduleInst = ConfigFactory<TModule>.CreateInstance(className);
-            moduleInst.Definition = module;
-            moduleInst.Factory = this;
-            moduleInst.InputParameters = module.InputParameters;
-
-            logger.DebugFormat("加载模块成功, {0}", module.Name);
-
-            return moduleInst;
         }
 
         /// <summary>
