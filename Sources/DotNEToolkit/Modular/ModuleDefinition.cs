@@ -64,8 +64,8 @@ namespace DotNEToolkit.Modular
         /// 该模块所依赖的其他模块ID
         /// 模块工厂会先初始化依赖的模块
         /// </summary>
-        [JsonProperty("Dependencies")]
-        public List<string> References { get; private set; }
+        //[JsonProperty("References")]
+        //public List<string> References { get; private set; }
 
         /// <summary>
         /// 构造方法
@@ -74,7 +74,7 @@ namespace DotNEToolkit.Modular
         {
             this.ID = Guid.NewGuid().ToString();
             this.InputParameters = new Dictionary<string, object>();
-            this.References = new List<string>();
+            //this.References = new List<string>();
         }
 
         /// <summary>

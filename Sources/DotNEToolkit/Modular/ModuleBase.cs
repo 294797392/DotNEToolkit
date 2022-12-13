@@ -40,7 +40,7 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 该模块引用的其他模块ID
         /// </summary>
-        internal List<string> References { get { return this.Definition.References; } }
+        //internal List<string> References { get { return this.Definition.References; } }
 
         /// <summary>
         /// 模块当前的状态
