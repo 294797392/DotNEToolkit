@@ -16,6 +16,40 @@ namespace DotNEToolkit.Utility
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("NetworkUtils");
 
+        public static IPAddress GetBroadcastAddress(NetworkInterface @interface)
+        {
+            IPInterfaceProperties properties = @interface.GetIPProperties();
+
+            // 一张网卡可以设置多个IP地址，这里取第一个，取IPV4
+            UnicastIPAddressInformation unicastIPAddress = properties.UnicastAddresses.FirstOrDefault(v => v.Address.AddressFamily == AddressFamily.InterNetwork);
+            if (unicastIPAddress == null)
+            {
+                return null;
+            }
+
+            IPAddress maskAddress = unicastIPAddress.IPv4Mask;
+            IPAddress ipAddress = unicastIPAddress.Address;
+
+            byte[] ipBytes = ipAddress.GetAddressBytes();
+            byte[] maskBytes = maskAddress.GetAddressBytes();
+            byte[] broadcastDomain = new byte[maskBytes.Length];
+            byte[] broadcastBytes = new byte[maskBytes.Length];
+
+            // 1. IP与子网掩码与运算，即为广播域
+            for (int i = 0; i < ipBytes.Length; i++)
+            {
+                broadcastDomain[i] = (byte)(ipBytes[i] & maskBytes[i]);
+            }
+
+            // 2. 子网掩码取反后与广播域或运算，即为广播地址
+            for (int i = 0; i < ipBytes.Length; i++)
+            {
+                broadcastBytes[i] = (byte)(~maskBytes[i] | broadcastDomain[i]);
+            }
+
+            return new IPAddress(broadcastBytes);
+        }
+
         /// <summary>
         /// 获取所有网卡的IPv4广播地址
         /// </summary>
@@ -27,39 +61,31 @@ namespace DotNEToolkit.Utility
             NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface @interface in interfaces)
             {
-                IPInterfaceProperties properties = @interface.GetIPProperties();
-
-                // 一张网卡可以设置多个IP地址，这里取第一个，取IPV4
-                UnicastIPAddressInformation unicastIPAddress = properties.UnicastAddresses.FirstOrDefault(v => v.Address.AddressFamily == AddressFamily.InterNetwork);
-                if (unicastIPAddress == null)
+                IPAddress broadcastAddress = GetBroadcastAddress(@interface);
+                if (broadcastAddress == null)
                 {
                     continue;
                 }
 
-                IPAddress maskAddress = unicastIPAddress.IPv4Mask;
-                IPAddress ipAddress = unicastIPAddress.Address;
-
-                byte[] ipBytes = ipAddress.GetAddressBytes();
-                byte[] maskBytes = maskAddress.GetAddressBytes();
-                byte[] broadcastDomain = new byte[maskBytes.Length];
-                byte[] broadcastBytes = new byte[maskBytes.Length];
-
-                // 1. IP与子网掩码与运算，即为广播域
-                for (int i = 0; i < ipBytes.Length; i++)
-                {
-                    broadcastDomain[i] = (byte)(ipBytes[i] & maskBytes[i]);
-                }
-
-                // 2. 子网掩码取反后与广播域或运算，即为广播地址
-                for (int i = 0; i < ipBytes.Length; i++)
-                {
-                    broadcastBytes[i] = (byte)(~maskBytes[i] | broadcastDomain[i]);
-                }
-
-                broadcastAddresses.Add(new IPAddress(broadcastBytes));
+                broadcastAddresses.Add(broadcastAddress);
             }
 
             return broadcastAddresses;
+        }
+
+        public static IPAddress GetBroadcastAddress(string interfaceDescription) 
+        {
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            foreach (NetworkInterface @interface in interfaces)
+            {
+                if (@interface.Description == interfaceDescription)
+                {
+                    return GetBroadcastAddress(@interface);
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
