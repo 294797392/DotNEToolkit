@@ -186,7 +186,7 @@
     <Compile Include="Utility\NetworkUtils.cs" />
     <Compile Include="Utility\StreamUtils.cs" />
     <Compile Include="Utility\SocketUtils.cs" />
-    <Compile Include="HttpClient.cs" />
+    <Compile Include="HttpRequestHelper.cs" />
     <Compile Include="INIReader.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="linux\tail.cs" />

@@ -3,6 +3,7 @@ using DotNEToolkit.Crypto;
 using DotNEToolkit.DataAccess;
 using DotNEToolkit.Expressions;
 using DotNEToolkit.Media;
+using DotNEToolkit.Modular;
 using DotNEToolkit.Utility;
 using Newtonsoft.Json;
 using System;
@@ -54,8 +55,6 @@ namespace DotNEToolkitConsole
 
         static void Main(string[] args)
         {
-            System.Diagnostics.Process.Start("ndp48-devpack-enu.exe");
-
             GetType<string>();
 
             Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().Id);

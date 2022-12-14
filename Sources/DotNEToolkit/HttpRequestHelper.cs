@@ -10,7 +10,7 @@ namespace DotNEToolkit
     /// <summary>
     /// 提供发送HTTP请求的函数
     /// </summary>
-    public class HttpClient
+    public class HttpRequestHelper
     {
         public const string METHOD_POST = "POST";
         public const string METHOD_GET = "GET";

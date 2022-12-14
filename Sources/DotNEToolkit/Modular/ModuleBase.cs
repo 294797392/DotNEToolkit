@@ -165,6 +165,36 @@ namespace DotNEToolkit.Modular
 
         #region 公开接口
 
+        public T GetParameter<T>(string key)
+        {
+            IDictionary parameters = this.InputParameters;
+
+            Type t = typeof(T);
+
+            if (t == TypeString)
+            {
+                return parameters.GetValue<T>(key);
+            }
+
+            if (t.IsClass)
+            {
+                string json = parameters[key].ToString();
+                return JsonConvert.DeserializeObject<T>(json);
+            }
+
+            if (t.IsValueType)
+            {
+                return parameters.GetValue<T>(key);
+            }
+
+            if (t.IsEnum)
+            {
+                return parameters.GetValue<T>(key);
+            }
+
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// 读取该模块的输入参数
         /// </summary>
@@ -202,6 +232,48 @@ namespace DotNEToolkit.Modular
             if (t.IsEnum)
             {
                 return parameters.GetValue<T>(key, defaultValue);
+            }
+
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 设置参数
+        /// 注意如果设置的参数是类类型，那么会先把类序列化成字符串
+        /// 所以不能序列化带有状态的类，只能序列化一些数据模型类
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void SetParameter<T>(string key, T value)
+        {
+            IDictionary parameters = this.InputParameters;
+
+            Type t = typeof(T);
+
+            if (t == TypeString)
+            {
+                parameters[key] = value;
+                return;
+            }
+
+            if (t.IsClass)
+            {
+                string json = JsonConvert.SerializeObject(value);
+                parameters[key] = json;
+                return;
+            }
+
+            if (t.IsValueType)
+            {
+                parameters[key] = value;
+                return;
+            }
+
+            if (t.IsEnum)
+            {
+                parameters[key] = value;
+                return;
             }
 
             throw new NotImplementedException();
