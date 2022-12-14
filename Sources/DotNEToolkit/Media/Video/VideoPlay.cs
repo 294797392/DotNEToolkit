@@ -78,6 +78,10 @@ namespace DotNEToolkit.Media.Video
 
         #endregion
 
+        #region 抽象方法
+
+        #endregion
+
         #region 实例方法
 
         /// <summary>

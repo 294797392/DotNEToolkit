@@ -35,7 +35,7 @@ namespace DotNEToolkit
             {
                 foreach (KeyValuePair<string, string> pair in headers)
                 {
-                    httpRequest.Headers[pair.Key] = pair.Value;
+                    httpRequest.Headers.Add(pair.Key, pair.Value);
                 }
             }
 
@@ -118,6 +118,13 @@ namespace DotNEToolkit
         #endregion
 
         #region Get方法
+
+        public static byte[] GetData(string url, string contentType, IEnumerable<KeyValuePair<string, string>> headers = null,
+    CookieContainer cookieContainer = null, int? timeout = null)
+        {
+            HttpWebRequest request = GetHttpRequest(url, contentType, METHOD_GET, headers, cookieContainer, timeout);
+            return SendRequest(request);
+        }
 
         public static byte[] GetData(string url, IEnumerable<KeyValuePair<string, string>> headers = null,
             CookieContainer cookieContainer = null, int? timeout = null)

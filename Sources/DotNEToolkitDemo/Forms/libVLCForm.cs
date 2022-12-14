@@ -39,7 +39,7 @@ namespace DotNEToolkitDemo.Forms
             Dictionary<string, object> settings = new Dictionary<string, object>();
 
             this.videoPlay = VideoPlayFactory.Create(VideoPlayType.libvlc);
-            this.videoPlay.Hwnd = this.Handle;
+            this.videoPlay.Hwnd = panel1.Handle;
             this.videoPlay.Initialize();
             this.videoPlay.Start();
 
@@ -104,5 +104,23 @@ namespace DotNEToolkitDemo.Forms
         }
 
         #endregion
+
+        private float factor;
+
+        // 放大
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.factor += 0.25F;
+            libvlcPlay vlcPlay = this.videoPlay as libvlcPlay;
+            libvlc.libvlc_video_set_scale(vlcPlay.libvlc_media_player, this.factor);
+        }
+
+        // 缩小
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.factor -= 0.25F;
+            libvlcPlay vlcPlay = this.videoPlay as libvlcPlay;
+            libvlc.libvlc_video_set_scale(vlcPlay.libvlc_media_player, this.factor);
+        }
     }
 }

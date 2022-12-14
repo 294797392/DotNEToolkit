@@ -136,6 +136,17 @@ namespace DotNEToolkit.SDK
         public static extern void libvlc_video_set_scale(libvlc_media_player_t player, float f_factor);
 
         /// <summary>
+        /// Get the current video scaling factor.
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns>
+        /// the currently configured zoom factor, or 0. if the video is set
+        /// to fit to the output window/drawable automatically.
+        /// </returns>
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float libvlc_video_get_scale(libvlc_media_player_t player);
+
+        /// <summary>
         /// 封装libvlc的快速播放逻辑，传递一个窗口句柄即可
         /// 带自动重连功能
         /// </summary>

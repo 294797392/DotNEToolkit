@@ -33,6 +33,11 @@ namespace DotNEToolkit.Media.Video
 
         #endregion
 
+        public IntPtr libvlc_media_player
+        {
+            get { return this.libvlc_media_player_t; }
+        }
+
         #region VideoPlay
 
         protected override int OnInitialize()
