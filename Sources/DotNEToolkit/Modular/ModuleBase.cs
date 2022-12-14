@@ -174,7 +174,9 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public T GetParameter<T>(string key, T defaultValue)
         {
-            if (!this.InputParameters.Contains(key))
+            IDictionary parameters = this.InputParameters;
+
+            if (!parameters.Contains(key))
             {
                 return defaultValue;
             }
@@ -183,23 +185,23 @@ namespace DotNEToolkit.Modular
 
             if (t == TypeString)
             {
-                return this.InputParameters.GetValue<T>(key, defaultValue);
+                return parameters.GetValue<T>(key, defaultValue);
             }
 
             if (t.IsClass)
             {
-                string json = this.InputParameters[key].ToString();
+                string json = parameters[key].ToString();
                 return JsonConvert.DeserializeObject<T>(json);
             }
 
             if (t.IsValueType)
             {
-                return this.InputParameters.GetValue<T>(key, defaultValue);
+                return parameters.GetValue<T>(key, defaultValue);
             }
 
             if (t.IsEnum)
             {
-                return this.InputParameters.GetValue<T>(key, defaultValue);
+                return parameters.GetValue<T>(key, defaultValue);
             }
 
             throw new NotImplementedException();
