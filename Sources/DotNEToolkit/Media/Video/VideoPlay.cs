@@ -66,7 +66,7 @@ namespace DotNEToolkit.Media.Video
         {
             base.OnInitialize();
 
-            this.timeout = this.GetInputValue<int>("timeout", DefaultTimeout);
+            this.timeout = this.GetParameter<int>("timeout", DefaultTimeout);
             this.videoStream = RealtimeStream.Create();
 
             return DotNETCode.SUCCESS;

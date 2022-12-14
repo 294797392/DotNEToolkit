@@ -25,6 +25,8 @@ namespace DotNEToolkit.Modular
         /// </summary>
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ModuleBase");
 
+        private static readonly Type TypeString = typeof(string);
+
         #endregion
 
         #region 公开事件
@@ -163,61 +165,44 @@ namespace DotNEToolkit.Modular
 
         #region 公开接口
 
-        public T GetInputValue<T>(string key)
-        {
-            return this.InputParameters.GetValue<T>(key);
-        }
-
         /// <summary>
-        /// 从InputParameter里读取一个对象
+        /// 读取该模块的输入参数
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public T GetInputValue<T>(string key, T defaultValue)
-        {
-            return this.InputParameters.GetValue<T>(key, defaultValue);
-        }
-
-        public T GetInputObject<T>(string key) where T : class
-        {
-            string json = this.InputParameters[key].ToString();
-            return JSONHelper.Parse<T>(json);
-        }
-
-        /// <summary>
-        /// 从InputParameter里读取一个JSON对象
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <param name="defaultObject">如果不存在该对象，那么要返回的默认值</param>
-        /// <returns></returns>
-        public T GetInputObject<T>(string key, T defaultObject) where T : class
+        public T GetParameter<T>(string key, T defaultValue)
         {
             if (!this.InputParameters.Contains(key))
             {
-                return defaultObject;
+                return defaultValue;
             }
 
-            string json = this.InputParameters[key].ToString();
-            if (string.IsNullOrEmpty(json))
+            Type t = typeof(T);
+
+            if (t == TypeString)
             {
-                return defaultObject;
+                return this.InputParameters.GetValue<T>(key, defaultValue);
             }
 
-            return JSONHelper.Parse<T>(json, defaultObject);
-        }
+            if (t.IsClass)
+            {
+                string json = this.InputParameters[key].ToString();
+                return JsonConvert.DeserializeObject<T>(json);
+            }
 
-        public void SetInputValue<T>(string key, T value)
-        {
-            this.InputParameters[key] = value;
-        }
+            if (t.IsValueType)
+            {
+                return this.InputParameters.GetValue<T>(key, defaultValue);
+            }
 
-        public void SetInputObject<T>(string key, T objact) where T : class
-        {
-            string json = JsonConvert.SerializeObject(objact);
-            this.InputParameters[key] = json;
+            if (t.IsEnum)
+            {
+                return this.InputParameters.GetValue<T>(key, defaultValue);
+            }
+
+            throw new NotImplementedException();
         }
 
         #endregion

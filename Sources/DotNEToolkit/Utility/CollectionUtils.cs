@@ -42,6 +42,15 @@ namespace DotNEToolkit
             return (T)Convert.ChangeType(value, conversionType);
         }
 
+        /// <summary>
+        /// 把字典里的数据转成对应类型的数据
+        /// 支持把枚举字符串和枚举值转换成枚举类型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="settings"></param>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         public static T GetValue<T>(this IDictionary settings, object key, T defaultValue)
         {
             Type valueType = typeof(T);

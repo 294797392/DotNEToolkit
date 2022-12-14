@@ -23,7 +23,7 @@ namespace DotNEToolkit.Media
 
         protected override int OnInitialize()
         {
-            this.format = this.GetInputValue<AVFormats>("format", AVFormats.Unkown);
+            this.format = this.GetParameter<AVFormats>("format", AVFormats.Unkown);
 
             return DotNETCode.SUCCESS;
         }

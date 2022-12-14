@@ -10,17 +10,28 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit
 {
+    /// <summary>
+    /// App清单文件
+    /// </summary>
     public abstract class AppManifest
     {
         /// <summary>
-        /// 配置文件里的所有的列表
+        /// 配置文件里的所有的模块列表
         /// </summary>
         [JsonProperty("modules")]
         public List<ModuleDefinition> ModuleList { get; private set; }
 
+        /// <summary>
+        /// 所有AppModule模块列表
+        /// 暂时没实现
+        /// </summary>
+        [JsonProperty("appModules")]
+        internal List<ModuleDefinition> AppModuleList { get; private set; }
+
         public AppManifest()
         {
             this.ModuleList = new List<ModuleDefinition>();
+            this.AppModuleList = new List<ModuleDefinition>();
         }
     }
 
@@ -47,6 +58,11 @@ namespace DotNEToolkit
         #region 属性
 
         /// <summary>
+        /// 暂时没实现
+        /// </summary>
+        internal List<AppModule<TApp, TManifest>> AppModules { get; private set; }
+
+        /// <summary>
         /// 模块工厂
         /// </summary>
         public ModuleFactory Factory { get; private set; }
@@ -57,6 +73,8 @@ namespace DotNEToolkit
         public TManifest Manifest { get; private set; }
 
         #endregion
+
+        #region 公开接口
 
         /// <summary>
         /// 初始化App
@@ -121,6 +139,7 @@ namespace DotNEToolkit
         /// <returns></returns>
         public int Initialize(TManifest manifest)
         {
+            this.AppModules = new List<AppModule<TApp, TManifest>>();
             this.Manifest = manifest;
 
             #region 加载ModuleFactory
@@ -163,6 +182,8 @@ namespace DotNEToolkit
                 return DotNETCode.FAILED;
             }
         }
+
+        #endregion
 
         #region 受保护方法
 

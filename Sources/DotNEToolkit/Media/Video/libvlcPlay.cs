@@ -120,7 +120,7 @@ namespace DotNEToolkit.Media.Video
                     throw new NotImplementedException();
             }
 
-            List<string> media_options = this.GetInputObject<List<string>>("media_options", null);
+            List<string> media_options = this.GetParameter<List<string>>("media_options", null);
             if (media_options != null)
             {
                 foreach (string option in media_options)

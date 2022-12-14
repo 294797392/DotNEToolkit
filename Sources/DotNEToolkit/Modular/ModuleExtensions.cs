@@ -33,7 +33,12 @@ namespace DotNEToolkit.Modular
             svchost = null;
 
             // demo：http://127.0.0.1:8900/demo
-            string svcUrl = webModule.GetInputValue<string>("url");
+            string svcUrl = webModule.GetParameter<string>("url", string.Empty);
+            if (string.IsNullOrEmpty(svcUrl))
+            {
+                logger.ErrorFormat("SetupWCFHttpService失败, url为空");
+                return DotNETCode.FAILED;
+            }
 
             // 建立启动WCF服务
             WebHttpBinding binding = new WebHttpBinding();

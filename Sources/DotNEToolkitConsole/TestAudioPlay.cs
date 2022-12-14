@@ -21,8 +21,8 @@ namespace DotNEToolkitConsole
             };
 
             VideoPlay videoPlay = VideoPlayFactory.Create(VideoPlayType.libvlc);
-            videoPlay.SetInputValue<AVFormats>("format", AVFormats.PCM);
-            videoPlay.SetInputObject("media_options", media_options);
+            //videoPlay.SetInputValue<AVFormats>("format", AVFormats.PCM);
+            //videoPlay.SetInputObject("media_options", media_options);
             videoPlay.Initialize();
             videoPlay.Start();
 
