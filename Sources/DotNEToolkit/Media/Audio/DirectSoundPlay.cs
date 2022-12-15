@@ -191,7 +191,7 @@ namespace DotNEToolkit.Media.Audio
                 wFormatTag = Win32API.WAVE_FORMAT_PCM
             };
 
-            this.pwfx_free = Marshals.CreateStructurePointer(this.wfx);
+            this.pwfx_free = MarshalUtils.CreateStructurePointer(this.wfx);
 
             this.dsbd = new DSBUFFERDESC()
             {

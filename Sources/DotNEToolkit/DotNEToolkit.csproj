@@ -156,7 +156,7 @@
     <Compile Include="Media\Audio\WaveAPIPlay.cs" />
     <Compile Include="Media\Audio\WaveAPIRecord.cs" />
     <Compile Include="Numberics.cs" />
-    <Compile Include="Marshals.cs" />
+    <Compile Include="Utility\MarshalUtils.cs" />
     <Compile Include="Media\Audio\AudioRecord.cs" />
     <Compile Include="Media\Audio\DirectSoundRecord.cs" />
     <Compile Include="Bindings\BindableBase.cs" />
@@ -240,7 +240,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
+      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

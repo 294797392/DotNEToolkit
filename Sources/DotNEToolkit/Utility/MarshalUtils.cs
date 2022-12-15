@@ -9,7 +9,7 @@ namespace DotNEToolkit
     /// <summary>
     /// 提供PInvoke的公共函数
     /// </summary>
-    public static class Marshals
+    public static class MarshalUtils
     {
         /// <summary>
         /// 结构体转byte数组
@@ -41,6 +41,20 @@ namespace DotNEToolkit
             {
                 Marshal.FreeHGlobal(structPtr);
             }
+        }
+
+        /// <summary>
+        /// byte数组转struct
+        /// 相当于C语言里的指针强转结构体
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bytes">要转换的byte数组</param>
+        /// <param name="structInstance">要存放结构体数据的结构体实例</param>
+        /// <returns></returns>
+        public static T Bytes2Struct<T>(byte[] bytes)
+        {
+            IntPtr structPtr = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
+            return (T)Marshal.PtrToStructure(structPtr, typeof(T));
         }
     }
 }
