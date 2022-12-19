@@ -79,7 +79,6 @@
   <ItemGroup>
     <Compile Include="BytePool.cs" />
     <Compile Include="Crypto\CRC16.cs" />
-    <Compile Include="Excels\CSV.cs" />
     <Compile Include="DataModels\ModelBaseInt.cs" />
     <Compile Include="DateTimeFormat.cs" />
     <Compile Include="DbConnectionString.cs" />
@@ -109,10 +108,9 @@
     <Compile Include="DirectSound\IDirectSoundNotify8.cs" />
     <Compile Include="DirectSound\WAVEFORMATEX.cs" />
     <Compile Include="Colors.cs" />
-    <Compile Include="Excels\Excel.cs" />
-    <Compile Include="Excels\ExcelVersions.cs" />
-    <Compile Include="Excels\ReadOptions.cs" />
-    <Compile Include="Excels\WriteOptions.cs" />
+    <Compile Include="ReadOptions.cs" />
+    <Compile Include="Utility\CSVUtils.cs" />
+    <Compile Include="WriteOptions.cs" />
     <Compile Include="Expressions\AccessMember.cs" />
     <Compile Include="Expressions\ExpressionTypes.cs" />
     <Compile Include="Expressions\MemberTypes.cs" />
@@ -156,6 +154,7 @@
     <Compile Include="Media\Audio\WaveAPIPlay.cs" />
     <Compile Include="Media\Audio\WaveAPIRecord.cs" />
     <Compile Include="Numberics.cs" />
+    <Compile Include="Utility\ExcelUtils.cs" />
     <Compile Include="Utility\MarshalUtils.cs" />
     <Compile Include="Media\Audio\AudioRecord.cs" />
     <Compile Include="Media\Audio\DirectSoundRecord.cs" />
@@ -213,7 +212,7 @@
     <Compile Include="Utility\ReflectionUtils.cs" />
     <Compile Include="SDK\libvlc.cs" />
     <Compile Include="SingletonObject.cs" />
-    <Compile Include="Excels\TableData.cs" />
+    <Compile Include="TableData.cs" />
     <Compile Include="TcpFramework\IDataResolver.cs" />
     <Compile Include="TcpFramework\NetEvent.cs" />
     <Compile Include="TcpFramework\Session.cs" />
@@ -240,7 +239,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
+      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
