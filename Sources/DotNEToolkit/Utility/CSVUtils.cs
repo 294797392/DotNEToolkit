@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DotNEToolkit
+namespace DotNEToolkit.Utility
 {
     /// <summary>
     /// 提供操作CSV格式文件的方法
     /// </summary>
-    public static class CSV
+    public static class CSVUtils
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("CSV");
 
@@ -106,7 +106,7 @@ namespace DotNEToolkit
         public static void CSV2Excel(string csvPath, string excelPath, WriteOptions options)
         {
             TableData tableData = CSVFile2TableData(csvPath);
-            Excel.TableData2Excel(excelPath, tableData, options);
+            ExcelUtils.TableData2Excel(excelPath, tableData, options);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace DotNEToolkit
         public static void CSVContent2Excel(string csvText, string excelPath, WriteOptions options)
         {
             TableData tableData = CSV2TableData(csvText);
-            Excel.TableData2Excel(excelPath, tableData, options);
+            ExcelUtils.TableData2Excel(excelPath, tableData, options);
         }
     }
 }

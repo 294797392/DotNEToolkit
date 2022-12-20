@@ -11,12 +11,25 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace DotNEToolkit
+namespace DotNEToolkit.Utility
 {
+    public enum ExcelVersions
+    {
+        /// <summary>
+        /// Excel 97 - 2003版本
+        /// </summary>
+        Xls,
+
+        /// <summary>
+        /// Excel 2007版本
+        /// </summary>
+        Xlsx
+    }
+
     /// <summary>
     /// 封装Excel文件的导入，导出功能
     /// </summary>
-    public static class Excel
+    public static class ExcelUtils
     {
         #region 类变量
 
@@ -440,7 +453,7 @@ namespace DotNEToolkit
         public static void Excel2CSV(string excelPath, string csvPath)
         {
             TableData tableData = Excel2TableData(excelPath);
-            CSV.TableData2CSV(csvPath, tableData);
+            CSVUtils.TableData2CSV(csvPath, tableData);
         }
 
         /// <summary>
