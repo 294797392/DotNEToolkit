@@ -42,7 +42,7 @@ namespace DotNEToolkit.SDK
         /// <returns>
         /// strictly positive number of bytes read, 0 on end-of-stream, or -1 on non-recoverable error
         /// </returns>
-        public delegate ulong libvlc_media_read_cb(IntPtr opaque, IntPtr buf, int len);
+        public delegate long libvlc_media_read_cb(IntPtr opaque, IntPtr buf, int len);
 
         /// <summary>
         /// Callback prototype to seek a custom bitstream input media.
@@ -124,6 +124,15 @@ namespace DotNEToolkit.SDK
                                                                         libvlc_media_seek_cb seek_cb,
                                                                         libvlc_media_close_cb close_cb,
                                                                         IntPtr opaque);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern libvlc_media_t libvlc_media_new_callbacks(libvlc_instance_t instance,
+                                                                IntPtr open_cb,
+                                                                IntPtr read_cb,
+                                                                IntPtr seek_cb,
+                                                                IntPtr close_cb,
+                                                                IntPtr opaque);
+
 
         /// <summary>
         /// Set the video scaling factor。

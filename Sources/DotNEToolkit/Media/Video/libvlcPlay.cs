@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DotNEToolkit.Media.Video
 {
     /// <summary>
     /// 封装vlc视频播放器
+    /// 调用libvlc_media_player_stop的时候libvlc_media_read_cb必须返回-1，不然会发生死锁现象
     /// </summary>
     public class libvlcPlay : VideoPlay
     {
@@ -59,6 +61,7 @@ namespace DotNEToolkit.Media.Video
 
         public override int Start()
         {
+            this.videoStream.IsClosed = false;
             this.libvlc_instance_t = libvlc.libvlc_new(0, IntPtr.Zero);
             this.libvlc_media_t = libvlc.libvlc_media_new_callbacks(libvlc_instance_t, this.libvlc_media_open_func, this.libvlc_media_read_func, this.libvlc_media_seek_func, this.libvlc_media_close_func, IntPtr.Zero);
             this.AddVlcOptions(this.libvlc_media_t);
@@ -71,24 +74,14 @@ namespace DotNEToolkit.Media.Video
 
         public override void Stop()
         {
-            if (this.libvlc_media_t != IntPtr.Zero)
-            {
-                libvlc.libvlc_media_release(this.libvlc_media_t);
-                this.libvlc_media_t = IntPtr.Zero;
-            }
-
-            if (this.libvlc_media_player_t != IntPtr.Zero)
-            {
-                libvlc.libvlc_media_player_stop(this.libvlc_media_player_t);
-                libvlc.libvlc_media_player_release(this.libvlc_media_player_t);
-                this.libvlc_media_player_t = IntPtr.Zero;
-            }
-
-            if (this.libvlc_instance_t != IntPtr.Zero)
-            {
-                libvlc.libvlc_release(this.libvlc_instance_t);
-                this.libvlc_instance_t = IntPtr.Zero;
-            }
+            this.videoStream.IsClosed = true;
+            libvlc.libvlc_media_release(this.libvlc_media_t);
+            this.libvlc_media_t = IntPtr.Zero;
+            libvlc.libvlc_media_player_stop(this.libvlc_media_player_t);
+            libvlc.libvlc_media_player_release(this.libvlc_media_player_t);
+            this.libvlc_media_player_t = IntPtr.Zero;
+            libvlc.libvlc_release(this.libvlc_instance_t);
+            this.libvlc_instance_t = IntPtr.Zero;
         }
 
         #endregion
@@ -151,7 +144,25 @@ namespace DotNEToolkit.Media.Video
             return 0;
         }
 
-        private ulong libvlc_media_read_cb(IntPtr opaque, IntPtr buf, int len)
+        /**
+         * Callback prototype to read data from a custom bitstream input media.
+         *
+         * \param opaque private pointer as set by the @ref libvlc_media_open_cb
+         *               callback
+         * \param buf start address of the buffer to read data into
+         * \param len bytes length of the buffer
+         *
+         * \return strictly positive number of bytes read, 0 on end-of-stream,
+         *         or -1 on non-recoverable error
+         *
+         * \note If no data is immediately available, then the callback should sleep.
+         * \warning The application is responsible for avoiding deadlock situations.
+         * In particular, the callback should return an error if playback is stopped;
+         * if it does not return, then libvlc_media_player_stop() will never return.
+         * 
+         * 调用libvlc_media_player_stop的时候libvlc_media_read_cb必须返回-1，不然会发生死锁现象
+         */
+        private long libvlc_media_read_cb(IntPtr opaque, IntPtr buf, int len)
         {
             //logger.InfoFormat("libvlc_media_read_cb, byteSize = {0}", len);
 
@@ -159,12 +170,13 @@ namespace DotNEToolkit.Media.Video
             if (!this.videoStream.Read(len, this.timeout, out videoBytes))
             {
                 // 返回0表示end-of-stream
-                this.NotifyStatusChanged(MediaPlayStatus.Timeout);
-                return 0;
+                //this.NotifyStatusChanged(MediaPlayStatus.Timeout);
+                logger.InfoFormat("libvlc_media_read_cb 返回 -1, Read timeout");
+                return -1;
             }
 
             Marshal.Copy(videoBytes, 0, buf, videoBytes.Length);
-            return (ulong)videoBytes.Length;
+            return videoBytes.Length;
         }
 
         private int libvlc_media_seek_cb(IntPtr opaque, ulong offset)

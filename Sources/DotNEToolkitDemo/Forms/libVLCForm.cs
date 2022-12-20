@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -36,28 +37,6 @@ namespace DotNEToolkitDemo.Forms
 
         private void InitializeForm()
         {
-            Dictionary<string, object> settings = new Dictionary<string, object>();
-
-            this.videoPlay = VideoPlayFactory.Create(VideoPlayType.libvlc);
-            this.videoPlay.Hwnd = panel1.Handle;
-            this.videoPlay.Initialize();
-            this.videoPlay.Start();
-
-            this.h264Stream = new FileStream("h264", FileMode.Open, FileAccess.Read);
-
-            Task.Factory.StartNew(() => 
-            {
-                while (true)
-                {
-                    byte[] buffer = new byte[163840];
-                    int len = this.h264Stream.Read(buffer, 0, buffer.Length);
-                    if (len == 0)
-                    {
-                        break;
-                    }
-                    this.videoPlay.Write(buffer);
-                }
-            });
 
             //this.libvlc_media_open_func = new libvlc.libvlc_media_open_cb(this.libvlc_media_open_cb);
             //this.libvlc_media_close_func = new libvlc.libvlc_media_close_cb(this.libvlc_media_close_cb);
@@ -121,6 +100,39 @@ namespace DotNEToolkitDemo.Forms
             this.factor -= 0.25F;
             libvlcPlay vlcPlay = this.videoPlay as libvlcPlay;
             libvlc.libvlc_video_set_scale(vlcPlay.libvlc_media_player, this.factor);
+        }
+
+        private bool isRunning = false;
+        Task task = null;
+
+        private void ButtonStart_Click(object sender, EventArgs e)
+        {
+            Dictionary<string, object> settings = new Dictionary<string, object>();
+
+            this.videoPlay = VideoPlayFactory.Create(VideoPlayType.libvlc);
+            this.videoPlay.Hwnd = panel1.Handle;
+            this.videoPlay.Initialize();
+            this.videoPlay.Start();
+
+            byte[] videoBytes = File.ReadAllBytes("h264");
+            this.isRunning = true;
+
+            task = Task.Factory.StartNew(() =>
+            {
+                while (isRunning)
+                {
+                    this.videoPlay.Write(videoBytes);
+                    Thread.Sleep(1000);
+                }
+            });
+
+        }
+
+        private void ButtonStop_Click(object sender, EventArgs e)
+        {
+            this.isRunning = false;
+            task.Wait();
+            this.videoPlay.Stop();
         }
     }
 }

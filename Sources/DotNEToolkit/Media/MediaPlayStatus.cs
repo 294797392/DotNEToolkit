@@ -8,11 +8,11 @@ namespace DotNEToolkit.Media
 {
     public enum MediaPlayStatus
     {
-        /// <summary>
-        /// 播放超时
-        /// 播放在线音视频的时候触发
-        /// </summary>
-        Timeout,
+        ///// <summary>
+        ///// 播放超时
+        ///// 播放在线音视频的时候触发
+        ///// </summary>
+        //Timeout,
 
         /// <summary>
         /// 播放结束

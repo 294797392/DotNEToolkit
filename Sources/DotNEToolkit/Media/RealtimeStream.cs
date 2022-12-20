@@ -9,6 +9,16 @@ namespace DotNEToolkit.Media
 {
     internal abstract class RealtimeStream
     {
+        /// <summary>
+        /// 当前的数据大小
+        /// </summary>
+        public abstract int Size { get; }
+
+        /// <summary>
+        /// 流是否被关闭
+        /// </summary>
+        internal bool IsClosed { get; set; }
+
         #region 抽象接口
 
         /// <summary>
@@ -34,6 +44,11 @@ namespace DotNEToolkit.Media
         /// <param name="buffer"></param>
         internal abstract void Write(byte[] buffer);
 
+        /// <summary>
+        /// 清空缓冲区中的所有数据
+        /// </summary>
+        internal abstract void Clear();
+
         #endregion
 
         #region 公开接口
@@ -51,7 +66,7 @@ namespace DotNEToolkit.Media
 
             int timeoutRemain = timeout;
 
-            while (timeoutRemain > 0)
+            while (timeoutRemain > 0 && !this.IsClosed)
             {
                 if (!this.Read(requestSize, out buffer))
                 {
@@ -82,6 +97,8 @@ namespace DotNEToolkit.Media
         private List<byte> bufferList;
 
         #endregion
+
+        public override int Size => this.bufferList.Count;
 
         #region 构造方法
 
@@ -142,6 +159,14 @@ namespace DotNEToolkit.Media
             lock (this.bufferLock)
             {
                 this.bufferList.AddRange(buffer);
+            }
+        }
+
+        internal override void Clear()
+        {
+            lock (this.bufferLock)
+            {
+                this.bufferList.Clear();
             }
         }
 

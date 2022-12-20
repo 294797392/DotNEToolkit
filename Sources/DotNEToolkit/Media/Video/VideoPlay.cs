@@ -25,11 +25,11 @@ namespace DotNEToolkit.Media.Video
         /// </summary>
         private const int DefaultTimeout = 5000;
 
-        /// <summary>
-        /// 视频播放超时
-        /// 当播放的是实时流的时候，才可能会触发这个事件
-        /// </summary>
-        public const int EV_TIMEOUT = 1;
+        ///// <summary>
+        ///// 视频播放超时
+        ///// 当播放的是实时流的时候，才可能会触发这个事件
+        ///// </summary>
+        //public const int EV_TIMEOUT = 1;
 
         /// <summary>
         /// 视频播放结束
@@ -55,6 +55,7 @@ namespace DotNEToolkit.Media.Video
 
         /// <summary>
         /// 渲染视频的窗口句柄
+        /// 音频写Inptr.Zero
         /// </summary>
         public IntPtr Hwnd { get; set; }
 

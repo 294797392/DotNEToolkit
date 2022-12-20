@@ -32,6 +32,8 @@ namespace DotNEToolkitDemo.Forms
             this.panel1 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.ButtonStart = new System.Windows.Forms.Button();
+            this.ButtonStop = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // panel1
@@ -61,14 +63,36 @@ namespace DotNEToolkitDemo.Forms
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // ButtonStart
+            // 
+            this.ButtonStart.Location = new System.Drawing.Point(224, 348);
+            this.ButtonStart.Name = "ButtonStart";
+            this.ButtonStart.Size = new System.Drawing.Size(84, 26);
+            this.ButtonStart.TabIndex = 3;
+            this.ButtonStart.Text = "开始播放";
+            this.ButtonStart.UseVisualStyleBackColor = true;
+            this.ButtonStart.Click += new System.EventHandler(this.ButtonStart_Click);
+            // 
+            // ButtonStop
+            // 
+            this.ButtonStop.Location = new System.Drawing.Point(327, 348);
+            this.ButtonStop.Name = "ButtonStop";
+            this.ButtonStop.Size = new System.Drawing.Size(84, 26);
+            this.ButtonStop.TabIndex = 4;
+            this.ButtonStop.Text = "结束播放";
+            this.ButtonStop.UseVisualStyleBackColor = true;
+            this.ButtonStop.Click += new System.EventHandler(this.ButtonStop_Click);
+            // 
             // libVLCForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.ButtonStop);
+            this.Controls.Add(this.ButtonStart);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.panel1);
             this.Name = "libVLCForm";
             this.Text = "libVLCForm";
             this.ResumeLayout(false);
@@ -80,5 +104,7 @@ namespace DotNEToolkitDemo.Forms
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button ButtonStart;
+        private System.Windows.Forms.Button ButtonStop;
     }
 }
