@@ -35,10 +35,14 @@ namespace DotNEToolkit.Media.Video
 
         #endregion
 
+        #region 属性
+
         public IntPtr libvlc_media_player
         {
             get { return this.libvlc_media_player_t; }
         }
+
+        #endregion
 
         #region VideoPlay
 
@@ -66,8 +70,15 @@ namespace DotNEToolkit.Media.Video
             this.libvlc_media_t = libvlc.libvlc_media_new_callbacks(libvlc_instance_t, this.libvlc_media_open_func, this.libvlc_media_read_func, this.libvlc_media_seek_func, this.libvlc_media_close_func, IntPtr.Zero);
             this.AddVlcOptions(this.libvlc_media_t);
             this.libvlc_media_player_t = libvlc.libvlc_media_player_new_from_media(libvlc_media_t);
-            libvlc.libvlc_media_player_set_hwnd(libvlc_media_player_t, this.Hwnd);
-            libvlc.libvlc_media_player_play(libvlc_media_player_t);
+            libvlc.libvlc_media_player_set_hwnd(this.libvlc_media_player_t, this.Hwnd);
+            libvlc.libvlc_media_player_play(this.libvlc_media_player_t);
+
+            // 注意这里如果句柄是空的，那么不能禁用
+            // 空句柄表示桌面，如果禁用，那么桌面以及桌面下的所有子控件都会被禁用...
+            if (this.Hwnd != IntPtr.Zero)
+            {
+                libvlcHelper.EnableMouseEvent(this.Hwnd, 2000);
+            }
 
             return DotNETCode.SUCCESS;
         }

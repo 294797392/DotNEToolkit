@@ -1,4 +1,5 @@
-﻿using DotNEToolkit.Media;
+﻿using DotNEToolkit;
+using DotNEToolkit.Media;
 using DotNEToolkit.Media.Video;
 using DotNEToolkit.SDK;
 using System;
@@ -37,7 +38,7 @@ namespace DotNEToolkitDemo.Forms
 
         private void InitializeForm()
         {
-
+            panel1.Padding = new Padding(20);
             //this.libvlc_media_open_func = new libvlc.libvlc_media_open_cb(this.libvlc_media_open_cb);
             //this.libvlc_media_close_func = new libvlc.libvlc_media_close_cb(this.libvlc_media_close_cb);
             //this.libvlc_media_read_func = new libvlc.libvlc_media_read_cb(this.libvlc_media_read_cb);
@@ -125,7 +126,6 @@ namespace DotNEToolkitDemo.Forms
                     Thread.Sleep(1000);
                 }
             });
-
         }
 
         private void ButtonStop_Click(object sender, EventArgs e)
@@ -133,6 +133,61 @@ namespace DotNEToolkitDemo.Forms
             this.isRunning = false;
             task.Wait();
             this.videoPlay.Stop();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Bitmap bitmap = new Bitmap(200, 400);
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.DrawString("123456", this.Font, Brushes.Red, PointF.Empty);
+                bitmap.Save("5.png", System.Drawing.Imaging.ImageFormat.Png);
+            }
+
+            libvlcPlay vlcPlay = this.videoPlay as libvlcPlay;
+            byte[] value = Encoding.ASCII.GetBytes("5.png");
+            libvlc.libvlc_video_set_logo_string(vlcPlay.libvlc_media_player, (uint)libvlc.libvlc_video_logo_option_t.libvlc_logo_file, value);
+            libvlc.libvlc_video_set_logo_int(vlcPlay.libvlc_media_player, (uint)libvlc.libvlc_video_logo_option_t.libvlc_logo_enable, 1);
+            libvlc.libvlc_video_set_logo_int(vlcPlay.libvlc_media_player, (uint)libvlc.libvlc_video_logo_option_t.libvlc_logo_x, 100);
+            libvlc.libvlc_video_set_logo_int(vlcPlay.libvlc_media_player, (uint)libvlc.libvlc_video_logo_option_t.libvlc_logo_y, 100);
+        }
+
+        private void panel1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("panel1被点击");
+        }
+
+        private void ButtonEnumChildWindow_Click(object sender, EventArgs e)
+        {
+            UserControl1 uc = new UserControl1() { Width = 100, Height = 100, Text = "阿苏京东会员奥斯卡接电话卡死华东科技啊是" };
+            //Button uc = new Button() { Width = 100, Height = 100 };
+            this.Controls.Add(uc);
+            uc.BringToFront();
+            uc.Location = new Point(300, 300);
+
+            //label1.Location = new Point(300, 300);
+            //label1.BackColor = Color.Transparent;
+
+            //Label l = new Label();
+            //l.Text = "hello vlcdwqewe空数据啊好的喀什的控件啊还是肯德基安徽省考就或多或少 好的卡就是华东科技啊是好";
+            //l.ForeColor = Color.Red;
+            //l.Size = new Size(200, 200);
+            //panel1.Controls.Add(l);
+            //l.BringToFront();
+
+            //WinUser.SetParent(l.Handle, this.lastChild);
+        }
+
+        private void buttonSetMarquueText_Click(object sender, EventArgs e)
+        {
+            //string text = "123456";
+            string text = "你好\r\n你好2\r\n你好3";
+
+            libvlcPlay vlcPlay = this.videoPlay as libvlcPlay;
+            libvlc.libvlc_video_set_marquee_string(vlcPlay.libvlc_media_player, (uint)libvlc.libvlc_video_marquee_option_t.libvlc_marquee_Text, Encoding.UTF8.GetBytes(text));
+            libvlc.libvlc_video_set_marquee_int(vlcPlay.libvlc_media_player, (uint)libvlc.libvlc_video_marquee_option_t.libvlc_marquee_Enable, 1);
+            libvlc.libvlc_video_set_marquee_int(vlcPlay.libvlc_media_player, (uint)libvlc.libvlc_video_marquee_option_t.libvlc_marquee_Size, 50);
+            libvlc.libvlc_video_set_marquee_int(vlcPlay.libvlc_media_player, (uint)libvlc.libvlc_video_marquee_option_t.libvlc_marquee_Color, 0x4C9900);
         }
     }
 }

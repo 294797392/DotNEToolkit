@@ -530,11 +530,6 @@ namespace DotNEToolkit
         [DllImport("user32", EntryPoint = "GetDesktopWindow")]
         public static extern IntPtr GetDesktopWindow();
 
-        public delegate bool WNDENUMPROC(IntPtr hwnd, int lParam);
-
-        [DllImport("user32.dll")]
-        public static extern int EnumChildWindows(IntPtr hWndParent, WNDENUMPROC lpEnumProc, int lParam);
-
         [DllImport("User32.dll")]
         public static extern bool GetCursorPos(out POINT p);
 
@@ -849,6 +844,12 @@ namespace DotNEToolkit
     {
         private const string User32Dll = "User32.dll";
 
+        #region 委托
+
+        public delegate bool WNDENUMPROC(IntPtr hwnd, int lParam);
+
+        #endregion
+
         [StructLayout(LayoutKind.Sequential)]
         public struct DEV_BROADCAST_HDR
         {
@@ -892,6 +893,15 @@ namespace DotNEToolkit
         /// <returns></returns>
         [DllImport(User32Dll, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool UnregisterDeviceNotification(IntPtr Handle);
+
+        [DllImport(User32Dll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void EnableWindow(IntPtr hwnd, bool enable);
+
+        [DllImport(User32Dll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
+        [DllImport("user32.dll")]
+        public static extern int EnumChildWindows(IntPtr hWndParent, WNDENUMPROC lpEnumProc, int lParam);
     }
 
     /// <summary>

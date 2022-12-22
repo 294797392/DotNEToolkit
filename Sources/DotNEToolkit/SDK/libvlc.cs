@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DotNEToolkit.SDK
 {
@@ -11,6 +12,10 @@ namespace DotNEToolkit.SDK
     using libvlc_instance_t = IntPtr;
     using libvlc_media_player_t = IntPtr;
 
+    /// <summary>
+    /// 参考：
+    /// https://wiki.videolan.org/Documentation:Modules/marq/
+    /// </summary>
     public static class libvlc
     {
         private const string libvlcDll = "libvlc.dll";
@@ -72,8 +77,38 @@ namespace DotNEToolkit.SDK
             libvlc_Error
         }
 
+        public enum libvlc_video_logo_option_t
+        {
+            libvlc_logo_enable,
+            libvlc_logo_file,           /**< string argument, "file,d,t;file,d,t;..." */
+            libvlc_logo_x,
+            libvlc_logo_y,
+            libvlc_logo_delay,
+            libvlc_logo_repeat,
+            libvlc_logo_opacity,
+            libvlc_logo_position
+        }
+
+        /// <summary>
+        /// 每个枚举的使用方式参考：
+        /// https://wiki.videolan.org/Documentation:Modules/marq/
+        /// </summary>
+        public enum libvlc_video_marquee_option_t
+        {
+            libvlc_marquee_Enable = 0,
+            libvlc_marquee_Text,                  /** string argument */
+            libvlc_marquee_Color,
+            libvlc_marquee_Opacity,
+            libvlc_marquee_Position,
+            libvlc_marquee_Refresh,
+            libvlc_marquee_Size,
+            libvlc_marquee_Timeout,
+            libvlc_marquee_X,
+            libvlc_marquee_Y
+        }
+
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern libvlc_state_t libvlc_media_get_state(IntPtr p_md);
+        public static extern libvlc_state_t libvlc_media_get_state(libvlc_media_player_t p_md);
 
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern libvlc_instance_t libvlc_new(int argc, IntPtr argv);
@@ -156,54 +191,102 @@ namespace DotNEToolkit.SDK
         public static extern float libvlc_video_get_scale(libvlc_media_player_t player);
 
         /// <summary>
-        /// 封装libvlc的快速播放逻辑，传递一个窗口句柄即可
-        /// 带自动重连功能
+        /// 
         /// </summary>
-        /// <param name="drawable"></param>
-        public static void QuickPlay(string uri, IntPtr drawable)
+        /// <param name="p_mi"></param>
+        /// <param name="option"></param>
+        /// <param name="psz_value">utf8格式的字符串</param>
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libvlc_video_set_logo_string(libvlc_media_player_t p_mi, uint option, byte[] psz_value);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libvlc_video_set_logo_int(libvlc_media_player_t p_mi, uint option, int value);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libvlc_video_set_marquee_string(libvlc_media_player_t p_mi, uint option, byte[] psz_text);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libvlc_video_set_marquee_int(libvlc_media_player_t p_mi, uint option, int i_val);
+    }
+
+    public static class libvlcHelper
+    {
+        private static bool vlcChildWindowCallback(IntPtr hwnd, int lParam)
         {
-            IntPtr vlcPtr = libvlc.libvlc_new(0, IntPtr.Zero);
+            Console.WriteLine(hwnd);
 
-            IntPtr vlcMediaPtr = libvlc.libvlc_media_new_location(vlcPtr, uri);
-            IntPtr vlcMediaPlayerPtr = libvlc.libvlc_media_player_new_from_media(vlcMediaPtr);
-            libvlc.libvlc_media_player_set_hwnd(vlcMediaPlayerPtr, drawable);
+            WinUser.EnableWindow(hwnd, false);
 
-            System.Threading.Tasks.Task.Factory.StartNew(() =>
+            WinUser.EnumChildWindows(hwnd, vlcChildWindowCallback, lParam);
+
+            return true;
+        }
+
+
+        /// <summary>
+        /// 解决无法响应鼠标事件的问题
+        /// </summary>
+        /// <param name="hwnd">传递给vlc的视频播放窗口</param>
+        /// <param name="delay">对窗口进行枚举的延时时间</param>
+        public static void EnableMouseEvent(IntPtr hwnd, int delay)
+        {
+            Task.Factory.StartNew(() => 
             {
-                while (true)
-                {
-                    libvlc_state_t state = libvlc_media_get_state(vlcMediaPtr);
+                Thread.Sleep(delay);
 
-                    //Console.WriteLine("vlc_state = {0}", state);
-
-                    switch (state)
-                    {
-                        case libvlc_state_t.libvlc_Stopped:
-                        case libvlc_state_t.libvlc_NothingSpecial:
-                        case libvlc_state_t.libvlc_Error:
-                            {
-                                libvlc_media_player_stop(vlcMediaPlayerPtr);
-                                libvlc.libvlc_media_player_play(vlcMediaPlayerPtr);
-                                break;
-                            }
-
-                        case libvlc_state_t.libvlc_Ended:
-                            {
-                                // 停止和刷新控件
-                                libvlc_media_player_stop(vlcMediaPlayerPtr);
-                                Win32API.UpdateWindow(drawable);
-                                break;
-                            }
-
-                        default:
-                            {
-                                break;
-                            }
-                    }
-
-                    Thread.Sleep(1000);
-                }
+                WinUser.EnumChildWindows(hwnd, vlcChildWindowCallback, 0);
             });
         }
+
+        ///// <summary>
+        ///// 封装libvlc的快速播放逻辑，传递一个窗口句柄即可
+        ///// 带自动重连功能
+        ///// </summary>
+        ///// <param name="drawable"></param>
+        //public static void QuickPlay(string uri, IntPtr drawable)
+        //{
+        //    IntPtr vlcPtr = libvlc.libvlc_new(0, IntPtr.Zero);
+
+        //    IntPtr vlcMediaPtr = libvlc.libvlc_media_new_location(vlcPtr, uri);
+        //    IntPtr vlcMediaPlayerPtr = libvlc.libvlc_media_player_new_from_media(vlcMediaPtr);
+        //    libvlc.libvlc_media_player_set_hwnd(vlcMediaPlayerPtr, drawable);
+
+        //    System.Threading.Tasks.Task.Factory.StartNew(() =>
+        //    {
+        //        while (true)
+        //        {
+        //            libvlc_state_t state = libvlc_media_get_state(vlcMediaPtr);
+
+        //            //Console.WriteLine("vlc_state = {0}", state);
+
+        //            switch (state)
+        //            {
+        //                case libvlc_state_t.libvlc_Stopped:
+        //                case libvlc_state_t.libvlc_NothingSpecial:
+        //                case libvlc_state_t.libvlc_Error:
+        //                    {
+        //                        libvlc_media_player_stop(vlcMediaPlayerPtr);
+        //                        libvlc.libvlc_media_player_play(vlcMediaPlayerPtr);
+        //                        break;
+        //                    }
+
+        //                case libvlc_state_t.libvlc_Ended:
+        //                    {
+        //                        // 停止和刷新控件
+        //                        libvlc_media_player_stop(vlcMediaPlayerPtr);
+        //                        Win32API.UpdateWindow(drawable);
+        //                        break;
+        //                    }
+
+        //                default:
+        //                    {
+        //                        break;
+        //                    }
+        //            }
+
+        //            Thread.Sleep(1000);
+        //        }
+        //    });
+        //}
     }
 }

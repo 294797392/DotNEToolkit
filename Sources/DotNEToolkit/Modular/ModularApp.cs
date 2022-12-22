@@ -111,8 +111,6 @@ namespace DotNEToolkit
                 return DotNETCode.FILE_NOT_FOUND;
             }
 
-            this.configPath = configFile;
-
             #region 加载配置文件
 
             TManifest manifest = default(TManifest);
@@ -129,16 +127,18 @@ namespace DotNEToolkit
 
             #endregion
 
-            return this.Initialize(manifest);
+            return this.Initialize(configFile, manifest);
         }
 
         /// <summary>
         /// 使用AppManifest的实例初始化App
         /// </summary>
+        /// <param name="configFile">指定配置文件的完整路径，当调用SaveManifest的时候，将会使用该路径进行保存</param>
         /// <param name="manifest"></param>
         /// <returns></returns>
-        public int Initialize(TManifest manifest)
+        public int Initialize(string configFile, TManifest manifest)
         {
+            this.configPath = configFile;
             this.AppModules = new List<AppModule<TApp, TManifest>>();
             this.Manifest = manifest;
 
