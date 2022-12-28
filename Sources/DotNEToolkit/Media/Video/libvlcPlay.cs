@@ -77,7 +77,7 @@ namespace DotNEToolkit.Media.Video
             // 空句柄表示桌面，如果禁用，那么桌面以及桌面下的所有子控件都会被禁用...
             if (this.Hwnd != IntPtr.Zero)
             {
-                libvlcHelper.EnableMouseEvent(this.Hwnd, 2000);
+                libvlcHelper.EnableMouseEvent(this.Hwnd, 5000);
             }
 
             return DotNETCode.SUCCESS;
@@ -85,6 +85,11 @@ namespace DotNEToolkit.Media.Video
 
         public override void Stop()
         {
+            if (this.libvlc_media_player_t == IntPtr.Zero)
+            {
+                logger.ErrorFormat("libvlc_media_player_t是空的也关闭了");
+            }
+
             this.videoStream.IsClosed = true;
             libvlc.libvlc_media_release(this.libvlc_media_t);
             this.libvlc_media_t = IntPtr.Zero;
@@ -137,6 +142,11 @@ namespace DotNEToolkit.Media.Video
                     libvlc.libvlc_media_add_option(libvlc_media_t, option);
                 }
             }
+        }
+
+        private void DrawOSD()
+        {
+            
         }
 
         #endregion

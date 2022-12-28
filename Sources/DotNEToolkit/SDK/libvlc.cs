@@ -227,7 +227,8 @@ namespace DotNEToolkit.SDK
         /// 解决无法响应鼠标事件的问题
         /// </summary>
         /// <param name="hwnd">传递给vlc的视频播放窗口</param>
-        /// <param name="delay">对窗口进行枚举的延时时间</param>
+        /// <param name="delay">
+        /// 等待libvlc创建视频渲染窗口的延时时间</param>
         public static void EnableMouseEvent(IntPtr hwnd, int delay)
         {
             Task.Factory.StartNew(() => 

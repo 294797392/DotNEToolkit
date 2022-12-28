@@ -52,7 +52,7 @@ namespace DotNEToolkit
 
         #region Post方法
 
-        public static byte[] PostData(string url, byte[] content, string contentType,
+        public static byte[] PostData(string url, byte[] content, string contentType, out HttpStatusCode statusCode,
             IEnumerable<KeyValuePair<string, string>> headers = null, CookieContainer cookieContainer = null, int? timeout = null)
         {
             HttpWebRequest httpRequest = GetHttpRequest(url, contentType, METHOD_POST, headers, cookieContainer, timeout);
@@ -67,7 +67,7 @@ namespace DotNEToolkit
                 httpRequest.ContentLength = 0;
             }
 
-            return SendRequest(httpRequest);
+            return SendRequest(httpRequest, out statusCode);
         }
 
         public static string PostDataEx(string url, byte[] content, string contentType,
@@ -181,6 +181,53 @@ namespace DotNEToolkit
         {
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             {
+                if (response.Headers[HttpResponseHeader.TransferEncoding] == "chunked")
+                {
+                    // 读取chunked数据
+
+                    List<byte> result = new List<byte>();
+
+                    using (Stream responseStream = response.GetResponseStream())
+                    {
+                        while (true)
+                        {
+                            int readed;
+                            byte[] buffer = ReadFull(responseStream, BufferLen, out readed);
+                            if (readed == 0)
+                            {
+                                return result.ToArray();
+                            }
+                            else if (readed < BufferLen)
+                            {
+                                byte[] full = new byte[readed];
+                                Array.Copy(buffer, full, readed);
+                                result.AddRange(full);
+                                return result.ToArray();
+                            }
+                            else
+                            {
+                                result.AddRange(buffer);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    using (Stream responseStream = response.GetResponseStream())
+                    {
+                        int readed;
+                        return ReadFull(responseStream, (int)response.ContentLength, out readed);
+                    }
+                }
+            }
+        }
+
+        private static byte[] SendRequest(HttpWebRequest request, out HttpStatusCode statusCode)
+        {
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            {
+                statusCode = response.StatusCode;
+
                 if (response.Headers[HttpResponseHeader.TransferEncoding] == "chunked")
                 {
                     // 读取chunked数据
