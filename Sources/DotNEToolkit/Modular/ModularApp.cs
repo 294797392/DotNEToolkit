@@ -117,11 +117,11 @@ namespace DotNEToolkit
 
             try
             {
-                manifest = JSONHelper.ParseFile<TManifest>(configPath);
+                manifest = JSONHelper.ParseFile<TManifest>(configFile);
             }
             catch (Exception ex)
             {
-                logger.Error(string.Format("解析App配置文件异常, {0}", configPath), ex);
+                logger.Error(string.Format("解析App配置文件异常, {0}", configFile), ex);
                 return DotNETCode.PARSE_CONFIG_FAILED;
             }
 
