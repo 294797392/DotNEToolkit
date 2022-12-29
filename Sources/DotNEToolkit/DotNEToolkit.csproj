@@ -206,7 +206,7 @@
     <Compile Include="MouseScanner.cs" />
     <Compile Include="ObjectCast.cs" />
     <Compile Include="Parallel.cs" />
-    <Compile Include="Processes.cs" />
+    <Compile Include="Utility\ProcessUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DotNETCode.cs" />
     <Compile Include="Utility\ReflectionUtils.cs" />
@@ -239,7 +239,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
+      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

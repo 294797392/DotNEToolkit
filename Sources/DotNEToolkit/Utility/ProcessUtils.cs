@@ -10,9 +10,9 @@ namespace DotNEToolkit
     /// <summary>
     /// 提供进程相关的帮助函数
     /// </summary>
-    public static class Processes
+    public static class ProcessUtils
     {
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("Processes");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("ProcessUtils");
 
         /// <summary>
         /// 等待某个进程的主窗口句柄创建成功

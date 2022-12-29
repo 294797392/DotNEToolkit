@@ -66,7 +66,15 @@ namespace DotNEToolkit.Media.Video
         public override int Start()
         {
             this.videoStream.IsClosed = false;
-            this.libvlc_instance_t = libvlc.libvlc_new(0, IntPtr.Zero);
+
+            int argc = 1;
+            string[] argv = new string[]
+            {
+                "--clock-synchro=0"
+            };
+            IntPtr argvPtr = Marshal.UnsafeAddrOfPinnedArrayElement(argv, 0);
+
+            this.libvlc_instance_t = libvlc.libvlc_new(argc, argvPtr);
             this.libvlc_media_t = libvlc.libvlc_media_new_callbacks(libvlc_instance_t, this.libvlc_media_open_func, this.libvlc_media_read_func, this.libvlc_media_seek_func, this.libvlc_media_close_func, IntPtr.Zero);
             this.AddVlcOptions(this.libvlc_media_t);
             this.libvlc_media_player_t = libvlc.libvlc_media_player_new_from_media(libvlc_media_t);

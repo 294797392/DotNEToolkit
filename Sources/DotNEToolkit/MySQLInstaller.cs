@@ -125,7 +125,7 @@ namespace DotNEToolkit
             Process process = null;
             try
             {
-                process = Processes.CreateProcess(this.mysqldPath, "--initialize");
+                process = ProcessUtils.CreateProcess(this.mysqldPath, "--initialize");
                 process.WaitForExit();      // 等待数据库初始化完
             }
             catch (Exception ex)
@@ -229,7 +229,7 @@ namespace DotNEToolkit
 
             try
             {
-                process = Processes.CreateProcess(this.mysqldPath, command);
+                process = ProcessUtils.CreateProcess(this.mysqldPath, command);
 
                 while (!process.StandardOutput.EndOfStream)
                 {
