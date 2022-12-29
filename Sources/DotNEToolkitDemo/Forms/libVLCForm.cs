@@ -110,20 +110,41 @@ namespace DotNEToolkitDemo.Forms
         {
             Dictionary<string, object> settings = new Dictionary<string, object>();
 
+            string[] argv = new string[] { "verbose=2", "--verbose=2" };
+
+            List<string> media_options = new List<string>()
+                        {
+                            "demux=h264",
+                            "verbose=2"
+                            //"h264-fps=5"
+                            //"codec=ffmpeg"
+                        };
+
             this.videoPlay = VideoPlayFactory.Create(VideoPlayType.libvlc);
             this.videoPlay.Hwnd = panel1.Handle;
+            this.videoPlay.SetParameter<string[]>("argv", argv);
+            this.videoPlay.SetParameter<AVFormats>("format", AVFormats.H264);
+            this.videoPlay.SetParameter<int>("timeout", 999999);
+            this.videoPlay.SetParameter<List<string>>("media_options", media_options);
             this.videoPlay.Initialize();
             this.videoPlay.Start();
 
-            byte[] videoBytes = File.ReadAllBytes("h264");
+            byte[] videoBytes = File.ReadAllBytes("test");
             this.isRunning = true;
 
             task = Task.Factory.StartNew(() =>
             {
+                int i = 0;
                 while (isRunning)
                 {
-                    this.videoPlay.Write(videoBytes);
-                    Thread.Sleep(1000);
+                    this.videoPlay.Write(videoBytes, 0, videoBytes.Length);
+                    Thread.Sleep(10000);
+                    //i += 4096;
+                    //if (i >= videoBytes.Length)
+                    //{
+                    //    i = 0;
+                    //}
+                    Console.WriteLine("写数据");
                 }
             });
         }

@@ -89,9 +89,9 @@ namespace DotNEToolkit.Media.Video
         /// 写入媒体数据
         /// </summary>
         /// <param name="videoData"></param>
-        public void Write(byte[] videoData)
+        public void Write(byte[] videoData, int offset, int size)
         {
-            this.videoStream.Write(videoData);
+            this.videoStream.Write(videoData, offset, size);
         }
 
         #endregion

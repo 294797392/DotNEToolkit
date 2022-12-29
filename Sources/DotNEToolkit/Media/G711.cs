@@ -85,14 +85,15 @@ namespace DotNEToolkit.Media
         /// <summary>
         /// alaw转PCM
         /// </summary>
-        /// <param name="alaw"></param>
+        /// <param name="alaw">G711数据</param>
+        /// <param name="size">要解码的字节数</param>
         /// <returns></returns>
-        public static byte[] Alaw2PCM(byte[] alaw)
+        public static byte[] Alaw2PCM(byte[] alaw, int size)
         {
-            byte[] pcm = new byte[alaw.Length * 2];
+            byte[] pcm = new byte[size * 2];
 
             int j = 0;
-            for (int i = 0; i < alaw.Length; i++)
+            for (int i = 0; i < size; i++)
             {
                 short s = alaw2short[alaw[i] & 0xFF];
                 pcm[j++] = (byte)s;
@@ -107,7 +108,7 @@ namespace DotNEToolkit.Media
         /// </summary>
         /// <param name="ulaw"></param>
         /// <returns></returns>
-        public static byte[] Ulaw2PCM(byte[] ulaw)
+        public static byte[] Ulaw2PCM(byte[] ulaw, int size)
         {
             byte[] pcm = new byte[ulaw.Length * 2];
 

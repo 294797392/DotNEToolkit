@@ -42,6 +42,7 @@ namespace DotNEToolkitDemo.Forms
             // 
             // panel1
             // 
+            this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.panel1.Location = new System.Drawing.Point(41, 63);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(719, 462);

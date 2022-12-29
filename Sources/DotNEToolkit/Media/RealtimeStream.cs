@@ -9,6 +9,8 @@ namespace DotNEToolkit.Media
 {
     internal abstract class RealtimeStream
     {
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("RealtimeStream");
+
         /// <summary>
         /// 当前的数据大小
         /// </summary>
@@ -42,7 +44,9 @@ namespace DotNEToolkit.Media
         /// 把数据写入缓冲区
         /// </summary>
         /// <param name="buffer"></param>
-        internal abstract void Write(byte[] buffer);
+        /// <param name="offset">偏移量</param>
+        /// <param name="size">数据大小</param>
+        internal abstract void Write(byte[] buffer, int offset, int size);
 
         /// <summary>
         /// 清空缓冲区中的所有数据
@@ -70,8 +74,8 @@ namespace DotNEToolkit.Media
             {
                 if (!this.Read(requestSize, out buffer))
                 {
-                    Thread.Sleep(100);
-                    timeoutRemain -= 100;
+                    Thread.Sleep(5);
+                    timeoutRemain -= 5;
                     continue;
                 }
 
@@ -154,11 +158,13 @@ namespace DotNEToolkit.Media
             }
         }
 
-        internal override void Write(byte[] buffer)
+        internal override void Write(byte[] buffer, int offset, int size)
         {
             lock (this.bufferLock)
             {
-                this.bufferList.AddRange(buffer);
+                byte[] data = new byte[size];
+                Buffer.BlockCopy(buffer, offset, data, 0, data.Length);
+                this.bufferList.AddRange(data);
             }
         }
 

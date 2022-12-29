@@ -63,6 +63,42 @@ namespace DotNEToolkit.SDK
         /// <param name="opaque">private pointer as set by the @ref libvlc_media_open_cb callback</param>
         public delegate void libvlc_media_close_cb(IntPtr opaque);
 
+        /**
+         * Callback prototype to configure picture buffers format.
+         * This callback gets the format of the video as output by the video decoder
+         * and the chain of video filters (if any). It can opt to change any parameter
+         * as it needs. In that case, LibVLC will attempt to convert the video format
+         * (rescaling and chroma conversion) but these operations can be CPU intensive.
+         *
+         * \param opaque pointer to the private pointer passed to
+         *               libvlc_video_set_callbacks() [IN/OUT]
+         * \param chroma pointer to the 4 bytes video format identifier [IN/OUT]
+         * \param width pointer to the pixel width [IN/OUT]
+         * \param height pointer to the pixel height [IN/OUT]
+         * \param pitches table of scanline pitches in bytes for each pixel plane
+         *                (the table is allocated by LibVLC) [OUT]
+         * \param lines table of scanlines count for each plane [OUT]
+         * \return the number of picture buffers allocated, 0 indicates failure
+         *
+         * \note
+         * For each pixels plane, the scanline pitch must be bigger than or equal to
+         * the number of bytes per pixel multiplied by the pixel width.
+         * Similarly, the number of scanlines must be bigger than of equal to
+         * the pixel height.
+         * Furthermore, we recommend that pitches and lines be multiple of 32
+         * to not break assumptions that might be held by optimized code
+         * in the video decoders, video filters and/or video converters.
+         */
+        public delegate int libvlc_video_format_cb(out IntPtr opaque, string chroma, ref uint width, ref uint height, out uint pitches, out uint lines);
+
+        /**
+         * Callback prototype to configure picture buffers format.
+         *
+         * \param opaque private pointer as passed to libvlc_video_set_callbacks()
+         *               (and possibly modified by @ref libvlc_video_format_cb) [IN]
+         */
+        public delegate void libvlc_video_cleanup_cb(IntPtr opaque);
+
         #endregion
 
         public enum libvlc_state_t
@@ -207,6 +243,9 @@ namespace DotNEToolkit.SDK
 
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void libvlc_video_set_marquee_int(libvlc_media_player_t p_mi, uint option, int i_val);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libvlc_video_set_format_callbacks(libvlc_media_player_t mp, libvlc_video_format_cb setup, libvlc_video_cleanup_cb cleanup);
     }
 
     public static class libvlcHelper

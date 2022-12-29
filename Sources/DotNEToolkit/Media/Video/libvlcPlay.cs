@@ -67,15 +67,12 @@ namespace DotNEToolkit.Media.Video
         {
             this.videoStream.IsClosed = false;
 
-            int argc = 1;
-            string[] argv = new string[]
-            {
-                "--clock-synchro=0"
-            };
+            string[] argv = this.GetParameter<string[]>("argv", new string[] { });
+            int argc = argv.Length;
             IntPtr argvPtr = Marshal.UnsafeAddrOfPinnedArrayElement(argv, 0);
-
             this.libvlc_instance_t = libvlc.libvlc_new(argc, argvPtr);
             this.libvlc_media_t = libvlc.libvlc_media_new_callbacks(libvlc_instance_t, this.libvlc_media_open_func, this.libvlc_media_read_func, this.libvlc_media_seek_func, this.libvlc_media_close_func, IntPtr.Zero);
+            //libvlc.libvlc_video_set_format_callbacks(this.libvlc_media_player_t, this.libvlc_video_format_func, this.libvlc_video_cleanup_func);
             this.AddVlcOptions(this.libvlc_media_t);
             this.libvlc_media_player_t = libvlc.libvlc_media_player_new_from_media(libvlc_media_t);
             libvlc.libvlc_media_player_set_hwnd(this.libvlc_media_player_t, this.Hwnd);
