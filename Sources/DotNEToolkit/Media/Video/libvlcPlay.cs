@@ -190,7 +190,7 @@ namespace DotNEToolkit.Media.Video
          */
         private long libvlc_media_read_cb(IntPtr opaque, IntPtr buf, int len)
         {
-            logger.InfoFormat("libvlc_media_read_cb, start");
+            //logger.InfoFormat("libvlc_media_read_cb, start");
 
             byte[] videoBytes;
             if (!this.videoStream.Read(len, this.timeout, out videoBytes))
@@ -201,7 +201,7 @@ namespace DotNEToolkit.Media.Video
                 return -1;
             }
 
-            logger.InfoFormat("libvlc_media_read_cb, byteSize = {0}, videoBytes = {1}", len, videoBytes.Length);
+            //logger.InfoFormat("libvlc_media_read_cb, byteSize = {0}, videoBytes = {1}", len, videoBytes.Length);
 
             Marshal.Copy(videoBytes, 0, buf, videoBytes.Length);
             return videoBytes.Length;
