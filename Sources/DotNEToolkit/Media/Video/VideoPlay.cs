@@ -41,7 +41,7 @@ namespace DotNEToolkit.Media.Video
 
         #region 实例变量
 
-        internal RealtimeStream videoStream;
+        internal MediaStream videoStream;
 
         /// <summary>
         /// 播放超时时间
@@ -68,7 +68,7 @@ namespace DotNEToolkit.Media.Video
             base.OnInitialize();
 
             this.timeout = this.GetParameter<int>("timeout", DefaultTimeout);
-            this.videoStream = RealtimeStream.Create();
+            this.videoStream = MediaStream.Create();
 
             return DotNETCode.SUCCESS;
         }
@@ -89,9 +89,9 @@ namespace DotNEToolkit.Media.Video
         /// 写入媒体数据
         /// </summary>
         /// <param name="videoData"></param>
-        public void Write(byte[] videoData, int offset, int size)
+        public void Write(byte[] videoData)
         {
-            this.videoStream.Write(videoData, offset, size);
+            this.videoStream.Write(videoData);
         }
 
         #endregion

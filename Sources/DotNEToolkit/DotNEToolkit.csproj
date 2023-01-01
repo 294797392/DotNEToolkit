@@ -108,6 +108,7 @@
     <Compile Include="DirectSound\IDirectSoundNotify8.cs" />
     <Compile Include="DirectSound\WAVEFORMATEX.cs" />
     <Compile Include="Colors.cs" />
+    <Compile Include="Media\Video\VideoDecode.cs" />
     <Compile Include="ReadOptions.cs" />
     <Compile Include="Utility\CSVUtils.cs" />
     <Compile Include="WriteOptions.cs" />
@@ -119,7 +120,7 @@
     <Compile Include="Media\MediaPlayFactory.cs" />
     <Compile Include="Media\MediaPlayStatus.cs" />
     <Compile Include="Media\MediaRecord.cs" />
-    <Compile Include="Media\RealtimeStream.cs" />
+    <Compile Include="Media\MediaStream.cs" />
     <Compile Include="Media\Video\libvlcPlay.cs" />
     <Compile Include="Media\AVFormats.cs" />
     <Compile Include="Media\Video\VideoPlay.cs" />
@@ -239,7 +240,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
+      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

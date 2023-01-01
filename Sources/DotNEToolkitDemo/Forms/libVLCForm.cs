@@ -129,7 +129,7 @@ namespace DotNEToolkitDemo.Forms
             this.videoPlay.Initialize();
             this.videoPlay.Start();
 
-            byte[] videoBytes = File.ReadAllBytes("test");
+            byte[] videoBytes = File.ReadAllBytes("d://h264");
             this.isRunning = true;
 
             task = Task.Factory.StartNew(() =>
