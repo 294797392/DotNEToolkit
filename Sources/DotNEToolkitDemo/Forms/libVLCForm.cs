@@ -123,7 +123,7 @@ namespace DotNEToolkitDemo.Forms
             this.videoPlay = VideoPlayFactory.Create(VideoPlayType.libvlc);
             this.videoPlay.Hwnd = panel1.Handle;
             this.videoPlay.SetParameter<string[]>("argv", argv);
-            this.videoPlay.SetParameter<AVFormats>("format", AVFormats.H264);
+            this.videoPlay.SetParameter<AVFormats>("format", AVFormats.AV_FORMAT_H264);
             this.videoPlay.SetParameter<int>("timeout", 999999);
             this.videoPlay.SetParameter<List<string>>("media_options", media_options);
             this.videoPlay.Initialize();
