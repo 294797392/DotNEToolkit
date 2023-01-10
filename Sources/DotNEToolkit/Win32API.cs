@@ -840,7 +840,7 @@ namespace DotNEToolkit
     /// <summary>
     /// WinUser.h
     /// </summary>
-    public static class WinUser
+    public static class User32
     {
         private const string User32Dll = "User32.dll";
 
@@ -902,6 +902,15 @@ namespace DotNEToolkit
 
         [DllImport("user32.dll")]
         public static extern int EnumChildWindows(IntPtr hWndParent, WNDENUMPROC lpEnumProc, int lParam);
+
+        [DllImport(User32Dll)]
+        public static extern uint SendInput();
+
+        [DllImport(User32Dll)]
+        public static extern ushort GetKeyState();
+
+        [DllImport(User32Dll)]
+        public static extern short GetAsyncKeyState();
     }
 
     /// <summary>
