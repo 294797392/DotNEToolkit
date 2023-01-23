@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-// 所有的Win32API用库名字给类命名
+// 所有的Win32API用Dll名字给类命名
 
 namespace DotNEToolkit
 {
@@ -840,7 +840,7 @@ namespace DotNEToolkit
     /// <summary>
     /// WinUser.h
     /// </summary>
-    public static class WinUser
+    public static class User32
     {
         private const string User32Dll = "User32.dll";
 
@@ -902,6 +902,15 @@ namespace DotNEToolkit
 
         [DllImport("user32.dll")]
         public static extern int EnumChildWindows(IntPtr hWndParent, WNDENUMPROC lpEnumProc, int lParam);
+
+        [DllImport(User32Dll)]
+        public static extern uint SendInput();
+
+        [DllImport(User32Dll)]
+        public static extern ushort GetKeyState();
+
+        [DllImport(User32Dll)]
+        public static extern short GetAsyncKeyState();
     }
 
     /// <summary>
@@ -982,5 +991,11 @@ namespace DotNEToolkit
         public const string IID_IDirectSoundCaptureBuffer = "b0210782-89cd-11d0-af08-00a0c925cd16";
 
         public const string IID_IDirectSoundNotify8 = "b0210783-89cd-11d0-af08-00a0c925cd16";
+    }
+
+    public static class msvcrt
+    {
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern IntPtr memcpy(IntPtr to, IntPtr from, long size);
     }
 }

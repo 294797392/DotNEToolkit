@@ -12,25 +12,19 @@ namespace DotNEToolkit.Media
     public enum AVFormats
     {
         /// <summary>
-        /// 未知格式
-        /// 播放器会自动检测
-        /// </summary>
-        Unkown,
-
-        /// <summary>
         /// H264视频格式
         /// </summary>
-        H264,
+        AV_FORMAT_H264,
 
         /// <summary>
         /// PCM音频原始数据格式
         /// </summary>
-        PCM,
+        AV_FORMAT_PCM,
 
         /// <summary>
         /// G711音频编码方式
         /// </summary>
-        G711_ALAW,
-        G711_ULAW
+        AV_FORMAT_G711_ALAW,
+        AV_FORMAT_G711_ULAW
     }
 }
