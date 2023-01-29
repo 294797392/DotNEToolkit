@@ -88,31 +88,56 @@ namespace DotNEToolkit
 
     public static class Kernel32
     {
+        private const string DllName = "kernel32.dll";
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SECURITY_ATTRIBUTES
+        {
+            public int nLength;
+            public IntPtr lpSecurityDescriptor;
+            public bool bInheritHandle;
+        }
+
         /// <summary>
         /// 加载动态链接库
         /// </summary>
         /// <param name="dllToLoad">dll文件名</param>
         /// <returns>dll模块指针</returns>
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport(DllName, SetLastError = true)]
         public static extern IntPtr LoadLibrary(string dllToLoad);
+
         /// <summary>
         /// 获取函数指针
         /// </summary>
         /// <param name="hModule">dll模块指针</param>
         /// <param name="procedureName">方法名</param>
         /// <returns>函数指针</returns>
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport(DllName, SetLastError = true)]
         public static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
+
         /// <summary>
         /// 释放动态链接库
         /// </summary>
         /// <param name="hModule">dll模块指针</param>
         /// <returns>释放释放成功</returns>
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport(DllName, SetLastError = true)]
         public static extern bool FreeLibrary(IntPtr hModule);
 
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport(DllName, SetLastError = true)]
         public static extern IntPtr CreateFileMapping();
+
+        #region 控制台函数
+
+        [DllImport(DllName)]
+        public static extern IntPtr CreateConsoleScreenBuffer(int dwDesiredAccess, int dwShareMode, ref SECURITY_ATTRIBUTES lpSecurityAttributes, int dwFlags, IntPtr lpScreenBufferData);
+
+        //[DllImport(DllName)]
+        //public static extern 
+
+        #endregion
+
+        [DllImport(DllName)]
+        public static extern bool CloseHandle(IntPtr hObject);
     }
 
     public static class Win32APIHelper

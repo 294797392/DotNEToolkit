@@ -9,6 +9,26 @@ using System.Threading.Tasks;
 
 namespace DotNEToolkit.Utility
 {
+    //public enum CSVDataTypes
+    //{
+    //    Int32,
+
+    //    String
+    //}
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class CSVColumnAttribute : Attribute
+    {
+        public string Name { get; set; }
+
+        //public CSVDataTypes DataType { get; set; }
+
+        public CSVColumnAttribute(string name)
+        {
+            this.Name = name;
+        }
+    }
+
     /// <summary>
     /// 提供操作CSV格式文件的方法
     /// </summary>
@@ -69,6 +89,26 @@ namespace DotNEToolkit.Utility
             return table;
         }
 
+        private static string[] ReadCSVLines(string csvFile)
+        {
+            if (File.Exists(csvFile))
+            {
+                logger.WarnFormat("CSV文件不存在, {0}", csvFile);
+                return null;
+            }
+
+            try
+            {
+                string[] lines = File.ReadAllLines(csvFile);
+                return lines;
+            }
+            catch (Exception ex)
+            {
+                logger.Error("读取CSV文件异常", ex);
+                return null;
+            }
+        }
+
         /// <summary>
         /// CSV格式的字符串转成DataTable
         /// </summary>
@@ -86,13 +126,12 @@ namespace DotNEToolkit.Utility
         /// <returns></returns>
         public static TableData CSVFile2TableData(string csvFile)
         {
-            if (!File.Exists(csvFile))
+            string[] lines = ReadCSVLines(csvFile);
+            if (lines == null)
             {
-                logger.WarnFormat("CSV文件不存在, {0}", csvFile);
-                return TableData.Create();
+                return null;
             }
 
-            string[] lines = File.ReadAllLines(csvFile);
             return CSV2TableData(lines);
         }
 
@@ -103,7 +142,7 @@ namespace DotNEToolkit.Utility
         /// <param name="excelPath"></param>
         /// <param name="options">写入Excel文件的选项</param>
         /// <returns></returns>
-        public static void CSV2Excel(string csvPath, string excelPath, WriteOptions options)
+        public static void CSVFile2Excel(string csvPath, string excelPath, WriteOptions options)
         {
             TableData tableData = CSVFile2TableData(csvPath);
             ExcelUtils.TableData2Excel(excelPath, tableData, options);
@@ -115,10 +154,52 @@ namespace DotNEToolkit.Utility
         /// <param name="csvText"></param>
         /// <param name="excelPath"></param>
         /// <param name="options">写入Excel文件的选项</param>
-        public static void CSVContent2Excel(string csvText, string excelPath, WriteOptions options)
+        public static void CSV2Excel(string csvText, string excelPath, WriteOptions options)
         {
             TableData tableData = CSV2TableData(csvText);
             ExcelUtils.TableData2Excel(excelPath, tableData, options);
+        }
+
+        /// <summary>
+        /// 把一个CSV文件转换成一个对象集合
+        /// 要使用CSVColumnAttribute把类里的属性和CSV文件里的字段映射起来
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="csvPath"></param>
+        /// <returns></returns>
+        public static List<T> CSVFile2Objects<T>(string csvPath)
+        {
+            string[] lines = ReadCSVLines(csvPath);
+            if (lines == null)
+            {
+                return null;
+            }
+
+            List<PropertyAttribute<CSVColumnAttribute>> properties = ReflectionUtils.GetPropertyAttribute<CSVColumnAttribute, T>();
+
+            List<string> headers = lines[0].Split(CSVSplitter).ToList();
+
+            List<T> result = new List<T>();
+
+            for (int i = 1; i < lines.Length; i++)
+            {
+                string[] values = lines[i].Split(CSVSplitter);
+
+                T newObject = Activator.CreateInstance<T>();
+
+                foreach (PropertyAttribute<CSVColumnAttribute> property in properties)
+                {
+                    string propertyName = property.Property.Name;
+                    int valueIndex = headers.IndexOf(property.Attribute.Name);
+                    string propertyValue = values[valueIndex];
+
+                    property.Property.SetValue(newObject, propertyValue);
+                }
+
+                result.Add(newObject);
+            }
+
+            return result;
         }
     }
 }
