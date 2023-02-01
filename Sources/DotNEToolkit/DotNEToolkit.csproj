@@ -113,6 +113,7 @@
     <Compile Include="Media\VideoDecode\VideoDecodeFactory.cs" />
     <Compile Include="ReadOptions.cs" />
     <Compile Include="Utility\CSVUtils.cs" />
+    <Compile Include="Utility\ImageUtils.cs" />
     <Compile Include="WriteOptions.cs" />
     <Compile Include="Expressions\AccessMember.cs" />
     <Compile Include="Expressions\ExpressionTypes.cs" />
@@ -242,7 +243,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" />
+      <UserProperties bindings_4binding_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" Modular_4app_1json__JSONSchema="https://appliedengdesign.github.io/cnccodes-json-schema/draft/2022-07/schema" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
