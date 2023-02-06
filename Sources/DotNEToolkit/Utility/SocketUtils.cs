@@ -49,6 +49,7 @@ namespace DotNEToolkit
                                 }
                                 else
                                 {
+                                    logger.ErrorFormat("收超时, 等待50毫秒");
                                     elapsed += 50;
                                     Thread.Sleep(50);
                                 }
@@ -78,19 +79,108 @@ namespace DotNEToolkit
         /// <param name="socket"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static bool SendFull(this Socket socket, byte[] data)
+        public static bool SendFull(this Socket socket, byte[] data, int offset, int timeout)
         {
+            // 收数据的耗时
+            int elapsed = 0;
+
             int left = data.Length;     // 剩余要发送的字节数
             int sent = 0;               // 已经发送的字节数
 
             while (left > 0)
             {
-                int size = socket.Send(data, sent, left, SocketFlags.None);
-                sent += size;
-                left -= size;
+                SocketError error;
+                int size = socket.Send(data, sent + offset, left, SocketFlags.None, out error);
+                switch (error)
+                {
+                    case SocketError.Success:
+                        {
+                            if (size == 0)
+                            {
+                                if (elapsed >= timeout)
+                                {
+                                    return false;
+                                }
+                                else
+                                {
+                                    logger.ErrorFormat("写超时, 等待50毫秒");
+                                    elapsed += 50;
+                                    Thread.Sleep(50);
+                                }
+                            }
+                            else
+                            {
+                                sent += size;
+                                left -= size;
+                            }
+                            break;
+                        }
+
+                    default:
+                        {
+                            logger.ErrorFormat("写入数据失败, SocketError = {0}", error);
+                            return false;
+                        }
+                }
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 发送一段完整的数据
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static bool SendFull(this Socket socket, byte[] data, int timeout)
+        {
+            return SendFull(socket, data, 0, timeout);
+
+            //// 收数据的耗时
+            //int elapsed = 0;
+
+            //int left = data.Length;     // 剩余要发送的字节数
+            //int sent = 0;               // 已经发送的字节数
+
+            //while (left > 0)
+            //{
+            //    SocketError error;
+            //    int size = socket.Send(data, sent, left, SocketFlags.None, out error);
+            //    switch (error)
+            //    {
+            //        case SocketError.Success:
+            //            {
+            //                if (size == 0)
+            //                {
+            //                    if (elapsed >= timeout)
+            //                    {
+            //                        return false;
+            //                    }
+            //                    else
+            //                    {
+            //                        logger.ErrorFormat("写超时, 等待50毫秒");
+            //                        elapsed += 50;
+            //                        Thread.Sleep(50);
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    sent += size;
+            //                    left -= size;
+            //                }
+            //                break;
+            //            }
+
+            //        default:
+            //            {
+            //                logger.ErrorFormat("写入数据失败, SocketError = {0}", error);
+            //                return false;
+            //            }
+            //    }
+            //}
+
+            //return true;
         }
     }
 }
