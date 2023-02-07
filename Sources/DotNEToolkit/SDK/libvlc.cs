@@ -143,6 +143,8 @@ namespace DotNEToolkit.SDK
             libvlc_marquee_Y
         }
 
+        #region 函数
+
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern libvlc_state_t libvlc_media_get_state(libvlc_media_player_t p_md);
 
@@ -246,6 +248,11 @@ namespace DotNEToolkit.SDK
 
         [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void libvlc_video_set_format_callbacks(libvlc_media_player_t mp, libvlc_video_format_cb setup, libvlc_video_cleanup_cb cleanup);
+
+        [DllImport(libvlcDll, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int libvlc_video_get_size(libvlc_media_player_t p_mi, uint num, out uint px, out uint py);
+
+        #endregion
     }
 
     public static class libvlcHelper
@@ -254,9 +261,9 @@ namespace DotNEToolkit.SDK
         {
             Console.WriteLine(hwnd);
 
-            WinUser.EnableWindow(hwnd, false);
+            User32.EnableWindow(hwnd, false);
 
-            WinUser.EnumChildWindows(hwnd, vlcChildWindowCallback, lParam);
+            User32.EnumChildWindows(hwnd, vlcChildWindowCallback, lParam);
 
             return true;
         }
@@ -274,7 +281,7 @@ namespace DotNEToolkit.SDK
             {
                 Thread.Sleep(delay);
 
-                WinUser.EnumChildWindows(hwnd, vlcChildWindowCallback, 0);
+                User32.EnumChildWindows(hwnd, vlcChildWindowCallback, 0);
             });
         }
 

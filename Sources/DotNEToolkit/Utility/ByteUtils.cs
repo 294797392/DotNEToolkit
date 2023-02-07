@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DotNEToolkit.Extentions
+namespace DotNEToolkit.Utility
 {
     public enum HexNumberOptions
     {
@@ -21,7 +21,7 @@ namespace DotNEToolkit.Extentions
     /// <summary>
     /// 操作字节数组的帮助类
     /// </summary>
-    public static class Bytes
+    public static class ByteUtils
     {
         /// <summary>
         /// 把一个字节数组转成十六进制字符串
