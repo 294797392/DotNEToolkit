@@ -371,7 +371,7 @@ namespace DotNEToolkit.Utility
         /// </summary>
         /// <param name="excelPath">要转换的Excel文件的完整路径</param>
         /// <returns></returns>
-        public static TableData Excel2TableData(string excelPath)
+        public static TableData ExcelFile2TableData(string excelPath)
         {
             TableData tableData = TableData.Create();
 
@@ -450,10 +450,10 @@ namespace DotNEToolkit.Utility
         /// </summary>
         /// <param name="excelPath">要转换的Excel文件的完整路径</param>
         /// <param name="csvPath">要保存的CSV文件的完整路径</param>
-        public static void Excel2CSV(string excelPath, string csvPath)
+        public static void ExcelFile2CSVFile(string excelPath, string csvPath, CSVSplitters splitter = CSVSplitters.Comma)
         {
-            TableData tableData = Excel2TableData(excelPath);
-            CSVUtils.TableData2CSVFile(csvPath, tableData);
+            TableData tableData = ExcelFile2TableData(excelPath);
+            CSVUtils.TableData2CSVFile(tableData, csvPath, splitter);
         }
 
         /// <summary>
@@ -465,7 +465,7 @@ namespace DotNEToolkit.Utility
         /// <param name="sheetName"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static int TableData2Excel(string excelPath, TableData tableData, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static int TableData2ExcelFile(string excelPath, TableData tableData, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
             IWorkbook workbook = OpenWrite(excelPath, version, options);
             ISheet sheet = OpenSheet(workbook, sheetName, options);
@@ -483,7 +483,7 @@ namespace DotNEToolkit.Utility
         /// <param name="sheetName"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static int DataTable2Excel(string excelPath, DataTable table, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static int DataTable2ExcelFile(string excelPath, DataTable table, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
             IWorkbook workbook = OpenWrite(excelPath, version, options);
             ISheet sheet = OpenSheet(workbook, sheetName, options);
@@ -508,6 +508,18 @@ namespace DotNEToolkit.Utility
             WriteArray(workbook, sheet, array);
             SaveExcel(excelPath, workbook);
             return DotNETCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// Excel文件转Object列表
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="excelPath"></param>
+        /// <returns></returns>
+        public static List<T> ExcelFile2Objects<T>(string excelPath)
+        {
+            TableData tableData = ExcelFile2TableData(excelPath);
+            return tableData.ConvertToObjects<T>();
         }
 
         #endregion

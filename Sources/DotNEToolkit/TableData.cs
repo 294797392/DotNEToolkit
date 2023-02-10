@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotNEToolkit.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -86,11 +87,26 @@ namespace DotNEToolkit
         }
     }
 
+    [AttributeUsage(AttributeTargets.Property)]
+    public class TableColumnAttribute : Attribute
+    {
+        public string Name { get; set; }
+
+        //public CSVDataTypes DataType { get; set; }
+
+        public TableColumnAttribute(string name)
+        {
+            this.Name = name;
+        }
+    }
+
     /// <summary>
     /// 描述表格类型的数据
     /// </summary>
     public abstract class TableData
     {
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("TableData");
+
         /// <summary>
         /// 返回该TableData是否为空
         /// </summary>
@@ -134,26 +150,26 @@ namespace DotNEToolkit
         public abstract void Clear(int row, int col);
 
         /// <summary>
-        /// 获取最后一行的位置
+        /// 获取从行数
         /// </summary>
         /// <returns></returns>
         public abstract int GetRows();
 
         /// <summary>
-        /// 获取最后一列的位置
+        /// 获取总列数
         /// </summary>
         /// <returns></returns>
         public abstract int GetColumns();
 
         /// <summary>
-        /// 获取某一列的最后一个行的位置
+        /// 获取某一列的总行数
         /// </summary>
         /// <param name="column"></param>
         /// <returns></returns>
         public abstract int GetRows(int column);
 
         /// <summary>
-        /// 获取某一行的最后一列的位置
+        /// 获取某一行的总列数
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
@@ -173,6 +189,60 @@ namespace DotNEToolkit
         public static TableData Create()
         {
             return new ListTableData();
+        }
+
+        /// <summary>
+        /// 转换成ObjectList
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public List<T> ConvertToObjects<T>()
+        {
+            int rows = this.GetRows();
+            int cols = this.GetColumns();
+
+            List<string> headers = this.GetRowData(0);
+
+            List<PropertyAttribute<TableColumnAttribute>> properties = ReflectionUtils.GetPropertyAttribute<TableColumnAttribute, T>();
+
+            List<T> result = new List<T>();
+
+            for (int i = 1; i < rows; i++)
+            {
+                T newObject = Activator.CreateInstance<T>();
+
+                foreach (PropertyAttribute<TableColumnAttribute> property in properties)
+                {
+                    string propertyName = property.Property.Name;
+                    int valueIndex = headers.IndexOf(property.Attribute.Name);
+                    string propertyValue = this.Get(i, valueIndex).Value.ToString();
+
+                    property.Property.SetValue(newObject, propertyValue);
+                }
+
+                result.Add(newObject);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 获取一行里的所有数据
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetRowData(int row)
+        {
+            int cols = this.GetColumns(row);
+
+            List<string> result = new List<string>();
+
+            for (int i = 0; i < cols; i++)
+            {
+                CellData cellData = this.Get(row, i);
+                result.Add(cellData.Value == null ? string.Empty : cellData.Value.ToString());
+            }
+
+            return result;
         }
     }
 

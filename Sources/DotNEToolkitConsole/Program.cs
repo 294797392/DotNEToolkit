@@ -61,7 +61,8 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestCSV.CSVFile2Objects();
+            //TestCSV.CSVFile2Objects();
+            TestExcel.ExcelFile2Objects();
 
             //List<IPAddress> addresses = NetworkUtils.GetBroadcastAddresses();
             //foreach (IPAddress address in addresses)

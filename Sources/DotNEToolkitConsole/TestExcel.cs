@@ -12,6 +12,31 @@ namespace DotNEToolkitConsole
 {
     public static class TestExcel
     {
+        public class Msg_log
+        {
+            //PLC报警ID
+            [TableColumn("AlarmID")]
+            public string id_msg { get; set; }
+
+            public string id_layout { get; set; }
+            //PLC报警类型
+            [TableColumn("AlarmType")]
+            public string module_name { get; set; }
+            //PLC报警名称
+            [TableColumn("DescriptionCN")]
+            public string label_name { get; set; }
+            //66
+            [TableColumn("Description")]
+            public string state { get; set; }
+            //8
+            [TableColumn("AlarmLevel")]
+            public string automatic_mode { get; set; }
+
+            public DateTime starttime { get; set; }
+
+            public DateTime? endtime { get; set; }
+        }
+
         private static int value = 0;
 
         public static void CreateNew()
@@ -25,7 +50,7 @@ namespace DotNEToolkitConsole
             tableData.Set(0, 3, "0");
             tableData.Set(0, 4, "0");
             tableData.Set(0, 5, "0");
-            ExcelUtils.TableData2Excel(excelPath, tableData, WriteOptions.CreateNew);
+            ExcelUtils.TableData2ExcelFile(excelPath, tableData, WriteOptions.CreateNew);
         }
 
         public static void CreateOrAppend()
@@ -39,7 +64,7 @@ namespace DotNEToolkitConsole
             tableData.Set(0, 3, value++.ToString());
             tableData.Set(0, 4, value++.ToString());
             tableData.Set(0, 6, value++.ToString());
-            ExcelUtils.TableData2Excel(excelPath, tableData, WriteOptions.Append);
+            ExcelUtils.TableData2ExcelFile(excelPath, tableData, WriteOptions.Append);
         }
 
         public static void CreateSpan()
@@ -60,7 +85,13 @@ namespace DotNEToolkitConsole
 
             tableData.Merge(tableData);
 
-            ExcelUtils.TableData2Excel(excelPath, tableData, WriteOptions.Append);
+            ExcelUtils.TableData2ExcelFile(excelPath, tableData, WriteOptions.Append);
+        }
+
+        public static void ExcelFile2Objects()
+        {
+            List<Msg_log> list = ExcelUtils.ExcelFile2Objects<Msg_log>("1.xlsx");
+            Console.WriteLine();
         }
     }
 }
