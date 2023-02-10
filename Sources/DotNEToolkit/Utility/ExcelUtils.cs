@@ -453,7 +453,7 @@ namespace DotNEToolkit.Utility
         public static void Excel2CSV(string excelPath, string csvPath)
         {
             TableData tableData = Excel2TableData(excelPath);
-            CSVUtils.TableData2CSV(csvPath, tableData);
+            CSVUtils.TableData2CSVFile(csvPath, tableData);
         }
 
         /// <summary>

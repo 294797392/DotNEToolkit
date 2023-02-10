@@ -1,29 +1,6 @@
-﻿/*----------------------------------------------------------------
-// Copyright (C) Suzhou HYC Technology Co.,LTD
-// 版权所有。
-//
-// =================================
-// CLR版本 ：4.0.30319.42000
-// 命名空间 ：DotNEToolkitConsole
-// 文件名称 ：TestExcel.cs
-// =================================
-// 创 建 者 ：hyc-zyf
-// 创建日期 ：2022/10/20 14:50:49
-// 功能描述 ：
-// 使用说明 ：
-//
-//
-// 创建标识：hyc-zyf-2022/10/20 14:50:49
-//
-// 修改标识：
-// 修改描述：
-//
-// 修改标识：
-// 修改描述：
-//----------------------------------------------------------------*/
-
-using DotNEToolkit;
+﻿using DotNEToolkit;
 using DotNEToolkit.Excels;
+using DotNEToolkit.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,7 +25,7 @@ namespace DotNEToolkitConsole
             tableData.Set(0, 3, "0");
             tableData.Set(0, 4, "0");
             tableData.Set(0, 5, "0");
-            Excel.TableData2Excel(excelPath, tableData, WriteOptions.CreateNew);
+            ExcelUtils.TableData2Excel(excelPath, tableData, WriteOptions.CreateNew);
         }
 
         public static void CreateOrAppend()
@@ -62,7 +39,7 @@ namespace DotNEToolkitConsole
             tableData.Set(0, 3, value++.ToString());
             tableData.Set(0, 4, value++.ToString());
             tableData.Set(0, 6, value++.ToString());
-            Excel.TableData2Excel(excelPath, tableData, WriteOptions.Append);
+            ExcelUtils.TableData2Excel(excelPath, tableData, WriteOptions.Append);
         }
 
         public static void CreateSpan()
@@ -83,7 +60,7 @@ namespace DotNEToolkitConsole
 
             tableData.Merge(tableData);
 
-            Excel.TableData2Excel(excelPath, tableData, WriteOptions.Append);
+            ExcelUtils.TableData2Excel(excelPath, tableData, WriteOptions.Append);
         }
     }
 }

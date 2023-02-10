@@ -36,14 +36,18 @@ namespace DotNEToolkit.Utility
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("CSV");
 
-        private static readonly char[] CSVSplitter = new char[] { ',' };
+        /// <summary>
+        /// CSV文件一行的分隔符
+        /// 有的CSV文件是用逗号，有的是用空格分隔
+        /// </summary>
+        private static readonly char[] CSVSplitter = new char[] { ',', ' ' };
 
         /// <summary>
         /// 把TableData保存成一个CSV文件
         /// </summary>
         /// <param name="tableData"></param>
         /// <param name="csvPath"></param>
-        public static void TableData2CSV(string csvPath, TableData tableData)
+        public static void TableData2CSVFile(string csvPath, TableData tableData)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -91,7 +95,7 @@ namespace DotNEToolkit.Utility
 
         private static string[] ReadCSVLines(string csvFile)
         {
-            if (File.Exists(csvFile))
+            if (!File.Exists(csvFile))
             {
                 logger.WarnFormat("CSV文件不存在, {0}", csvFile);
                 return null;
@@ -172,18 +176,24 @@ namespace DotNEToolkit.Utility
             string[] lines = ReadCSVLines(csvPath);
             if (lines == null)
             {
-                return null;
+                return default(List<T>);
             }
 
             List<PropertyAttribute<CSVColumnAttribute>> properties = ReflectionUtils.GetPropertyAttribute<CSVColumnAttribute, T>();
 
-            List<string> headers = lines[0].Split(CSVSplitter).ToList();
+            List<string> headers = lines[0].Split(CSVSplitter, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             List<T> result = new List<T>();
 
             for (int i = 1; i < lines.Length; i++)
             {
-                string[] values = lines[i].Split(CSVSplitter);
+                string[] values = lines[i].Split(CSVSplitter, StringSplitOptions.RemoveEmptyEntries);
+
+                if(values.Length != headers.Count)
+                {
+                    // 标题行的数量和数据行的数量不一致，CSV文件有问题
+                    return default(List<T>);
+                }
 
                 T newObject = Activator.CreateInstance<T>();
 

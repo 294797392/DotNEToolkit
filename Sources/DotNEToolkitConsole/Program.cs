@@ -61,11 +61,13 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            List<IPAddress> addresses = NetworkUtils.GetBroadcastAddresses();
-            foreach (IPAddress address in addresses)
-            {
-                Console.WriteLine(address.ToString());
-            }
+            TestCSV.CSVFile2Objects();
+
+            //List<IPAddress> addresses = NetworkUtils.GetBroadcastAddresses();
+            //foreach (IPAddress address in addresses)
+            //{
+            //    Console.WriteLine(address.ToString());
+            //}
 
             //TestRecord.RecordAudio();
             //TestAudioPlay.libvlcPlay();
