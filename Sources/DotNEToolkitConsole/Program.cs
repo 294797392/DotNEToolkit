@@ -19,44 +19,8 @@ namespace DotNEToolkitConsole
 {
     class Program
     {
-        static void GetType<T>()
-        {
-            Type t = typeof(T);
-            if (t == typeof(string))
-            {
-                Console.WriteLine("");
-
-                return;
-            }
-
-            if (t.IsClass)
-            {
-                if (t == typeof(string))
-                {
-                }
-
-                Console.WriteLine("Class");
-            }
-            else if (t.IsEnum)
-            {
-                Console.WriteLine("Enum");
-            }
-            else if (t.IsValueType)
-            {
-                Console.WriteLine("ValueType");
-            }
-            else
-            {
-                Console.WriteLine("Unkown");
-            }
-
-            Console.ReadLine();
-        }
-
         static void Main(string[] args)
         {
-            GetType<string>();
-
             Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().Id);
 
             DotNEToolkit.Log4net.InitializeLog4net();

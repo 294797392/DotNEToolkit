@@ -204,28 +204,35 @@ namespace DotNEToolkit.Utility
             }
         }
 
-        private static IWorkbook OpenRead(string extension, FileStream fs)
+        private static bool OpenRead(string excelPath, out FileStream fs, out IWorkbook workbook)
         {
-            IWorkbook workbook = null;
+            fs = null;
+            workbook = null;
 
             // 先根据后缀名判断不同格式的文件并打开
 
+            string extension = Path.GetExtension(excelPath);
             if (string.Compare(extension, ".xlsx", true) == 0)
             {
                 try
                 {
+                    fs = File.Open(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     workbook = new XSSFWorkbook(fs);
                 }
                 catch (Exception ex)
                 {
+                    fs.Close();
+
                     try
                     {
+                        fs = File.Open(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                         workbook = new HSSFWorkbook(fs);
                     }
                     catch (Exception ex1)
                     {
+                        fs.Close();
                         logger.Error("打开Excel文件失败", ex1);
-                        return null;
+                        return false;
                     }
                 }
             }
@@ -233,18 +240,22 @@ namespace DotNEToolkit.Utility
             {
                 try
                 {
+                    fs = File.Open(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     workbook = new HSSFWorkbook(fs);
                 }
                 catch (Exception ex)
                 {
+                    fs.Close();
                     try
                     {
+                        fs = File.Open(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                         workbook = new XSSFWorkbook(fs);
                     }
                     catch (Exception ex1)
                     {
+                        fs.Close();
                         logger.Error("打开Excel文件失败", ex1);
-                        return null;
+                        return false;
                     }
                 }
             }
@@ -253,24 +264,28 @@ namespace DotNEToolkit.Utility
                 // 扩展名不是excel的扩展名，那么直接打开
                 try
                 {
+                    fs = File.Open(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     workbook = new HSSFWorkbook(fs);
                 }
                 catch (Exception ex)
                 {
+                    fs.Close();
                     try
                     {
+                        fs = File.Open(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                         workbook = new XSSFWorkbook(fs);
                     }
                     catch (Exception ex1)
                     {
+                        fs.Close();
                         logger.Error("打开Excel文件失败", ex1);
-                        return null;
+                        return false;
                     }
                 }
             }
 
             // 到这里打开成功了
-            return workbook;
+            return true;
         }
 
         private static IWorkbook OpenWrite(string excelPath, ExcelVersions version, WriteOptions options)
@@ -375,71 +390,70 @@ namespace DotNEToolkit.Utility
         {
             TableData tableData = TableData.Create();
 
-            using (FileStream fs = File.Open(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            FileStream fs;
+            IWorkbook workbook;
+            if (!OpenRead(excelPath, out fs, out workbook))
             {
-                string extention = Path.GetExtension(excelPath);
-                IWorkbook workbook = OpenRead(extention, fs);
+                return tableData;
+            }
 
-                ISheet sheet = workbook.GetSheetAt(0);
+            ISheet sheet = workbook.GetSheetAt(0);
 
-                // 还剩leftRow行没读取
-                int leftRow = sheet.PhysicalNumberOfRows;
+            // 还剩leftRow行没读取
+            int leftRow = sheet.PhysicalNumberOfRows;
 
-                int row = 0;
+            int row = 0;
 
-                // 要注意处理空行
-                while (leftRow > 0)
+            // 要注意处理空行
+            while (leftRow > 0)
+            {
+                IRow irow = sheet.GetRow(row);
+                if (irow == null)
                 {
-                    IRow irow = sheet.GetRow(row);
-                    if (irow == null)
+                    // 该行是空行，不计算在内
+                    row++;
+                    continue;
+                }
+
+                int numCell = irow.PhysicalNumberOfCells;
+
+                for (int col = 0; col < numCell; col++)
+                {
+                    ICell icell = irow.GetCell(col);
+                    if (icell == null || icell.CellType == CellType.Blank)
                     {
-                        // 该行是空行，不计算在内
-                        row++;
+                        // 空的单元格，直接写一个空字符串
                         continue;
                     }
 
-                    int numCell = irow.PhysicalNumberOfCells;
-
-                    for (int col = 0; col < numCell; col++)
+                    switch (icell.CellType)
                     {
-                        ICell icell = irow.GetCell(col);
-                        if (icell == null || icell.CellType == CellType.Blank)
-                        {
-                            // 空的单元格，直接写一个空字符串
+                        case CellType.Numeric:
+                            {
+                                tableData.Set(row, col, icell.NumericCellValue);
+                                break;
+                            }
+
+                        case CellType.String:
+                            {
+                                tableData.Set(row, col, icell.StringCellValue);
+                                break;
+                            }
+
+                        case CellType.Blank:
+                            {
+                                tableData.Set(row, col, string.Empty);
+                                break;
+                            }
+
+                        default:
+                            logger.ErrorFormat("不支持的Cell数据类型, {0}", icell.CellType);
                             continue;
-                        }
-
-                        switch (icell.CellType)
-                        {
-                            case CellType.Numeric:
-                                {
-                                    tableData.Set(row, col, icell.NumericCellValue);
-                                    break;
-                                }
-
-                            case CellType.String:
-                                {
-                                    tableData.Set(row, col, icell.StringCellValue);
-                                    break;
-                                }
-
-                            case CellType.Blank:
-                                {
-                                    tableData.Set(row, col, string.Empty);
-                                    break;
-                                }
-
-                            default:
-                                logger.ErrorFormat("不支持的Cell数据类型, {0}", icell.CellType);
-                                continue;
-                        }
                     }
-
-                    leftRow--;
-                    row++;
                 }
 
-                fs.Close();
+                leftRow--;
+                row++;
             }
 
             return tableData;

@@ -14,22 +14,17 @@ namespace DotNEToolkitConsole
     {
         public class Msg_log
         {
-            //PLC报警ID
-            [TableColumn("AlarmID")]
             public string id_msg { get; set; }
-
+            [TableColumn("AlarmID")]
+            public int AlarmID { get; set; }
             public string id_layout { get; set; }
-            //PLC报警类型
-            [TableColumn("AlarmType")]
+            [TableColumn("Description")]
             public string module_name { get; set; }
-            //PLC报警名称
             [TableColumn("DescriptionCN")]
             public string label_name { get; set; }
-            //66
-            [TableColumn("Description")]
-            public string state { get; set; }
-            //8
-            [TableColumn("AlarmLevel")]
+            [TableColumn("state")]
+            public int state { get; set; }
+            [TableColumn("AlarmType")]
             public string automatic_mode { get; set; }
 
             public DateTime starttime { get; set; }
@@ -90,7 +85,7 @@ namespace DotNEToolkitConsole
 
         public static void ExcelFile2Objects()
         {
-            List<Msg_log> list = ExcelUtils.ExcelFile2Objects<Msg_log>("1.xlsx");
+            List<Msg_log> list = ExcelUtils.ExcelFile2Objects<Msg_log>("123.xls");
             Console.WriteLine();
         }
     }

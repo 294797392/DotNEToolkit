@@ -215,9 +215,12 @@ namespace DotNEToolkit
                 {
                     string propertyName = property.Property.Name;
                     int valueIndex = headers.IndexOf(property.Attribute.Name);
-                    string propertyValue = this.Get(i, valueIndex).Value.ToString();
+                    object propertyValue = this.Get(i, valueIndex).Value;
 
-                    property.Property.SetValue(newObject, propertyValue);
+                    // 如果从excel里读到的数据类型和要转换的类的属性类型不一致，那么尝试转换成类里的属性类型
+                    object convertedValue = Convert.ChangeType(propertyValue, property.Property.PropertyType);
+
+                    property.Property.SetValue(newObject, convertedValue);
                 }
 
                 result.Add(newObject);
