@@ -40,12 +40,16 @@ namespace DotNEToolkit.Media.Audio
 
         private Stream fileStream;
 
+        private Task playTask;
+
         #endregion
 
         #region AudioPlay
 
         protected override int OnInitialize()
         {
+            base.OnInitialize();
+
             if ((this.CreateIDirectSound8() &&
                 this.CreateSecondaryBuffer() &&
                 this.CreateBufferNotifications()))
@@ -54,11 +58,21 @@ namespace DotNEToolkit.Media.Audio
                 return DotNETCode.SUCCESS;
             }
 
+            this.dsb8.SetCurrentPosition(0);
+            uint error = this.dsb8.Play(0, 0, DSBPLAY.DSBPLAY_LOOPING);
+            if (error != DSERR.DS_OK)
+            {
+                logger.ErrorFormat("IDirectSoundBuffer8.Play失败, DSERR = {0}", error);
+                return DotNETCode.SYS_ERROR;
+            }
+
             return DotNETCode.FAILED;
         }
 
         protected override void OnRelease()
         {
+            this.dsb8.Stop();
+
             Marshal.FreeHGlobal(this.pwfx_free);
             Marshal.Release(this.pdsb8);
             Marshal.Release(this.pds8);
@@ -83,7 +97,25 @@ namespace DotNEToolkit.Media.Audio
             this.rgdsbpn = null;
         }
 
-        public override int PlayFile(string fileURI)
+        public override int Start()
+        {
+            this.PlayStatus = MediaPlayStatus.Playing;
+            this.playTask = Task.Factory.StartNew(this.PlayThreadProc);
+
+            return DotNETCode.SUCCESS;
+        }
+
+        public override void Stop()
+        {
+            this.PlayStatus = MediaPlayStatus.Stopped;
+            Task.WaitAll(this.playTask);
+        }
+
+        #endregion
+
+        #region 实例方法
+
+        private int PlayFile(string fileURI)
         {
             if (!File.Exists(fileURI))
             {
@@ -149,10 +181,6 @@ namespace DotNEToolkit.Media.Audio
                 }
             }
         }
-
-        #endregion
-
-        #region 实例方法
 
         private bool CreateIDirectSound8()
         {
@@ -281,7 +309,7 @@ namespace DotNEToolkit.Media.Audio
                 }
             }
 
-            if (data != null && data.Length > 0)
+            if (data != null && dataLength > 0)
             {
                 Marshal.Copy(data, 0, audioPtr1, (int)audioBytes1);
                 if (audioBytes2 > 0 && audioPtr2 != IntPtr.Zero)
@@ -338,14 +366,48 @@ namespace DotNEToolkit.Media.Audio
             //}
         }
 
-        public override int Start()
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
 
-        public override void Stop()
+        #region 事件处理器
+
+        private void PlayThreadProc()
         {
-            throw new NotImplementedException();
+            byte[] buffer = new byte[this.BufferSize];
+            uint offset = (uint)this.BufferSize;
+
+            while (this.PlayStatus == MediaPlayStatus.Playing)
+            {
+                int size = this.stream.Read2(buffer);
+                if (size == 0)
+                {
+                    logger.DebugFormat("从缓冲区中获取的媒体数据大小为0");
+                    Thread.Sleep(10);
+                    continue;
+                }
+
+                IntPtr lpHandles = Marshal.UnsafeAddrOfPinnedArrayElement(this.notifyHwnd_close, 0);
+
+                uint notifyIdx = Win32API.WaitForMultipleObjects(NotifyEvents, lpHandles, false, Win32API.INFINITE);
+                if ((notifyIdx >= Win32API.WAIT_OBJECT_0) && (notifyIdx <= Win32API.WAIT_OBJECT_0 + NotifyEvents))
+                {
+                    if (this.WriteDataToBuffer(offset, buffer))
+                    {
+                    }
+
+                    offset += (uint)this.BufferSize;
+                    offset %= (uint)(this.BufferSize * NotifyEvents);
+
+                    //Console.WriteLine("dwOffset = {0}, offset = {1}", this.rgdsbpn[notifyIdx].dwOffset, offset);
+                }
+                else if (notifyIdx == Win32API.WAIT_FAILED)
+                {
+                    int winErr = Marshal.GetLastWin32Error();
+
+                    logger.ErrorFormat("等待信号失败, 退出播放, LastWin32Error = {0}", winErr);
+
+                    this.PlayStatus = MediaPlayStatus.Stopped;
+                }
+            }
         }
 
         #endregion

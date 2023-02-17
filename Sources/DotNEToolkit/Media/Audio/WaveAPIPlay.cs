@@ -8,10 +8,10 @@ namespace DotNEToolkit.Media.Audio
 {
     public class WaveAPIPlay : AudioPlay
     {
-        public override int PlayFile(string fileURI)
-        {
-            throw new NotImplementedException();
-        }
+        //public override int PlayFile(string fileURI)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public override int Start()
         {

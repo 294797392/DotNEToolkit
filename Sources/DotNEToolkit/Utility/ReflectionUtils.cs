@@ -14,6 +14,13 @@ namespace DotNEToolkit.Utility
         public TAttribute Attribute { get; set; }
     }
 
+    public class EnumAttribute<TAttribute>
+    {
+        public int Value { get; set; }
+
+        public TAttribute Attribute { get; set; }
+    }
+
     /// <summary>
     /// 反射工具函数
     /// </summary>
@@ -82,6 +89,12 @@ namespace DotNEToolkit.Utility
             return (TAttribute)attributes[0];
         }
 
+        //public static List<EnumAttribute<TAttribute>> GetEnumAttributes<TAttribute>(Type enumType) where TAttribute : Attribute
+        //{
+        //    List<EnumAttribute<TAttribute>> result = new List<EnumAttribute<TAttribute>>();
+
+        //    FieldInfo field enumType.GetFields();
+        //}
 
         ///// <summary>
         ///// 获取集合里的元素的类型

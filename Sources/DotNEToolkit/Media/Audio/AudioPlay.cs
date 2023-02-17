@@ -22,6 +22,7 @@ namespace DotNEToolkit.Media.Audio
 
         /// <summary>
         /// 采样率
+        /// 每秒钟的采样次数
         /// </summary>
         [BindableProperty(44100)]
         public int SamplesPerSec { get; set; }
@@ -50,26 +51,27 @@ namespace DotNEToolkit.Media.Audio
 
         #endregion
 
+        #region 构造方法
+
         public AudioPlay()
         {
         }
 
-        ///// <summary>
-        ///// 打开播放器
-        ///// </summary>
-        ///// <returns></returns>
-        //public abstract int Open();
+        #endregion
 
-        ///// <summary>
-        ///// 关闭播放器
-        ///// </summary>
-        //public abstract void Close();
+        #region MediaPlay
 
-        /// <summary>
-        /// 播放一个音频文件
-        /// 该方法是同步方法，会阻塞当前线程直到音频文件播放完了为止
-        /// </summary>
-        /// <param name="fileURI">要播放的音频文件的地址</param>
-        public abstract int PlayFile(string fileURI);
+        protected override int OnInitialize()
+        {
+            base.OnInitialize();
+
+            this.Channel = this.GetParameter<short>("channel", 2);
+            this.SamplesPerSec = this.GetParameter<int>("sampleRate", 44100);
+            this.BitsPerSample = this.GetParameter<short>("sampleSize", 16);
+
+            return DotNETCode.SUCCESS;
+        }
+
+        #endregion
     }
 }

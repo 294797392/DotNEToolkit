@@ -20,11 +20,6 @@ namespace DotNEToolkit.Media.Video
     {
         #region 类变量
 
-        /// <summary>
-        /// 默认的播放超时时间是5秒钟
-        /// </summary>
-        private const int DefaultTimeout = 5000;
-
         ///// <summary>
         ///// 视频播放超时
         ///// 当播放的是实时流的时候，才可能会触发这个事件
@@ -41,23 +36,9 @@ namespace DotNEToolkit.Media.Video
 
         #region 实例变量
 
-        internal MediaStream videoStream;
-
-        /// <summary>
-        /// 播放超时时间
-        /// 如果超过这个时间还是没有取到视频流，那么默认超时，采取的操作是关闭播放器
-        /// </summary>
-        protected int timeout;
-
         #endregion
 
         #region 属性
-
-        /// <summary>
-        /// 渲染视频的窗口句柄
-        /// 音频写Inptr.Zero
-        /// </summary>
-        public IntPtr Hwnd { get; set; }
 
         #endregion
 
@@ -66,9 +47,6 @@ namespace DotNEToolkit.Media.Video
         protected override int OnInitialize()
         {
             base.OnInitialize();
-
-            this.timeout = this.GetParameter<int>("timeout", DefaultTimeout);
-            this.videoStream = MediaStream.Create();
 
             return DotNETCode.SUCCESS;
         }
@@ -84,15 +62,6 @@ namespace DotNEToolkit.Media.Video
         #endregion
 
         #region 实例方法
-
-        /// <summary>
-        /// 写入媒体数据
-        /// </summary>
-        /// <param name="videoData"></param>
-        public void Write(byte[] videoData)
-        {
-            this.videoStream.Write(videoData);
-        }
 
         #endregion
     }

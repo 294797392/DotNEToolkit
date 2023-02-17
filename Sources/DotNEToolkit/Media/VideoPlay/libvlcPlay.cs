@@ -65,7 +65,7 @@ namespace DotNEToolkit.Media.Video
 
         public override int Start()
         {
-            this.videoStream.IsClosed = false;
+            this.stream.IsClosed = false;
 
             string[] argv = this.GetParameter<string[]>("argv", new string[] { });
             int argc = argv.Length;
@@ -95,7 +95,7 @@ namespace DotNEToolkit.Media.Video
                 logger.ErrorFormat("libvlc_media_player_t是空的也关闭了");
             }
 
-            this.videoStream.IsClosed = true;
+            this.stream.IsClosed = true;
             libvlc.libvlc_media_release(this.libvlc_media_t);
             this.libvlc_media_t = IntPtr.Zero;
             libvlc.libvlc_media_player_stop(this.libvlc_media_player_t);
@@ -144,11 +144,6 @@ namespace DotNEToolkit.Media.Video
             }
         }
 
-        private void DrawOSD()
-        {
-            
-        }
-
         #endregion
 
         #region 事件处理器
@@ -185,21 +180,23 @@ namespace DotNEToolkit.Media.Video
          */
         private long libvlc_media_read_cb(IntPtr opaque, IntPtr buf, int len)
         {
+            return 0;
+
             //logger.InfoFormat("libvlc_media_read_cb, start");
 
-            byte[] videoBytes;
-            if (!this.videoStream.Read(len, this.timeout, out videoBytes))
-            {
-                // 返回0表示end-of-stream
-                //this.NotifyStatusChanged(MediaPlayStatus.Timeout);
-                logger.InfoFormat("libvlc_media_read_cb 返回 -1, Read timeout");
-                return -1;
-            }
+            //byte[] videoBytes;
+            //if (!this.stream.Read(len, this.timeout, out videoBytes))
+            //{
+            //    // 返回0表示end-of-stream
+            //    //this.NotifyStatusChanged(MediaPlayStatus.Timeout);
+            //    logger.InfoFormat("libvlc_media_read_cb 返回 -1, Read timeout");
+            //    return -1;
+            //}
 
-            //logger.InfoFormat("libvlc_media_read_cb, byteSize = {0}, videoBytes = {1}", len, videoBytes.Length);
+            ////logger.InfoFormat("libvlc_media_read_cb, byteSize = {0}, videoBytes = {1}", len, videoBytes.Length);
 
-            Marshal.Copy(videoBytes, 0, buf, videoBytes.Length);
-            return videoBytes.Length;
+            //Marshal.Copy(videoBytes, 0, buf, videoBytes.Length);
+            //return videoBytes.Length;
         }
 
         private int libvlc_media_seek_cb(IntPtr opaque, ulong offset)
