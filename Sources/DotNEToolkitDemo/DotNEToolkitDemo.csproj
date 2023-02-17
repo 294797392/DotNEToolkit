@@ -114,6 +114,12 @@
     <Compile Include="UserControls\TestAudioUserControl.xaml.cs">
       <DependentUpon>TestAudioUserControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\TestDirectSound.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserControls\TestDirectSound.Designer.cs">
+      <DependentUpon>TestDirectSound.cs</DependentUpon>
+    </Compile>
     <Page Include="DatabaseSVCDemo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -190,6 +196,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\libVLCForm.resx">
       <DependentUpon>libVLCForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\TestDirectSound.resx">
+      <DependentUpon>TestDirectSound.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

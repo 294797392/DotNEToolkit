@@ -61,6 +61,7 @@
     <Compile Include="TestAudioPlay.cs" />
     <Compile Include="TestBytePool.cs" />
     <Compile Include="TestCSV.cs" />
+    <Compile Include="TestDirectSound.cs" />
     <Compile Include="TestExcel.cs" />
     <Compile Include="TestFilePackage.cs" />
     <Compile Include="TestImageCodec.cs" />

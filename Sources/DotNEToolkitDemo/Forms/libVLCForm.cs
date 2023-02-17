@@ -132,21 +132,21 @@ namespace DotNEToolkitDemo.Forms
             byte[] videoBytes = File.ReadAllBytes("d://h264");
             this.isRunning = true;
 
-            task = Task.Factory.StartNew(() =>
-            {
-                int i = 0;
-                while (isRunning)
-                {
-                    this.videoPlay.Write(videoBytes, 0, videoBytes.Length);
-                    Thread.Sleep(10000);
-                    //i += 4096;
-                    //if (i >= videoBytes.Length)
-                    //{
-                    //    i = 0;
-                    //}
-                    Console.WriteLine("写数据");
-                }
-            });
+            //task = Task.Factory.StartNew(() =>
+            //{
+            //    int i = 0;
+            //    while (isRunning)
+            //    {
+            //        this.videoPlay.Write(videoBytes, 0, videoBytes.Length);
+            //        Thread.Sleep(10000);
+            //        //i += 4096;
+            //        //if (i >= videoBytes.Length)
+            //        //{
+            //        //    i = 0;
+            //        //}
+            //        Console.WriteLine("写数据");
+            //    }
+            //});
         }
 
         private void ButtonStop_Click(object sender, EventArgs e)

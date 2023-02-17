@@ -8,10 +8,15 @@ namespace DotNEToolkit.Media.Audio
 {
     public class WaveAPIPlay : AudioPlay
     {
-        //public override int PlayFile(string fileURI)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        protected override int OnInitialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnRelease()
+        {
+            throw new NotImplementedException();
+        }
 
         public override int Start()
         {
@@ -19,16 +24,6 @@ namespace DotNEToolkit.Media.Audio
         }
 
         public override void Stop()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnInitialize()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void OnRelease()
         {
             throw new NotImplementedException();
         }

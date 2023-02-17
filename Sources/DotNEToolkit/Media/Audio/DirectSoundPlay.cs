@@ -50,12 +50,12 @@ namespace DotNEToolkit.Media.Audio
         {
             base.OnInitialize();
 
-            if ((this.CreateIDirectSound8() &&
-                this.CreateSecondaryBuffer() &&
-                this.CreateBufferNotifications()))
+            if ((!this.CreateIDirectSound8() ||
+                !this.CreateSecondaryBuffer() ||
+                !this.CreateBufferNotifications()))
             {
-                logger.InfoFormat("DirectSoundPlay初始化成功");
-                return DotNETCode.SUCCESS;
+                logger.InfoFormat("DirectSoundPlay初始化失败");
+                return DotNETCode.FAILED;
             }
 
             this.dsb8.SetCurrentPosition(0);
@@ -65,6 +65,8 @@ namespace DotNEToolkit.Media.Audio
                 logger.ErrorFormat("IDirectSoundBuffer8.Play失败, DSERR = {0}", error);
                 return DotNETCode.SYS_ERROR;
             }
+
+            logger.InfoFormat("DirectSoundPlay初始化成功");
 
             return DotNETCode.FAILED;
         }
@@ -377,6 +379,7 @@ namespace DotNEToolkit.Media.Audio
 
             while (this.PlayStatus == MediaPlayStatus.Playing)
             {
+                logger.InfoFormat("播放");
                 int size = this.stream.Read2(buffer);
                 if (size == 0)
                 {

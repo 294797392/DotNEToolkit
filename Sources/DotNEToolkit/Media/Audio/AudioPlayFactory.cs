@@ -18,7 +18,12 @@ namespace DotNEToolkit.Media.Audio
         /// <summary>
         /// 使用libvlc播放音频
         /// </summary>
-        libvlc
+        libvlc,
+
+        /// <summary>
+        /// 使用WaveAPI
+        /// </summary>
+        WaveAPI
     }
 
     public static class AudioPlayFactory
@@ -28,6 +33,7 @@ namespace DotNEToolkit.Media.Audio
             switch (playType)
             {
                 case AudioPlayType.DirectSound: return new DirectSoundPlay();
+                case AudioPlayType.WaveAPI: return new WaveAPIPlay();
 
                 default:
                     throw new NotImplementedException();

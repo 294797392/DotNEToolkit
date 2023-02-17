@@ -134,8 +134,6 @@ namespace DotNEToolkit.Media
 
         internal override int Read(byte[] buffer)
         {
-            buffer = null;
-
             int requestSize = buffer.Length;
 
             lock (this.bufferLock)
@@ -163,8 +161,6 @@ namespace DotNEToolkit.Media
 
         internal override int Read2(byte[] buffer)
         {
-            buffer = null;
-
             int requestSize = buffer.Length;
 
             lock (this.bufferLock)
