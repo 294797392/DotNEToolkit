@@ -73,8 +73,6 @@ namespace DotNEToolkit.Media.Audio
 
         protected override void OnRelease()
         {
-            this.dsb8.Stop();
-
             Marshal.FreeHGlobal(this.pwfx_free);
             Marshal.Release(this.pdsb8);
             Marshal.Release(this.pds8);
@@ -111,6 +109,7 @@ namespace DotNEToolkit.Media.Audio
         {
             this.PlayStatus = MediaPlayStatus.Stopped;
             Task.WaitAll(this.playTask);
+            this.dsb8.Stop();
         }
 
         #endregion
