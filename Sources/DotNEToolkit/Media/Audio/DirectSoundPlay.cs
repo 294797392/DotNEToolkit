@@ -42,6 +42,12 @@ namespace DotNEToolkit.Media.Audio
 
         private Task playTask;
 
+        /// <summary>
+        /// 创建DirectSound实例的线程要和播放在同一个线程操作
+        /// 不然播放的时候会崩溃，报E_NOINTERFACE的错误
+        /// </summary>
+        private SynchronizationContext syncContext;
+
         #endregion
 
         #region AudioPlay
@@ -49,6 +55,8 @@ namespace DotNEToolkit.Media.Audio
         protected override int OnInitialize()
         {
             base.OnInitialize();
+
+            this.syncContext = SynchronizationContext.Current;
 
             if ((!this.CreateIDirectSound8() ||
                 !this.CreateSecondaryBuffer() ||
@@ -108,7 +116,8 @@ namespace DotNEToolkit.Media.Audio
         public override void Stop()
         {
             this.PlayStatus = MediaPlayStatus.Stopped;
-            Task.WaitAll(this.playTask);
+            // 这里如果等待线程结束的话，貌似会产生死锁的问题
+            //Task.WaitAll(this.playTask);
             this.dsb8.Stop();
         }
 
@@ -296,46 +305,54 @@ namespace DotNEToolkit.Media.Audio
 
         private bool WriteDataToBuffer(uint offset, byte[] data)
         {
-            IntPtr audioPtr1, audioPtr2;
-            uint audioBytes1, audioBytes2, dataLength = (uint)data.Length;
+            IntPtr audioPtr1 = IntPtr.Zero, audioPtr2 = IntPtr.Zero;
+            uint audioBytes1 = 0, audioBytes2 = 0, dataLength = (uint)data.Length;
+            uint error = 0;
+            bool success = true;
 
-            uint error = this.dsb8.Lock(offset, dataLength, out audioPtr1, out audioBytes1, out audioPtr2, out audioBytes2, 0);
-            if (error == DSERR.DSERR_BUFFERLOST)
+            this.syncContext.Send(new SendOrPostCallback((state) =>
             {
-                this.dsb8.Restore();
-                if ((error = this.dsb8.Lock(offset, dataLength, out audioPtr1, out audioBytes1, out audioPtr2, out audioBytes2, 0)) != DSERR.DS_OK)
+                error = this.dsb8.Lock(offset, dataLength, out audioPtr1, out audioBytes1, out audioPtr2, out audioBytes2, 0);
+                if (error == DSERR.DSERR_BUFFERLOST)
                 {
-                    logger.ErrorFormat("Lock失败, DSERR = {0}", error);
-                    return false;
+                    this.dsb8.Restore();
+                    if ((error = this.dsb8.Lock(offset, dataLength, out audioPtr1, out audioBytes1, out audioPtr2, out audioBytes2, 0)) != DSERR.DS_OK)
+                    {
+                        logger.ErrorFormat("Lock失败, DSERR = {0}", error);
+                        success = false;
+                        return;
+                    }
                 }
-            }
 
-            if (data != null && dataLength > 0)
-            {
-                Marshal.Copy(data, 0, audioPtr1, (int)audioBytes1);
-                if (audioBytes2 > 0 && audioPtr2 != IntPtr.Zero)
+                if (data != null && dataLength > 0)
                 {
-                    Marshal.Copy(data, (int)audioBytes1, audioPtr2, (int)audioBytes2);
+                    Marshal.Copy(data, 0, audioPtr1, (int)audioBytes1);
+                    if (audioBytes2 > 0 && audioPtr2 != IntPtr.Zero)
+                    {
+                        Marshal.Copy(data, (int)audioBytes1, audioPtr2, (int)audioBytes2);
+                    }
                 }
-            }
-            else
-            {
-                // 填充空数据
-                //DSLibNatives.memset(audioPtr1, 0, audioBytes1);
-                //if (audioPtr2 != IntPtr.Zero)
-                //{
-                //    DSLibNatives.memset(audioPtr2, 0, audioBytes2);
-                //}
-            }
+                else
+                {
+                    // 填充空数据
+                    //DSLibNatives.memset(audioPtr1, 0, audioBytes1);
+                    //if (audioPtr2 != IntPtr.Zero)
+                    //{
+                    //    DSLibNatives.memset(audioPtr2, 0, audioBytes2);
+                    //}
+                }
 
-            error = this.dsb8.Unlock(audioPtr1, audioBytes1, audioPtr2, audioBytes2);
-            if (error != DSERR.DS_OK)
-            {
-                logger.ErrorFormat("Unlock失败, DSERR = {0}", error);
-                return false;
-            }
+                error = this.dsb8.Unlock(audioPtr1, audioBytes1, audioPtr2, audioBytes2);
+                if (error != DSERR.DS_OK)
+                {
+                    logger.ErrorFormat("Unlock失败, DSERR = {0}", error);
+                    success = false;
+                    return;
+                }
 
-            return true;
+            }), null);
+
+            return success;
         }
 
         private void CloseFile()
@@ -354,19 +371,6 @@ namespace DotNEToolkit.Media.Audio
             }
         }
 
-        private byte[] ReadFile(int size)
-        {
-            throw new NotImplementedException();
-            //int remain = size;
-            //int read = 0;
-            //byte[] buffer = new byte[size];
-
-            //while (remain > 0)
-            //{
-            //    this.fileStream.Read()
-            //}
-        }
-
         #endregion
 
         #region 事件处理器
@@ -378,10 +382,14 @@ namespace DotNEToolkit.Media.Audio
 
             while (this.PlayStatus == MediaPlayStatus.Playing)
             {
-                logger.InfoFormat("播放");
                 int size = this.stream.Read2(buffer);
                 if (size == 0)
                 {
+                    if (this.PlayStatus == MediaPlayStatus.Stopped)
+                    {
+                        break;
+                    }
+
                     logger.DebugFormat("从缓冲区中获取的媒体数据大小为0");
                     Thread.Sleep(10);
                     continue;
@@ -392,8 +400,10 @@ namespace DotNEToolkit.Media.Audio
                 uint notifyIdx = Win32API.WaitForMultipleObjects(NotifyEvents, lpHandles, false, Win32API.INFINITE);
                 if ((notifyIdx >= Win32API.WAIT_OBJECT_0) && (notifyIdx <= Win32API.WAIT_OBJECT_0 + NotifyEvents))
                 {
-                    if (this.WriteDataToBuffer(offset, buffer))
+                    if (!this.WriteDataToBuffer(offset, buffer))
                     {
+                        logger.WarnFormat("WriteDataToBuffer失败, 退出播放");
+                        break;
                     }
 
                     offset += (uint)this.BufferSize;
@@ -410,6 +420,8 @@ namespace DotNEToolkit.Media.Audio
                     this.PlayStatus = MediaPlayStatus.Stopped;
                 }
             }
+
+            logger.InfoFormat("音频播放结束, 退出播放线程");
         }
 
         #endregion

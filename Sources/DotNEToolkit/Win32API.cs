@@ -1023,4 +1023,18 @@ namespace DotNEToolkit
         [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern IntPtr memcpy(IntPtr to, IntPtr from, long size);
     }
+
+    public static class Ole32
+    {
+        public enum tagCOINIT
+        {
+            COINIT_APARTMENTTHREADED = 0x2,
+            COINIT_MULTITHREADED,
+            COINIT_DISABLE_OLE1DDE = 0x4,
+            COINIT_SPEED_OVER_MEMORY = 0x8
+        }
+
+        [DllImport("Ole32.dll", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern int CoInitializeEx(IntPtr pvReserved, tagCOINIT dwCoInit);
+    }
 }
