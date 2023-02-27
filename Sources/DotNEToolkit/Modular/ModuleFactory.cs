@@ -46,6 +46,8 @@ namespace DotNEToolkit.Modular
         /// </summary>
         private List<ModuleBase> moduleList;
 
+        private ModuleFactoryOptions options;
+
         #endregion
 
         #region 属性
@@ -141,12 +143,6 @@ namespace DotNEToolkit.Modular
             {
                 foreach (ModuleBase moduleInst in moduleList)
                 {
-                    if (moduleInst.Definition.HasFlag(ModuleFlags.NotInitial)) 
-                    {
-                        logger.InfoFormat("模块{0}不初始化", moduleInst.Name);
-                        continue;
-                    }
-
                     int code = this.InitializeModule(moduleInst, interval, moduleInst);
                 }
 
@@ -163,12 +159,9 @@ namespace DotNEToolkit.Modular
         /// </summary>
         /// <param name="initialModules"></param>
         /// <returns>返回创建了的模块个数</returns>
-        private int CreateModuleInstance(IEnumerable<ModuleDefinition> initialModules)
+        private List<ModuleBase> CreateModuleInstance(IEnumerable<ModuleDefinition> initialModules)
         {
-            if (initialModules.Count() == 0)
-            {
-                return 0;
-            }
+            List<ModuleBase> moduleList = new List<ModuleBase>();
 
             foreach (ModuleDefinition module in initialModules)
             {
@@ -202,10 +195,10 @@ namespace DotNEToolkit.Modular
 
                 logger.DebugFormat("加载模块成功, {0}", module.Name);
 
-                this.moduleList.Add(moduleInst);
+                moduleList.Add(moduleInst);
             }
 
-            return this.moduleList.Count;
+            return moduleList;
         }
 
         #endregion
@@ -225,68 +218,50 @@ namespace DotNEToolkit.Modular
         /// 创建一个空的工厂
         /// </summary>
         /// <returns></returns>
-        public static ModuleFactory CreateFactory()
+        public static ModuleFactory CreateFactory(ModuleFactoryOptions options)
         {
-            return new ModuleFactory();
+            return new ModuleFactory()
+            {
+                options = options,
+            };
         }
 
         /// <summary>
-        /// 创建一个模块工厂并同步初始化模块实例
-        /// 如果初始化某个模块失败，那么返回null
-        /// 只有当所有模块都初始化成功后才会返回true
+        /// 初始化ModuleFactory
+        /// 1. 根据Options加载模块
+        /// 
+        /// 同步加载：如果初始化摸个模块失败，那么就返回FAILED
+        /// 异步加载：永远返回SUCCESS
         /// </summary>
-        /// <param name="initialModules">要初始化的模块实例</param>
-        /// <returns></returns>
-        public static ModuleFactory CreateFactory(IEnumerable<ModuleDefinition> initialModules)
+        public int Initialize()
         {
-            ModuleFactory factory = new ModuleFactory();
-            factory.CreateModuleInstance(initialModules);
-            foreach (ModuleBase moduleBase in factory.moduleList)
+            if (this.options.ModuleList.Count == 0)
             {
-                if (moduleBase.Definition.HasFlag(ModuleFlags.NotInitial)) 
-                {
-                    continue;
-                }
-
-                int code = moduleBase.Initialize();
-                if (code != DotNETCode.SUCCESS)
-                {
-                    logger.DebugFormat("模块加载失败, 错误码:{0}", code);
-                    return null;
-                }
+                return DotNETCode.SUCCESS;
             }
 
-            return factory;
-        }
+            List<ModuleBase> moduleList = this.CreateModuleInstance(this.options.ModuleList);
+            this.moduleList.AddRange(moduleList);
 
-        /// <summary>
-        /// 创建一个模块工厂，创建模块实例，但是不初始化它
-        /// </summary>
-        /// <param name="initialModules"></param>
-        /// <returns></returns>
-        public static ModuleFactory CreateFactory2(IEnumerable<ModuleDefinition> initialModules)
-        {
-            ModuleFactory factory = new ModuleFactory();
-            factory.CreateModuleInstance(initialModules);
-            return factory;
-        }
-
-        /// <summary>
-        /// 异步加载模块
-        /// 如果模块连接失败，该函数会自动重连模块
-        /// </summary>
-        /// <param name="initialModules"></param>
-        /// <param name="interval">自动重连模块的间隔时间</param>
-        /// <returns></returns>
-        public void SetupModulesAsync(IEnumerable<ModuleDefinition> initialModules, int interval)
-        {
-            int modules = this.CreateModuleInstance(initialModules);
-            if (modules == 0)
+            if (this.options.AsyncInitializing)
             {
-                return;
+                this.InitializeModulesAsync(this.moduleList, this.options.ReInitializeInterval);
+                return DotNETCode.SUCCESS;
             }
+            else
+            {
+                foreach (ModuleBase moduleInstance in moduleList)
+                {
+                    int code = moduleInstance.Initialize();
+                    if (code != DotNETCode.SUCCESS)
+                    {
+                        logger.DebugFormat("模块加载失败, 错误码:{0}", code);
+                        return DotNETCode.FAILED;
+                    }
+                }
 
-            this.InitializeModulesAsync(this.moduleList, interval);
+                return DotNETCode.SUCCESS;
+            }
         }
 
         public List<TModuleInstance> LookupModules<TModuleInstance>() where TModuleInstance : IModuleInstance

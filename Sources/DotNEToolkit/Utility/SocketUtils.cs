@@ -20,12 +20,11 @@ namespace DotNEToolkit
         /// </summary>
         /// <param name="socket"></param>
         /// <param name="data"></param>
-        /// <param name="timeout">超时时间，如果超过此时间还没有收到完整的数据，那么就返回false</param>
+        /// <param name="timeout">超时时间，如果读取数据的时候超过此时间还没读到，那么就返回false</param>
         /// <returns></returns>
         public static bool ReceiveFull(this Socket socket, byte[] data, int timeout)
         {
-            // 收数据的耗时
-            int elapsed = 0;
+            int timeout_ms = timeout * 1000;
 
             // 剩余要收的数据长度
             int left = data.Length;
@@ -33,8 +32,22 @@ namespace DotNEToolkit
             // 已经接收到的数据长度
             int read = 0;
 
+            // 接收到空数据的次数
+            int empties = 0;
+
             while (left > 0)
             {
+                // 以下几种情况SocketRead会返回true：
+                // 1. 有连接接入的时候
+                // 2. 有数据可以被读取的时候
+                // 3. 连接被关闭，重置，中止的时候（此时读取到的数据可能是0）
+                bool result = socket.Poll(timeout_ms, SelectMode.SelectRead);
+                if (!result)
+                {
+                    logger.ErrorFormat("从Socket读取数据超时, 超时时间:{0}ms", timeout);
+                    return false;
+                }
+
                 SocketError error;
                 int size = socket.Receive(data, read, left, SocketFlags.None, out error);
                 switch (error)
@@ -43,16 +56,14 @@ namespace DotNEToolkit
                         {
                             if (size == 0)
                             {
-                                if (elapsed >= timeout)
+                                // 按理说应该不会是0
+                                // 如果还是0，有可能是Socket已经断开连接了
+                                if (++empties == 5)
                                 {
+                                    logger.ErrorFormat("连续收到5次空数据，判断连接已断开");
                                     return false;
                                 }
-                                else
-                                {
-                                    logger.ErrorFormat("收超时, 等待50毫秒");
-                                    elapsed += 50;
-                                    Thread.Sleep(50);
-                                }
+                                continue;
                             }
                             else
                             {

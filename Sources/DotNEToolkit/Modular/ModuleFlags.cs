@@ -16,11 +16,5 @@ namespace DotNEToolkit.Modular
         /// 该模块不会被加到缓存里
         /// </summary>
         public const int Disabled = 1;
-
-        /// <summary>
-        /// 不初始化
-        /// 该模块会被加到缓存里，但是不调用初始化
-        /// </summary>
-        public const int NotInitial = 2;
     }
 }

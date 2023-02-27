@@ -58,6 +58,11 @@ namespace DotNEToolkit
         #region 属性
 
         /// <summary>
+        /// 指定是否使用异步加载模块
+        /// </summary>
+        protected virtual bool AsyncInitializing { get { return true; } }
+
+        /// <summary>
         /// 暂时没实现
         /// </summary>
         internal List<AppModule<TApp, TManifest>> AppModules { get; private set; }
@@ -78,6 +83,7 @@ namespace DotNEToolkit
 
         /// <summary>
         /// 初始化App
+        /// 自动读取App.config文件里的appConfig里配置的配置文件路径
         /// </summary>
         /// <returns></returns>
         public int Initialize()
@@ -145,10 +151,19 @@ namespace DotNEToolkit
             #region 加载ModuleFactory
 
             logger.Info("开始加载ModuleFactory...");
-            this.Factory = ModuleFactory.CreateFactory();
+            ModuleFactoryOptions options = new ModuleFactoryOptions()
+            {
+                AsyncInitializing = this.AsyncInitializing,
+                ModuleList = this.Manifest.ModuleList
+            };
+            this.Factory = ModuleFactory.CreateFactory(options);
             this.Factory.Initialized += Factory_Initialized;
             this.Factory.ModuleStatusChanged += Factory_ModuleStatusChanged;
-            this.Factory.SetupModulesAsync(this.Manifest.ModuleList, 2000);
+            int code = this.Factory.Initialize();
+            if (code != DotNETCode.SUCCESS)
+            {
+                return code;
+            }
 
             #endregion
 
@@ -226,18 +241,21 @@ namespace DotNEToolkit
         /// </summary>
         /// <param name="moduleInst"></param>
         /// <param name="status">模块状态</param>
-        protected abstract void OnModuleStatusEvent(IModuleInstance moduleInst, ModuleStatus status);
+        protected virtual void OnModuleStatusEvent(IModuleInstance moduleInst, ModuleStatus status)
+        { }
 
         /// <summary>
         /// 处理所有模块都初始化成功的事件
         /// </summary>
-        protected abstract void OnModuleInitialized();
+        protected virtual void OnModuleInitialized()
+        { }
 
         /// <summary>
         /// 当出现模块循环引用的时候触发
         /// </summary>
         /// <param name="moduleInst">存在循环引用的模块</param>
-        protected abstract void OnCircularReference(IModuleInstance moduleInst);
+        protected virtual void OnCircularReference(IModuleInstance moduleInst)
+        { }
 
         #endregion
     }
