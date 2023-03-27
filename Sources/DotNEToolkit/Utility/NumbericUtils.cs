@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DotNEToolkit
+namespace DotNEToolkit.Utility
 {
     /// <summary>
     /// 操作数字的帮助函数
     /// </summary>
-    public static class Numberics
+    public static class NumbericUtils
     {
         /// <summary>
         /// 保留num位小数，会四舍五入
@@ -56,6 +56,18 @@ namespace DotNEToolkit
         {
             int result = AccumulateTo(value, add);
             return result > max ? max : result;
+        }
+
+        /// <summary>
+        /// 比较两个double数值的大小
+        /// </summary>
+        /// <param name="d1"></param>
+        /// <param name="d2"></param>
+        /// <param name="tolerance">比较容差，如果容差小于该值，那么就判断为相等</param>
+        /// <returns></returns>
+        public static bool Max(double d1, double d2, double tolerance = 0.000001d)
+        {
+            double delta = Math.Abs(d1 - d2);
         }
     }
 }

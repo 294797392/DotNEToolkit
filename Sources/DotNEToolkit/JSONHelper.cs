@@ -163,6 +163,20 @@ namespace DotNEToolkit
             string jsonText = JsonConvert.SerializeObject(obj);
             File.WriteAllText(filePath, jsonText);
         }
+
+        /// <summary>
+        /// 克隆一个对象
+        /// 先把inputObject转换成JSON字符串，再把JSON字符串转成TOutput类型的对象
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="inputObject"></param>
+        /// <returns></returns>
+        public static TOutput CloneObject<TInput, TOutput>(TInput inputObject)
+        {
+            string json = JsonConvert.SerializeObject(inputObject);
+            return JsonConvert.DeserializeObject<TOutput>(json);
+        }
     }
 
     /// <summary>

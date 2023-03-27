@@ -67,6 +67,7 @@ namespace DotNEToolkit
                             }
                             else
                             {
+                                empties = 0;
                                 read += size;
                                 left -= size;
                             }
@@ -95,8 +96,11 @@ namespace DotNEToolkit
             // 收数据的耗时
             int elapsed = 0;
 
-            int left = data.Length;     // 剩余要发送的字节数
-            int sent = 0;               // 已经发送的字节数
+            // 剩余要发送的字节数
+            int left = data.Length;
+
+            // 已经发送的字节数
+            int sent = 0;
 
             while (left > 0)
             {

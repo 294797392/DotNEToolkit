@@ -26,12 +26,6 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            bool result = socket.Poll(100000, SelectMode.SelectRead);
-            socket.Receive(new byte[10000], 0, 0, SocketFlags.None);
-            Console.WriteLine(result);
-
-
             //TestCSV.CSVFile2Objects();
             //TestExcel.ExcelFile2Objects();
 
