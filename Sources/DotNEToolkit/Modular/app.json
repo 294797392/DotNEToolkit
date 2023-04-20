@@ -1,4 +1,6 @@
 ﻿{
+    "asynInit": false,
+
     "modules": [
         {
             "ID": "",

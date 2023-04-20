@@ -240,28 +240,8 @@ namespace DotNEToolkit.Modular
                 return DotNETCode.SUCCESS;
             }
 
-            List<ModuleBase> moduleList = this.CreateModuleInstance(this.options.ModuleList);
-            this.moduleList.AddRange(moduleList);
-
-            if (this.options.AsyncInitializing)
-            {
-                this.InitializeModulesAsync(this.moduleList, this.options.ReInitializeInterval);
-                return DotNETCode.SUCCESS;
-            }
-            else
-            {
-                foreach (ModuleBase moduleInstance in moduleList)
-                {
-                    int code = moduleInstance.Initialize();
-                    if (code != DotNETCode.SUCCESS)
-                    {
-                        logger.DebugFormat("模块加载失败, 错误码:{0}", code);
-                        return DotNETCode.FAILED;
-                    }
-                }
-
-                return DotNETCode.SUCCESS;
-            }
+            this.CreateModuleInstance();
+            return this.InitializeModuleInstance();
         }
 
         public List<TModuleInstance> LookupModules<TModuleInstance>() where TModuleInstance : IModuleInstance
@@ -296,6 +276,39 @@ namespace DotNEToolkit.Modular
         public TModuleInstance LookupModule<TModuleInstance>() where TModuleInstance : IModuleInstance
         {
             return this.moduleList.OfType<TModuleInstance>().FirstOrDefault();
+        }
+
+        #endregion
+
+        #region Internal方法
+
+        internal void CreateModuleInstance()
+        {
+            List<ModuleBase> moduleList = this.CreateModuleInstance(this.options.ModuleList);
+            this.moduleList.AddRange(moduleList);
+        }
+
+        internal int InitializeModuleInstance()
+        {
+            if (this.options.AsyncInitializing)
+            {
+                this.InitializeModulesAsync(this.moduleList, this.options.ReInitializeInterval);
+                return DotNETCode.SUCCESS;
+            }
+            else
+            {
+                foreach (ModuleBase moduleInstance in moduleList)
+                {
+                    int code = moduleInstance.Initialize();
+                    if (code != DotNETCode.SUCCESS)
+                    {
+                        logger.DebugFormat("模块加载失败, 错误码:{0}", code);
+                        return DotNETCode.FAILED;
+                    }
+                }
+
+                return DotNETCode.SUCCESS;
+            }
         }
 
         #endregion

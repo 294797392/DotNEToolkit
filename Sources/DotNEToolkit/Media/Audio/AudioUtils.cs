@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotNEToolkit.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -83,8 +84,8 @@ namespace DotNEToolkit.Media
                 double leftPercentage = (90.308733622834 - Math.Abs(left_dbFS)) / 90.308733622834;
                 double rightPercentage = (90.308733622834 - Math.Abs(right_dbFS)) / 90.308733622834;
 
-                volumes.Add(Numberics.FixedDecimal(leftPercentage * 100, 2));
-                volumes.Add(Numberics.FixedDecimal(rightPercentage * 100, 2));
+                volumes.Add(NumbericUtils.FixedDecimal(leftPercentage * 100, 2));
+                volumes.Add(NumbericUtils.FixedDecimal(rightPercentage * 100, 2));
 
                 //Console.WriteLine("{0}, {1}", leftPercentage, rightPercentage);
             }

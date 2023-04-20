@@ -22,8 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Debug\DotNEToolkit.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -80,6 +79,7 @@
   <ItemGroup>
     <Compile Include="BytePool.cs" />
     <Compile Include="Crypto\CRC16.cs" />
+    <Compile Include="DataModels\BizModel.cs" />
     <Compile Include="DataModels\ModelBaseInt.cs" />
     <Compile Include="DateTimeFormat.cs" />
     <Compile Include="DbConnectionString.cs" />

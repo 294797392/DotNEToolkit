@@ -1,4 +1,4 @@
-﻿using DotNEToolkit.Modular;
+﻿ using DotNEToolkit.Modular;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,22 +16,22 @@ namespace DotNEToolkit
     public abstract class AppManifest
     {
         /// <summary>
+        /// 是否异步初始化模块
+        /// 默认不异步，默认用同步初始化
+        /// </summary>
+        [JsonProperty("asyncInit")]
+        public bool AsynchronousInitialization { get; set; }
+
+        /// <summary>
         /// 配置文件里的所有的模块列表
         /// </summary>
         [JsonProperty("modules")]
         public List<ModuleDefinition> ModuleList { get; private set; }
 
-        /// <summary>
-        /// 所有AppModule模块列表
-        /// 暂时没实现
-        /// </summary>
-        [JsonProperty("appModules")]
-        internal List<ModuleDefinition> AppModuleList { get; private set; }
-
         public AppManifest()
         {
             this.ModuleList = new List<ModuleDefinition>();
-            this.AppModuleList = new List<ModuleDefinition>();
+            this.AsynchronousInitialization = false;
         }
     }
 
@@ -56,16 +56,6 @@ namespace DotNEToolkit
         #endregion
 
         #region 属性
-
-        /// <summary>
-        /// 指定是否使用异步加载模块
-        /// </summary>
-        protected virtual bool AsyncInitializing { get { return true; } }
-
-        /// <summary>
-        /// 暂时没实现
-        /// </summary>
-        internal List<AppModule<TApp, TManifest>> AppModules { get; private set; }
 
         /// <summary>
         /// 模块工厂
@@ -140,12 +130,11 @@ namespace DotNEToolkit
         /// 使用AppManifest的实例初始化App
         /// </summary>
         /// <param name="configFile">指定配置文件的完整路径，当调用SaveManifest的时候，将会使用该路径进行保存</param>
-        /// <param name="manifest"></param>
+        /// <param name="manifest">要初始化的App清单</param>
         /// <returns></returns>
         public int Initialize(string configFile, TManifest manifest)
         {
             this.configPath = configFile;
-            this.AppModules = new List<AppModule<TApp, TManifest>>();
             this.Manifest = manifest;
 
             #region 加载ModuleFactory
@@ -153,13 +142,21 @@ namespace DotNEToolkit
             logger.Info("开始加载ModuleFactory...");
             ModuleFactoryOptions options = new ModuleFactoryOptions()
             {
-                AsyncInitializing = this.AsyncInitializing,
+                AsyncInitializing = this.Manifest.AsynchronousInitialization,
                 ModuleList = this.Manifest.ModuleList
             };
             this.Factory = ModuleFactory.CreateFactory(options);
             this.Factory.Initialized += Factory_Initialized;
             this.Factory.ModuleStatusChanged += Factory_ModuleStatusChanged;
-            int code = this.Factory.Initialize();
+
+            // 创建模块的实例
+            this.Factory.CreateModuleInstance();
+
+            // 初始化AppModule里的字段
+            this.InitializeAppModule();
+
+            // 调用模块的初始化方法初始化模块
+            int code = this.Factory.InitializeModuleInstance();
             if (code != DotNETCode.SUCCESS)
             {
                 return code;
@@ -200,7 +197,18 @@ namespace DotNEToolkit
 
         #endregion
 
-        #region 受保护方法
+        #region 实例方法
+
+        private void InitializeAppModule()
+        {
+            // 不管是同步初始化还是异步初始化，此处永远保证所有模块都被成功加载
+
+            List<AppModule<TManifest>> appModules = this.Factory.LookupModules<AppModule<TManifest>>();
+            foreach (AppModule<TManifest> appModule in appModules)
+            {
+                appModule.AppManifest = this.Manifest;
+            }
+        }
 
         #endregion
 
@@ -208,6 +216,7 @@ namespace DotNEToolkit
 
         private void Factory_Initialized(ModuleFactory factory)
         {
+            // 异步初始化会运行这个函数
             this.OnModuleInitialized();
         }
 

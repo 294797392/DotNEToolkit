@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotNEToolkit.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,8 +30,8 @@ namespace DotNEToolkit
 
             int start = startWithPoundKey ? 1 : 0;
 
-            if (!Numberics.IsHexadecimal(color[start + 0]) || !Numberics.IsHexadecimal(color[start + 1]) || !Numberics.IsHexadecimal(color[start + 2]) ||
-                !Numberics.IsHexadecimal(color[start + 3]) || !Numberics.IsHexadecimal(color[start + 4]) || Numberics.IsHexadecimal(color[start + 5]))
+            if (!NumbericUtils.IsHexadecimal(color[start + 0]) || !NumbericUtils.IsHexadecimal(color[start + 1]) || !NumbericUtils.IsHexadecimal(color[start + 2]) ||
+                !NumbericUtils.IsHexadecimal(color[start + 3]) || !NumbericUtils.IsHexadecimal(color[start + 4]) || NumbericUtils.IsHexadecimal(color[start + 5]))
             {
                 throw new ArgumentException(string.Format("十六进制颜色格式不正确, {0}", color));
             }

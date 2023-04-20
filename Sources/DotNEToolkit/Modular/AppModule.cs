@@ -7,19 +7,13 @@ using System.Threading.Tasks;
 namespace DotNEToolkit.Modular
 {
     /// <summary>
-    /// 实现一个ModularApp里的Module
+    /// 在Module基础上实现一个ModularApp里的Module
     /// </summary>
     /// <typeparam name="TApp"></typeparam>
     /// <typeparam name="TManifest"></typeparam>
-    public abstract class AppModule<TApp, TManifest> : ModuleBase
-        where TApp : class
+    public abstract class AppModule<TManifest> : ModuleBase
         where TManifest : AppManifest
     {
-        /// <summary>
-        /// 该Module所属的App
-        /// </summary>
-        public TApp App { get; internal set; }
-
         /// <summary>
         /// 该Module所属的AppManifest
         /// </summary>
