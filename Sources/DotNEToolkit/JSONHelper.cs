@@ -46,7 +46,7 @@ namespace DotNEToolkit
         /// <param name="json"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static TResult Parse<TResult>(string json, TResult defaultValue) where TResult : class
+        public static TResult Parse<TResult>(string json, TResult defaultValue)
         {
             if (string.IsNullOrEmpty(json))
             {
@@ -64,7 +64,7 @@ namespace DotNEToolkit
             }
         }
 
-        public static TResult Parse<TResult>(string json) where TResult : class
+        public static TResult Parse<TResult>(string json)
         {
             return JsonConvert.DeserializeObject<TResult>(json);
         }

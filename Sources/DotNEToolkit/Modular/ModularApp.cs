@@ -1,4 +1,4 @@
-﻿ using DotNEToolkit.Modular;
+﻿using DotNEToolkit.Modular;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,8 @@ namespace DotNEToolkit
 {
     /// <summary>
     /// App清单文件
+    /// 清单文件里只存储不可变的数据
+    /// 可变数据属于配置数据，调用ModularApp的GetConfig个SetConfig接口进行读写
     /// </summary>
     public abstract class AppManifest
     {
@@ -28,6 +30,15 @@ namespace DotNEToolkit
         [JsonProperty("modules")]
         public List<ModuleDefinition> ModuleList { get; private set; }
 
+        /// <summary>
+        /// App的配置文件路径
+        /// </summary>
+        [JsonProperty("settingPath")]
+        public string SettingPath { get; set; }
+
+        /// <summary>
+        /// 构造方法
+        /// </summary>
         public AppManifest()
         {
             this.ModuleList = new List<ModuleDefinition>();
@@ -47,11 +58,15 @@ namespace DotNEToolkit
         protected static log4net.ILog logger = log4net.LogManager.GetLogger(typeof(TApp));
 
         private const string KEY_CONFIG_PATH = "appConfig";
-        private const string DefaultConfigFileName = "app.json";
+        private const string DefaultAppManifestFileName = "app.json";
+        private const string DefaultAppSettingFileName = "app.setting.json";
 
         #region 实例变量
 
         private string configPath;
+        private string settingPath;
+
+        private Dictionary<string, string> settings;
 
         #endregion
 
@@ -83,7 +98,7 @@ namespace DotNEToolkit
             if (string.IsNullOrEmpty(configPath))
             {
                 // 如果exe.config文件里没配置，那么使用根目录下的app.json文件
-                configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultConfigFileName);
+                configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultAppManifestFileName);
                 logger.InfoFormat("客户端没配置配置文件的路径, 使用默认路径:{0}", configPath);
             }
             else
@@ -136,6 +151,26 @@ namespace DotNEToolkit
         {
             this.configPath = configFile;
             this.Manifest = manifest;
+            this.settingPath = string.IsNullOrEmpty(manifest.SettingPath) ? DefaultAppSettingFileName : manifest.SettingPath;
+
+            #region 读取Setting
+
+            if (File.Exists(DefaultAppSettingFileName))
+            {
+                try
+                {
+                    this.settings = JSONHelper.ParseFile<Dictionary<string, string>>(this.settingPath);
+
+                    logger.InfoFormat("加载appSetting成功, path = {0}, count = {1}", this.settingPath, this.settings.Count);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("读取appSetting异常, 文件路径 = {0}, ex = {1}", this.settingPath, ex);
+                    this.settings = new Dictionary<string, string>();
+                }
+            }
+
+            #endregion
 
             #region 加载ModuleFactory
 
@@ -181,6 +216,7 @@ namespace DotNEToolkit
         /// <summary>
         /// 保存Manifest文件
         /// </summary>
+        [Obsolete]
         public int SaveManifest()
         {
             try
@@ -193,6 +229,38 @@ namespace DotNEToolkit
                 logger.Error("保存配置文件异常", ex);
                 return DotNETCode.FAILED;
             }
+        }
+
+        /// <summary>
+        /// 写入并保存配置文件
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void WriteSetting<T>(string key, T value)
+        {
+            string json = JsonConvert.SerializeObject(value);
+            this.settings[key] = json;
+
+            JSONHelper.Object2File<Dictionary<string, string>>(this.settingPath, this.settings);
+        }
+
+        /// <summary>
+        /// 读取配置文件里的配置
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public T ReadSetting<T>(string key, T defaultValue)
+        {
+            string json;
+            if (!this.settings.TryGetValue(key, out json))
+            {
+                return defaultValue;
+            }
+
+            return JSONHelper.Parse<T>(json);
         }
 
         #endregion
