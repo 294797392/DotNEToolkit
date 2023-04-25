@@ -278,16 +278,45 @@ namespace DotNEToolkit.Modular
             return this.moduleList.OfType<TModuleInstance>().FirstOrDefault();
         }
 
+        /// <summary>
+        /// 根据模块类型获取对应的模块实例
+        /// </summary>
+        /// <param name="targetType">要获取的模块类型</param>
+        /// <returns></returns>
+        public ModuleBase LookupModule(Type targetType)
+        {
+            foreach (ModuleBase module in this.moduleList)
+            {
+                Type moduleType = module.GetType();
+                if (moduleType.IsAssignableFrom(targetType))
+                {
+                    // 此时说明targetType是moduleType的基类
+                    return module;
+                }
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region Internal方法
 
+        /// <summary>
+        /// 创建所有模块的实例
+        /// 只创建实例，不初始化
+        /// </summary>
         internal void CreateModuleInstance()
         {
             List<ModuleBase> moduleList = this.CreateModuleInstance(this.options.ModuleList);
             this.moduleList.AddRange(moduleList);
         }
 
+        /// <summary>
+        /// 根据同步或者异步配置，来初始化模块
+        /// ModuleFactoryOptions.AsyncInitializing
+        /// </summary>
+        /// <returns></returns>
         internal int InitializeModuleInstance()
         {
             if (this.options.AsyncInitializing)
@@ -303,8 +332,10 @@ namespace DotNEToolkit.Modular
                     if (code != DotNETCode.SUCCESS)
                     {
                         logger.DebugFormat("模块加载失败, 错误码:{0}", code);
+                        moduleInstance.Status = ModuleStatus.InitializeFailed;
                         return DotNETCode.FAILED;
                     }
+                    moduleInstance.Status = ModuleStatus.Initialized;
                 }
 
                 return DotNETCode.SUCCESS;

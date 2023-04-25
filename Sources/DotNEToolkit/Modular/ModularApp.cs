@@ -1,4 +1,6 @@
 ﻿using DotNEToolkit.Modular;
+using DotNEToolkit.Modular.Attributes;
+using DotNEToolkit.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -48,6 +50,7 @@ namespace DotNEToolkit
 
     /// <summary>
     /// 封装一个基于模块化（ModuleFactory）实现的App开发框架
+    /// 1. 实现了AppModule的依赖注入功能
     /// </summary>
     /// <typeparam name="TApp"></typeparam>
     /// <typeparam name="TManifest"></typeparam>
@@ -153,7 +156,7 @@ namespace DotNEToolkit
             this.Manifest = manifest;
             this.settingPath = string.IsNullOrEmpty(manifest.SettingPath) ? DefaultAppSettingFileName : manifest.SettingPath;
 
-            #region 读取Setting
+            #region 加载Setting
 
             if (File.Exists(DefaultAppSettingFileName))
             {
@@ -168,6 +171,11 @@ namespace DotNEToolkit
                     logger.ErrorFormat("读取appSetting异常, 文件路径 = {0}, ex = {1}", this.settingPath, ex);
                     this.settings = new Dictionary<string, string>();
                 }
+            }
+            else
+            {
+                logger.InfoFormat("appSetting不存在, 初始化新的appSetting");
+                this.settings = new Dictionary<string, string>();
             }
 
             #endregion
@@ -187,7 +195,9 @@ namespace DotNEToolkit
             // 创建模块的实例
             this.Factory.CreateModuleInstance();
 
-            // 初始化AppModule里的字段
+            // 初始化AppModule
+            // 1. 为Manifest字段赋值，使AppModule可以访问到AppManifest
+            // 2. 如果AppModule依赖于某个其他的模块，注入其他模块
             this.InitializeAppModule();
 
             // 调用模块的初始化方法初始化模块
@@ -269,12 +279,32 @@ namespace DotNEToolkit
 
         private void InitializeAppModule()
         {
-            // 不管是同步初始化还是异步初始化，此处永远保证所有模块都被成功加载
-
             List<AppModule<TManifest>> appModules = this.Factory.LookupModules<AppModule<TManifest>>();
             foreach (AppModule<TManifest> appModule in appModules)
             {
                 appModule.AppManifest = this.Manifest;
+
+                #region 如果该模块依赖其他模块，对模块进行依赖注入
+
+                List<PropertyAttribute<InjectableAttribute>> propertyAttributes = ReflectionUtils.GetPropertyAttribute<InjectableAttribute>(appModule.GetType());
+                foreach (PropertyAttribute<InjectableAttribute> propertyAttribute in propertyAttributes)
+                {
+                    // 要依赖注入的模块类型
+                    Type targetType = propertyAttribute.Property.PropertyType;
+
+                    // 找到对应的类型的实例
+                    ModuleBase module = this.Factory.LookupModule(targetType);
+                    if (module == null)
+                    {
+                        // 没找到
+                        continue;
+                    }
+
+                    // 注入成功
+                    propertyAttribute.Property.SetValue(appModule, module);
+                }
+
+                #endregion
             }
         }
 

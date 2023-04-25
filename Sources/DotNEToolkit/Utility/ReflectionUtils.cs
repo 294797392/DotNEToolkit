@@ -9,8 +9,14 @@ namespace DotNEToolkit.Utility
 {
     public class PropertyAttribute<TAttribute>
     {
+        /// <summary>
+        /// 该特性所对应的属性信息
+        /// </summary>
         public PropertyInfo Property { get; set; }
 
+        /// <summary>
+        /// 该属性所拥有的特性实例
+        /// </summary>
         public TAttribute Attribute { get; set; }
     }
 
