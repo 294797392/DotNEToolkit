@@ -31,6 +31,13 @@ namespace DotNEToolkit.Modular
 
         #region 公开事件
 
+        /// <summary>
+        /// 当有事件触发的时候触发
+        /// int:EventTyep
+        /// object:EventParam
+        /// </summary>
+        public event Action<ModuleBase, int, object> OnEvent;
+
         #endregion
 
         #region 实例变量
@@ -108,8 +115,6 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         public int Initialize()
         {
-            this.InitializeBinding();
-
             return this.OnInitialize();
         }
 
@@ -126,39 +131,17 @@ namespace DotNEToolkit.Modular
 
         #region 实例方法
 
-        private void InitializeBinding()
+        /// <summary>
+        /// 通知外部模块有事件触发
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="eventParam"></param>
+        protected void NotifyEvent(int eventType, object eventParam)
         {
-            //DateTime start = DateTime.Now;
-            //Console.WriteLine("开始反射");
-
-            List<BindableProperty> properties = BindableProperties.Context.GetBindableProperties(this.GetType());
-            foreach (BindableProperty property in properties)
+            if (this.OnEvent != null)
             {
-                object value = this.InputParameters.GetValue<object>(property.Name, property.Attribute.DefaultValue);
-                if (value == null)
-                {
-                    // 没有配置对应的属性值
-                    continue;
-                }
-
-                if (property.PropertyType.Name == "String")
-                {
-                    property.SetValue(this, value, null);
-                }
-                else if (property.PropertyType.IsEnum)
-                {
-                    object o = Enum.Parse(property.PropertyType, value.ToString());
-                    property.SetValue(this, o, null);
-                }
-                else
-                {
-                    string json = value.ToString();
-                    object v = JsonConvert.DeserializeObject(json, property.PropertyType);
-                    property.SetValue(this, v, null);
-                }
+                this.OnEvent(this, eventType, eventParam);
             }
-
-            //Console.WriteLine("反射完成, {0}", (DateTime.Now - start).TotalMilliseconds);
         }
 
         #endregion
