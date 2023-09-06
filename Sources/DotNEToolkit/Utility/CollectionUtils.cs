@@ -130,7 +130,7 @@ namespace DotNEToolkit
         /// </summary>
         /// <param name="list"></param>
         /// <param name="separator">指定要使用的分隔符</param>
-        /// <returns></returns>
+        /// <returns>返回拼接口的字符串，该字符串最后没有分隔符</returns>
         public static string Join(this IEnumerable<string> list, string separator = null)
         {
             bool useSeparator = separator == null || separator.Length == 0 ? false : true;
@@ -147,7 +147,7 @@ namespace DotNEToolkit
                 }
             }
 
-            if (useSeparator && list.Count() > 1)
+            if (useSeparator && list.Count() > 0)
             {
                 // 去掉尾部的分隔符
                 result = result.Substring(0, result.Length - separator.Length);

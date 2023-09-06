@@ -3,11 +3,69 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using static DotNEToolkit.Shell32;
 
 // 所有的Win32API用Dll名字给类命名
 
 namespace DotNEToolkit
 {
+    public static class Win32APIHelper
+    {
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("Win32APIHelper");
+
+        /// <summary>
+        /// 获取某个窗口中，某个位置的控件上的文本
+        /// </summary>
+        /// <param name="hWnd">要获取的窗口的句柄</param>
+        /// <param name="x">要获取文本的控件的x坐标</param>
+        /// <param name="y">要获取文本的控件的y坐标</param>
+        /// <returns>获取到的文本</returns>
+        public static string GetWindowText(IntPtr hWnd, int x, int y)
+        {
+            Win32API.POINT point = new Win32API.POINT()
+            {
+                x = x,
+                y = y
+            };
+
+            IntPtr handle = Win32API.ChildWindowFromPoint(hWnd, point);
+            if (handle == IntPtr.Zero)
+            {
+                logger.ErrorFormat("ChildWindowFromPoint失败, {0}", Marshal.GetLastWin32Error());
+                return null;
+            }
+
+            int size = Win32API.SendMessage(handle, Win32API.WM_GETTEXTLENGTH, 0, 0);
+            if (size == 0)
+            {
+                return string.Empty;
+            }
+
+            char[] title = new char[size];
+            SendMessage(handle, Win32API.WM_GETTEXT, size, Marshal.UnsafeAddrOfPinnedArrayElement(title, 0));
+            return new string(title);
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int bufSize, IntPtr buf);
+
+        /// <summary>
+        /// 显示文件或者目录的属性对话框
+        /// </summary>
+        /// <param name="Filename"></param>
+        /// <returns></returns>
+        public static bool ShowFileProperties(string Filename)
+        {
+            SHELLEXECUTEINFO info = new SHELLEXECUTEINFO();
+            info.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(info);
+            info.lpVerb = "properties";
+            info.lpFile = Filename;
+            info.nShow = SW_SHOW;
+            info.fMask = SEE_MASK_INVOKEIDLIST;
+            return ShellExecuteEx(ref info);
+        }
+    }
+
     public static class Iphlpapi
     {
         private const string DllName = "Iphlpapi.dll";
@@ -138,47 +196,6 @@ namespace DotNEToolkit
 
         [DllImport(DllName)]
         public static extern bool CloseHandle(IntPtr hObject);
-    }
-
-    public static class Win32APIHelper
-    {
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("Win32APIHelper");
-
-        /// <summary>
-        /// 获取某个窗口中，某个位置的控件上的文本
-        /// </summary>
-        /// <param name="hWnd">要获取的窗口的句柄</param>
-        /// <param name="x">要获取文本的控件的x坐标</param>
-        /// <param name="y">要获取文本的控件的y坐标</param>
-        /// <returns>获取到的文本</returns>
-        public static string GetWindowText(IntPtr hWnd, int x, int y)
-        {
-            Win32API.POINT point = new Win32API.POINT()
-            {
-                x = x,
-                y = y
-            };
-
-            IntPtr handle = Win32API.ChildWindowFromPoint(hWnd, point);
-            if (handle == IntPtr.Zero)
-            {
-                logger.ErrorFormat("ChildWindowFromPoint失败, {0}", Marshal.GetLastWin32Error());
-                return null;
-            }
-
-            int size = Win32API.SendMessage(handle, Win32API.WM_GETTEXTLENGTH, 0, 0);
-            if (size == 0)
-            {
-                return string.Empty;
-            }
-
-            char[] title = new char[size];
-            SendMessage(handle, Win32API.WM_GETTEXT, size, Marshal.UnsafeAddrOfPinnedArrayElement(title, 0));
-            return new string(title);
-        }
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        private static extern int SendMessage(IntPtr hWnd, int Msg, int bufSize, IntPtr buf);
     }
 
     /// <summary>
@@ -1036,5 +1053,39 @@ namespace DotNEToolkit
 
         [DllImport("Ole32.dll", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern int CoInitializeEx(IntPtr pvReserved, tagCOINIT dwCoInit);
+    }
+
+    public static class Shell32
+    {
+        public const int SW_SHOW = 5;
+        public const uint SEE_MASK_INVOKEIDLIST = 12;
+
+        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+        public static extern bool ShellExecuteEx(ref SHELLEXECUTEINFO lpExecInfo);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SHELLEXECUTEINFO
+        {
+            public int cbSize;
+            public uint fMask;
+            public IntPtr hwnd;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpVerb;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpFile;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpParameters;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpDirectory;
+            public int nShow;
+            public IntPtr hInstApp;
+            public IntPtr lpIDList;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpClass;
+            public IntPtr hkeyClass;
+            public uint dwHotKey;
+            public IntPtr hIcon;
+            public IntPtr hProcess;
+        }
     }
 }

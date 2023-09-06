@@ -16,21 +16,23 @@ namespace DotNEToolkit
         /// 从流中读取数据，一直读满size个字节为止
         /// </summary>
         /// <param name="stream"></param>
-        /// <param name="bytes"></param>
+        /// <param name="bytes">存储读取道的数据的缓冲区</param>
+        /// <param name="offset">要读取的数据偏移量</param>
+        /// <param name="size">要读取的字节数，如果为0，那么读取bytes.Length个字节</param>
         /// <returns></returns>
-        public static void ReadFull(this Stream stream, byte[] bytes)
+        public static void ReadFull(this Stream stream, byte[] bytes, int offset = 0, int size = 0)
         {
             // 剩余要收的数据长度
-            int left = bytes.Length;
+            int left = size == 0 ? bytes.Length : size;
 
             // 已经接收到的数据长度
             int read = 0;
 
             while (left > 0)
             {
-                int size = stream.Read(bytes, read, left);
-                read += size;
-                left -= size;
+                int readed = stream.Read(bytes, read + offset, left);
+                read += readed;
+                left -= readed;
             }
         }
 
