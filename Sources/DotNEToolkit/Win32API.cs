@@ -1034,7 +1034,215 @@ namespace DotNEToolkit
             COINIT_SPEED_OVER_MEMORY = 0x8
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SHFILEINFO
+        {
+            public IntPtr hIcon;
+            public int iIcon;
+            public int dwAttributes;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 260)]
+            public byte[] szDisplayName;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 80)]
+            public byte[] szTypeName;
+        }
+
+        /// <summary>
+        /// 图像大小通常为 32x32 像素。 但是，如果从“显示属性”中“外观”选项卡的“效果”部分选择了“使用大图标”选项，则图像为 48x48 像素。
+        /// </summary>
+        public const int SHIL_LARGE = 0x0;
+        /// <summary>
+        /// 这些图像是 Shell 标准小图标大小 16x16，但用户可自定义大小。
+        /// </summary>
+        public const int SHIL_SMALL = 0x1;
+        /// <summary>
+        /// 这些图像是 Shell 标准超大图标大小。 这通常是 48x48，但用户可自定义大小。
+        /// </summary>
+        public const int SHIL_EXTRALARGE = 0x2;
+        /// <summary>
+        /// 这些图像是 GetSystemMetrics 使用 SM_CXSMICON 和 getSystemMetrics 使用 SM_CYSMICON 指定的大小。
+        /// </summary>
+        public const int SHIL_SYSSMALL = 0x3;
+        /// <summary>
+        ///  Windows Vista 及更高版本。 图像通常为 256x256 像素。
+        /// </summary>
+        public const int SHIL_JUMBO = 0x4;
+        public const int SHGFI_SYSICONINDEX = 0x000004000;
+        public const int SHGFI_OPENICON = 0x000000002;
+
+        public const int ILD_IMAGE = 0x00000020;
+        public const int ILD_TRANSPARENT = 0x00000001;
+
         [DllImport("Ole32.dll", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern int CoInitializeEx(IntPtr pvReserved, tagCOINIT dwCoInit);
+
+        [DllImport("Ole32.dll", CharSet = CharSet.Unicode)]
+        public static extern int IIDFromString(string psz, out Win32API.GUID guid);
+
+        [DllImport("Shell32.dll")]
+        public static extern int SHGetFileInfo(string pszPath, int dwFileAttributes, out SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
+
+        [DllImport("shell32.dll")]
+        public static extern int SHGetImageList(int iImageList, ref Win32API.GUID riid, out IImageList ppv);
+
+        [ComImportAttribute]
+        [GuidAttribute("46EB5926-582E-4017-9FDF-E8998DAA0950")]
+        [InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+        //helpstring("Image List"),
+        public interface IImageList
+        {
+            [PreserveSig]
+            int Add(
+                IntPtr hbmImage,
+                IntPtr hbmMask,
+                ref int pi);
+
+            [PreserveSig]
+            int ReplaceIcon(
+                int i,
+                IntPtr hicon,
+                ref int pi);
+
+            [PreserveSig]
+            int SetOverlayImage(
+                int iImage,
+                int iOverlay);
+
+            [PreserveSig]
+            int Replace(
+                int i,
+                IntPtr hbmImage,
+                IntPtr hbmMask);
+
+            [PreserveSig]
+            int AddMasked(
+                IntPtr hbmImage,
+                int crMask,
+                ref int pi);
+
+            [PreserveSig]
+            int Draw(
+                IntPtr pimldp);
+
+            [PreserveSig]
+            int Remove(
+            int i);
+
+            [PreserveSig]
+            int GetIcon(
+                int i,
+                int flags,
+                ref IntPtr picon);
+
+            [PreserveSig]
+            int GetImageInfo(
+                int i,
+                IntPtr pImageInfo);
+
+            [PreserveSig]
+            int Copy(
+                int iDst,
+                IImageList punkSrc,
+                int iSrc,
+                int uFlags);
+
+            [PreserveSig]
+            int Merge(
+                int i1,
+                IImageList punk2,
+                int i2,
+                int dx,
+                int dy,
+                ref Guid riid,
+                ref IntPtr ppv);
+
+            [PreserveSig]
+            int Clone(
+                ref Guid riid,
+                ref IntPtr ppv);
+
+            [PreserveSig]
+            int GetImageRect(
+                int i,
+                IntPtr prc);
+
+            [PreserveSig]
+            int GetIconSize(
+                ref int cx,
+                ref int cy);
+
+            [PreserveSig]
+            int SetIconSize(
+                int cx,
+                int cy);
+
+            [PreserveSig]
+            int GetImageCount(
+            ref int pi);
+
+            [PreserveSig]
+            int SetImageCount(
+                int uNewCount);
+
+            [PreserveSig]
+            int SetBkColor(
+                int clrBk,
+                ref int pclr);
+
+            [PreserveSig]
+            int GetBkColor(
+                ref int pclr);
+
+            [PreserveSig]
+            int BeginDrag(
+                int iTrack,
+                int dxHotspot,
+                int dyHotspot);
+
+            [PreserveSig]
+            int EndDrag();
+
+            [PreserveSig]
+            int DragEnter(
+                IntPtr hwndLock,
+                int x,
+                int y);
+
+            [PreserveSig]
+            int DragLeave(
+                IntPtr hwndLock);
+
+            [PreserveSig]
+            int DragMove(
+                int x,
+                int y);
+
+            [PreserveSig]
+            int SetDragCursorImage(
+                ref IImageList punk,
+                int iDrag,
+                int dxHotspot,
+                int dyHotspot);
+
+            [PreserveSig]
+            int DragShowNolock(
+                int fShow);
+
+            [PreserveSig]
+            int GetDragImage(
+                IntPtr ppt,
+                IntPtr pptHotspot,
+                ref Guid riid,
+                ref IntPtr ppv);
+
+            [PreserveSig]
+            int GetItemFlags(
+                int i,
+                ref int dwFlags);
+
+            [PreserveSig]
+            int GetOverlayImage(
+                int iOverlay,
+                ref int piIndex);
+        };
     }
 }
