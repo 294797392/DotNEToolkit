@@ -59,8 +59,8 @@ namespace DotNETClient
 
             //libVLCForm vlcForm = new libVLCForm();
             //vlcForm.Show();
-            TestDirectSound form = new TestDirectSound();
-            form.Show();
+            //TestDirectSound form = new TestDirectSound();
+            //form.Show();
         }
 
         private void T_callback1(tail arg1, tail.tail_event_type arg2, object arg3, object arg4)

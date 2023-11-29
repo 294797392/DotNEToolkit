@@ -31,7 +31,13 @@ namespace DotNEToolkitDemo.UserControls
 
         private void InitializeUserControl()
         {
-            this.moduleFactory = ModuleFactory.CreateFactory();
+            ModuleFactoryOptions moduleFactoryOptions = new ModuleFactoryOptions() 
+            {
+                AsyncInitializing = false,
+                ModuleList = new List<ModuleDefinition>()
+            };
+
+            this.moduleFactory = ModuleFactory.CreateFactory(moduleFactoryOptions);
             this.moduleFactory.Initialized += ModuleFactory_Initialized;
         }
 

@@ -224,24 +224,6 @@ namespace DotNEToolkit
         }
 
         /// <summary>
-        /// 保存Manifest文件
-        /// </summary>
-        [Obsolete]
-        public int SaveManifest()
-        {
-            try
-            {
-                JSONHelper.Object2File<TManifest>(this.configPath, this.Manifest);
-                return DotNETCode.SUCCESS;
-            }
-            catch (Exception ex)
-            {
-                logger.Error("保存配置文件异常", ex);
-                return DotNETCode.FAILED;
-            }
-        }
-
-        /// <summary>
         /// 写入并保存配置文件
         /// </summary>
         /// <typeparam name="T"></typeparam>

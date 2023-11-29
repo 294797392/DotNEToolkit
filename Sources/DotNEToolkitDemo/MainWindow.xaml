@@ -9,8 +9,10 @@
         Title="MainWindow" Height="450" Width="800">
     
     <Grid>
-        <uc:ModuleHostUserControl/>
+        <!--<uc:ModuleHostUserControl/>-->
 
         <!--<uc:ProcessCommUserControl/>-->
+
+        <uc:TestWcfRestUserControl/>
     </Grid>
 </Window>

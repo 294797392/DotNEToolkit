@@ -182,7 +182,10 @@ namespace DotNEToolkit
         public static extern bool FreeLibrary(IntPtr hModule);
 
         [DllImport(DllName, SetLastError = true)]
-        public static extern IntPtr CreateFileMapping();
+        public static extern IntPtr CreateFileMapping(IntPtr hFile, IntPtr lpFileMappingAttributes, int flProtect, int dwMaximumSizeHigh, int dwMaximumSizeLow, string lpName);
+
+        //[DllImport(DllName, SetLastError = true)]
+        //public static extern IntPtr MapViewOfFile(IntPtr hFileMappingObject, int dwDesiredAccess, int dwFileOffsetHigh,int dwFileOffsetLow, );
 
         #region 控制台函数
 

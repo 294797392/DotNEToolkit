@@ -180,11 +180,11 @@ namespace DotNEToolkitDemo.Forms
 
         private void ButtonEnumChildWindow_Click(object sender, EventArgs e)
         {
-            UserControl1 uc = new UserControl1() { Width = 100, Height = 100, Text = "阿苏京东会员奥斯卡接电话卡死华东科技啊是" };
-            //Button uc = new Button() { Width = 100, Height = 100 };
-            this.Controls.Add(uc);
-            uc.BringToFront();
-            uc.Location = new Point(300, 300);
+            //UserControl1 uc = new UserControl1() { Width = 100, Height = 100, Text = "阿苏京东会员奥斯卡接电话卡死华东科技啊是" };
+            ////Button uc = new Button() { Width = 100, Height = 100 };
+            //this.Controls.Add(uc);
+            //uc.BringToFront();
+            //uc.Location = new Point(300, 300);
 
             //label1.Location = new Point(300, 300);
             //label1.BackColor = Color.Transparent;
