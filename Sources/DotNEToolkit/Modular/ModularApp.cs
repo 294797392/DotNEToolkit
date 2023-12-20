@@ -209,7 +209,7 @@ namespace DotNEToolkit
 
             #endregion
 
-            return this.OnInitialize();
+            return this.OnInitialized();
         }
 
         /// <summary>
@@ -315,10 +315,11 @@ namespace DotNEToolkit
         #region 抽象方法
 
         /// <summary>
-        /// 子类初始化
+        /// 在创建模块实例之后调用
+        /// 如果是异步初始化，那么模块很可能还没完全初始化完，但是所有模块的实例已经被创建了
         /// </summary>
         /// <returns></returns>
-        protected abstract int OnInitialize();
+        protected abstract int OnInitialized();
 
         /// <summary>
         /// 子类释放资源

@@ -194,11 +194,6 @@ namespace DotNEToolkit
             Insert<T>(GenerateDbFile<T>(), obj);
         }
 
-        public static TSource Select<TSource>(Func<TSource, bool> predicate)
-        {
-            return Select<TSource>(GenerateDbFile<TSource>(), predicate);
-        }
-
         public static List<TSource> SelectAll<TSource>()
         {
             return SelectAll<TSource>(GenerateDbFile<TSource>());
@@ -242,12 +237,6 @@ namespace DotNEToolkit
             List<T> list = JSONHelper.ParseFile<List<T>>(jsonFile, new List<T>());
             list.Add(item);
             JSONHelper.Object2File<List<T>>(jsonFile, list);
-        }
-
-        public static TSource Select<TSource>(string jsonFile, Func<TSource, bool> predicate)
-        {
-            List<TSource> list = JSONHelper.ParseFile<List<TSource>>(jsonFile, new List<TSource>());
-            return list.FirstOrDefault(predicate);
         }
 
         public static List<TSource> SelectAll<TSource>(string jsonFile)
@@ -309,8 +298,7 @@ namespace DotNEToolkit
 
         public static bool Exist<TSource>(string jsonFile, Func<TSource, bool> predicate)
         {
-            TSource exist = Select<TSource>(jsonFile, predicate);
-            return exist != null;
+            return SelectAll<TSource>(jsonFile, predicate).Count > 0;
         }
     }
 
@@ -351,11 +339,6 @@ namespace DotNEToolkit
         public void Insert<T>(T obj)
         {
             JSONDatabase.Insert<T>(GenerateDbFile<T>(), obj);
-        }
-
-        public TSource Select<TSource>(Func<TSource, bool> predicate)
-        {
-            return JSONDatabase.Select<TSource>(GenerateDbFile<TSource>(), predicate);
         }
 
         public List<TSource> SelectAll<TSource>()
