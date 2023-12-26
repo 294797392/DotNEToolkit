@@ -58,7 +58,7 @@ namespace DotNEToolkit
         where TApp : class
         where TManifest : AppManifest
     {
-        protected static log4net.ILog logger = log4net.LogManager.GetLogger(typeof(TApp));
+        protected static readonly log4net.ILog logger = log4net.LogManager.GetLogger(typeof(TApp));
 
         private const string KEY_CONFIG_PATH = "appConfig";
         private const string DefaultAppManifestFileName = "app.json";
@@ -209,7 +209,14 @@ namespace DotNEToolkit
 
             #endregion
 
-            return this.OnInitialized();
+            // 子类初始化
+            this.OnInitialized();
+
+            // 在某些情况下，ModularApp需要在App初始化完毕之后做一些事情
+            // App初始化完毕之后，触发AppModule事件
+            this.RaiseAppInitialized();
+
+            return DotNETCode.SUCCESS;
         }
 
         /// <summary>
@@ -258,6 +265,15 @@ namespace DotNEToolkit
         #endregion
 
         #region 实例方法
+
+        private void RaiseAppInitialized()
+        {
+            List<AppModule<TManifest>> appModules = this.Factory.LookupModules<AppModule<TManifest>>();
+            foreach (AppModule<TManifest> appModule in appModules)
+            {
+                appModule.OnAppInitialized();
+            }
+        }
 
         private void InitializeAppModule()
         {

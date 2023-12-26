@@ -18,5 +18,11 @@ namespace DotNEToolkit.Modular
         /// 该Module所属的AppManifest
         /// </summary>
         public TManifest AppManifest { get; internal set; }
+
+        /// <summary>
+        /// 当App初始化完毕（Initialize方法执行结束）的时候触发
+        /// </summary>
+        /// <returns></returns>
+        public abstract int OnAppInitialized();
     }
 }
