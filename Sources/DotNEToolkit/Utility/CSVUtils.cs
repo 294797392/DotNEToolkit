@@ -17,32 +17,6 @@ namespace DotNEToolkit.Utility
     //}
 
     /// <summary>
-    /// CSV文件的分隔符
-    /// </summary>
-    public enum CSVSplitters
-    {
-        /// <summary>
-        /// 未知
-        /// </summary>
-        Unkown,
-
-        /// <summary>
-        /// 逗号分隔
-        /// </summary>
-        Comma,
-
-        /// <summary>
-        /// 空格分隔
-        /// </summary>
-        Space,
-
-        /// <summary>
-        /// Tab键分隔
-        /// </summary>
-        Tab
-    }
-
-    /// <summary>
     /// 提供操作CSV格式文件的方法
     /// </summary>
     public static class CSVUtils
@@ -99,27 +73,20 @@ namespace DotNEToolkit.Utility
         }
 
 
+        public static void TableData2CSVFile(TableData tableData, string csvPath)
+        {
+            TableData2CSVFile(tableData, csvPath, Encoding.Default, ",");
+        }
 
         /// <summary>
         /// 把TableData保存成一个CSV文件
         /// </summary>
         /// <param name="tableData"></param>
         /// <param name="csvPath"></param>
+        /// <param name="fileEncoding">CSV文件的编码方式</param>
         /// <param name="splitter">CSV文件的分隔符</param>
-        public static void TableData2CSVFile(TableData tableData, string csvPath, CSVSplitters splitter = CSVSplitters.Comma)
+        public static void TableData2CSVFile(TableData tableData, string csvPath, Encoding fileEncoding, string splitter)
         {
-            string splitterText = string.Empty;
-
-            switch (splitter)
-            {
-                case CSVSplitters.Comma: splitterText = ","; break;
-                case CSVSplitters.Space: splitterText = " "; break;
-                case CSVSplitters.Tab: splitterText = "\t"; break;
-                case CSVSplitters.Unkown: splitterText = ","; break;
-                default:
-                    throw new NotImplementedException();
-            }
-
             StringBuilder builder = new StringBuilder();
 
             int rows = tableData.GetRows();
@@ -132,13 +99,14 @@ namespace DotNEToolkit.Utility
                 {
                     object data = tableData.Get(row, col).Value;
 
-                    builder.AppendFormat("{0}{1}", data == null ? string.Empty : data, splitterText);
+                    builder.AppendFormat("{0}{1}", data == null ? string.Empty : data, splitter);
                 }
 
-                builder.Replace(splitterText, Environment.NewLine, builder.Length - 1, 1);
+                // 把最后一个分隔符替换成换行符
+                builder.Replace(splitter, Environment.NewLine, builder.Length - splitter.Length, splitter.Length);
             }
 
-            File.WriteAllText(csvPath, builder.ToString());
+            File.WriteAllText(csvPath, builder.ToString(), fileEncoding);
         }
 
         /// <summary>
@@ -200,7 +168,7 @@ namespace DotNEToolkit.Utility
         /// <param name="csvPath"></param>
         /// <param name="splitter">CSV文件分隔符</param>
         /// <returns></returns>
-        public static List<T> CSVFile2Objects<T>(string csvPath, CSVSplitters splitter = CSVSplitters.Unkown)
+        public static List<T> CSVFile2Objects<T>(string csvPath)
         {
             string[] lines = ReadCSVLines(csvPath);
             if (lines == null)
@@ -208,33 +176,33 @@ namespace DotNEToolkit.Utility
                 return default(List<T>);
             }
 
-            return CSVLines2Objects<T>(lines, splitter);
+            return CSVLines2Objects<T>(lines);
         }
 
-        public static List<T> CSVLines2Objects<T>(string[] lines, CSVSplitters splitter = CSVSplitters.Unkown)
+        public static List<T> CSVLines2Objects<T>(string[] lines)
         {
             #region 判断CSV文件的分隔符
 
             StringSplitOptions splitOptions = StringSplitOptions.RemoveEmptyEntries;
 
-            switch (splitter)
-            {
-                case CSVSplitters.Comma:
-                case CSVSplitters.Tab:
-                    {
-                        // 用这些字符分隔的CSV文件是可以区分是否有空内容的
-                        splitOptions = StringSplitOptions.None;
-                        break;
-                    }
+            //switch (splitter)
+            //{
+            //    case CSVSplitters.Comma:
+            //    case CSVSplitters.Tab:
+            //        {
+            //            // 用这些字符分隔的CSV文件是可以区分是否有空内容的
+            //            splitOptions = StringSplitOptions.None;
+            //            break;
+            //        }
 
-                case CSVSplitters.Unkown:
-                case CSVSplitters.Space:
-                    {
-                        // 这些分隔符区分不了是否有空内容，遇到空内容直接忽略，不当成CSV的内容处理
-                        splitOptions = StringSplitOptions.RemoveEmptyEntries;
-                        break;
-                    }
-            }
+            //    case CSVSplitters.Unkown:
+            //    case CSVSplitters.Space:
+            //        {
+            //            // 这些分隔符区分不了是否有空内容，遇到空内容直接忽略，不当成CSV的内容处理
+            //            splitOptions = StringSplitOptions.RemoveEmptyEntries;
+            //            break;
+            //        }
+            //}
 
             #endregion
 

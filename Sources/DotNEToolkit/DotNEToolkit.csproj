@@ -117,6 +117,7 @@
     <Compile Include="ReadOptions.cs" />
     <Compile Include="Utility\CSVUtils.cs" />
     <Compile Include="Utility\ImageUtils.cs" />
+    <Compile Include="Utility\TimerUtils.cs" />
     <Compile Include="WriteOptions.cs" />
     <Compile Include="Expressions\AccessMember.cs" />
     <Compile Include="Expressions\ExpressionTypes.cs" />

@@ -464,10 +464,12 @@ namespace DotNEToolkit.Utility
         /// </summary>
         /// <param name="excelPath">要转换的Excel文件的完整路径</param>
         /// <param name="csvPath">要保存的CSV文件的完整路径</param>
-        public static void ExcelFile2CSVFile(string excelPath, string csvPath, CSVSplitters splitter = CSVSplitters.Comma)
+        /// <param name="fileEncoding">CSV文件的编码方式</param>
+        /// <param name="splitter">CSV文件的分隔符</param>
+        public static void ExcelFile2CSVFile(string excelPath, string csvPath, Encoding fileEncoding, string splitter)
         {
             TableData tableData = ExcelFile2TableData(excelPath);
-            CSVUtils.TableData2CSVFile(tableData, csvPath, splitter);
+            CSVUtils.TableData2CSVFile(tableData, csvPath, fileEncoding, splitter);
         }
 
         /// <summary>

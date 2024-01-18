@@ -15,6 +15,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace DotNEToolkitConsole
 {
@@ -25,6 +26,8 @@ namespace DotNEToolkitConsole
             Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().Id);
 
             DotNEToolkit.Log4net.InitializeLog4net();
+
+            TestTimer.CreateTimer();
 
             //TestCSV.CSVFile2Objects();
             //TestExcel.ExcelFile2Objects();
