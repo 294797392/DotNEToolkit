@@ -72,7 +72,8 @@ namespace DotNEToolkit.Utility
         private object timersLock;
         private bool timersChanged;
         private Thread timerThread;
-        private ManualResetEvent timerEvent;
+        private AutoResetEvent timerEvent;        // 控制剩余时间的事件
+        private ManualResetEvent timerEvent2;       // 控制定时器线程是否工作的事件
 
         #endregion
 
@@ -82,27 +83,13 @@ namespace DotNEToolkit.Utility
         {
             this.timers = new List<TimerHandle>();
             this.timersLock = new object();
-            this.timerEvent = new ManualResetEvent(false);
+            this.timerEvent = new AutoResetEvent(false);
+            this.timerEvent2 = new ManualResetEvent(true);
         }
 
         #endregion
 
         #region 实例方法
-
-        private void StartTimerThread()
-        {
-            if (this.timerThread == null)
-            {
-                this.timerThread = new Thread(this.TimerThreadProc);
-                this.timerThread.IsBackground = true;
-                this.timerThread.Start();
-            }
-            else
-            {
-                // 唤醒定时器，让定时器重新计算下一个等待时间
-                this.timerEvent.Set();
-            }
-        }
 
         private void ExecuteTimer(TimerHandle timer, int elapsed)
         {
@@ -169,7 +156,20 @@ namespace DotNEToolkit.Utility
                 this.timersChanged = true;
             }
 
-            this.StartTimerThread();
+            if (this.timerThread == null)
+            {
+                this.timerThread = new Thread(this.TimerThreadProc);
+                this.timerThread.IsBackground = true;
+                this.timerThread.Start();
+            }
+            else
+            {
+                // 线程已经创建了，但是创建完Timer之后列表里只有一个元素，说明此时该线程正在休眠状态，需要唤醒
+                this.timerEvent2.Set();
+
+                // 唤醒定时器，让定时器重新计算下一个等待时间
+                this.timerEvent.Set();
+            }
 
             return timerHandle;
         }
@@ -182,7 +182,17 @@ namespace DotNEToolkit.Utility
                 this.timersChanged = true;
             }
 
-            this.timerEvent.Set();
+            if (this.timers.Count == 0)
+            {
+                logger.InfoFormat("剩余定时器数量为0, 休眠定时器线程");
+                this.timerEvent2.Reset();
+            }
+            else
+            {
+                // 唤醒定时器，让定时器重新计算下一个等待时间
+                // 如果此时还没调用WaitOne在等待，那么下次调用WaitOne等待的时候将失效
+                this.timerEvent.Set();
+            }
         }
 
         #endregion
@@ -195,6 +205,8 @@ namespace DotNEToolkit.Utility
 
             while (true)
             {
+                this.timerEvent2.WaitOne();
+
                 if (this.timersChanged)
                 {
                     lock (this.timersLock)
@@ -207,9 +219,8 @@ namespace DotNEToolkit.Utility
                 // 没有定时器，那么直接休眠
                 if (this.timersCopy.Count == 0)
                 {
-                    logger.InfoFormat("剩余定时器数量为0, 休眠定时器线程");
-                    this.timerEvent.Reset();
-                    this.timerEvent.WaitOne();
+                    Thread.Sleep(50);
+                    continue;
                 }
 
                 // 永远选择最近要触发的定时器作为超时时间
@@ -217,7 +228,6 @@ namespace DotNEToolkit.Utility
 
                 logger.InfoFormat("定时器线程剩余执行时间 = {0}毫秒", timeout);
 
-                this.timerEvent.Reset();    // 必须先调用Reset，WaitOne才能再次生效。否则会忽略其他线程发送的Set信号
                 DateTime start = DateTime.Now;
                 this.timerEvent.WaitOne(timeout);
                 DateTime end = DateTime.Now;
