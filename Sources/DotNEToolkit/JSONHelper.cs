@@ -172,7 +172,13 @@ namespace DotNEToolkit
         /// <typeparam name="TOutput"></typeparam>
         /// <param name="inputObject"></param>
         /// <returns></returns>
-        public static TOutput CloneObject<TInput, TOutput>(TInput inputObject)
+        public static TObject CloneObject<TObject>(TObject inputObject)
+        {
+            string json = JsonConvert.SerializeObject(inputObject);
+            return JsonConvert.DeserializeObject<TObject>(json);
+        }
+
+        public static TOutput ConvertObject<TInput, TOutput>(TInput inputObject)
         {
             string json = JsonConvert.SerializeObject(inputObject);
             return JsonConvert.DeserializeObject<TOutput>(json);
