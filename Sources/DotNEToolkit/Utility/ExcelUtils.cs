@@ -171,28 +171,56 @@ namespace DotNEToolkit.Utility
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="workbook"></param>
+        /// <param name="sheetName"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
         private static ISheet OpenSheet(IWorkbook workbook, string sheetName, WriteOptions options)
         {
+            ISheet sheet = null;
+
             switch (options)
             {
                 case WriteOptions.Append:
                     {
-                        ISheet sheet = workbook.GetSheet(sheetName);
+                        sheet = workbook.GetSheet(sheetName);
                         if (sheet == null)
                         {
                             sheet = workbook.CreateSheet(sheetName);
                         }
-                        return sheet;
+                        break;
                     }
 
                 case WriteOptions.CreateNew:
                     {
-                        return workbook.CreateSheet(sheetName);
+                        sheet = workbook.CreateSheet(sheetName);
+                        break;
                     }
 
                 default:
                     throw new NotImplementedException();
             }
+
+            return sheet;
+        }
+
+        private static void ApplySheetStyle(ISheet sheet, List<TableColumnAttribute> columns)
+        {
+            #region 设置Sheet里的每列宽度
+
+            for (int i = 0; i < columns.Count; i++)
+            {
+                TableColumnAttribute column = columns[i];
+                if (column.Width > 0)
+                {
+                    sheet.SetColumnWidth(i, column.Width);
+                }
+            }
+
+            #endregion
         }
 
         private static void SaveExcel(string excelPath, IWorkbook workbook)
@@ -472,6 +500,16 @@ namespace DotNEToolkit.Utility
             CSVUtils.TableData2CSVFile(tableData, csvPath, fileEncoding, splitter);
         }
 
+        public static int TableData2ExcelFile(string excelPath, TableData tableData, List<TableColumnAttribute> tableColumns, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        {
+            IWorkbook workbook = OpenWrite(excelPath, version, options);
+            ISheet sheet = OpenSheet(workbook, sheetName, options);
+            ApplySheetStyle(sheet, tableColumns);
+            WriteTableData(workbook, sheet, tableData);
+            SaveExcel(excelPath, workbook);
+            return DotNETCode.SUCCESS;
+        }
+
         /// <summary>
         /// TableData转成Excel文件
         /// </summary>
@@ -536,6 +574,39 @@ namespace DotNEToolkit.Utility
         {
             TableData tableData = ExcelFile2TableData(excelPath);
             return tableData.ConvertToObjects<T>();
+        }
+
+        public static int Objects2ExcelFile<T>(List<T> objects, string excelPath, WriteOptions options, string sheetName, ExcelVersions version = ExcelVersions.Xls)
+        {
+            List<PropertyAttribute<TableColumnAttribute>> propertyAttributes = ReflectionUtils.GetPropertyAttribute<TableColumnAttribute>(typeof(T));
+            List<TableColumnAttribute> tableColumns = propertyAttributes.Select(v => v.Attribute).ToList();
+
+            TableData tableData = TableData.Create();
+
+            // 写入列标题
+            for (int i = 0; i < tableColumns.Count; i++)
+            {
+                TableColumnAttribute column = tableColumns[i];
+
+                tableData.Set(0, i, column.Name);
+            }
+
+            // 写入内容
+            for (int i = 0; i < objects.Count; i++)
+            {
+                T o = objects[i];
+
+                for (int j = 0; j < propertyAttributes.Count; j++)
+                {
+                    PropertyAttribute<TableColumnAttribute> attr = propertyAttributes[j];
+
+                    object value = attr.Property.GetValue(o);
+
+                    tableData.Set(i + 1, j, value);
+                }
+            }
+
+            return TableData2ExcelFile(excelPath, tableData, tableColumns, options, sheetName, version);
         }
 
         #endregion

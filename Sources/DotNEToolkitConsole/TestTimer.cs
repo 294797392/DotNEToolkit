@@ -12,16 +12,16 @@ namespace DotNEToolkitConsole
     {
         public static void CreateTimer()
         {
-            TimerHandle timer = TimerUtils.Context.CreateTimer("任务1", ExecutionTiming.Day, Task1Callback, "123");
+            TimerHandle timer = TimerUtils.Context.CreateTimer("任务1", TimerGranularities.Second, 10, Task1Callback, "123");
 
-            Thread.Sleep(5000);
+            Thread.Sleep(5 * 60 * 1000);
 
             TimerUtils.Context.DeleteTimer(timer);
         }
 
-        private static void Task1Callback(TimerHandle timer)
+        private static void Task1Callback(TimerHandle timer, object userData)
         {
-            Console.WriteLine(string.Format("{0}被执行, userData = {1}", timer.Name, timer.UserData));
+            Console.WriteLine(string.Format("{0}被执行, userData = {1}", timer.Name, userData));
         }
     }
 }

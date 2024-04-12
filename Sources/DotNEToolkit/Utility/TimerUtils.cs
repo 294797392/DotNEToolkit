@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace DotNEToolkit.Utility
 {
@@ -11,22 +10,32 @@ namespace DotNEToolkit.Utility
     /// 定时器回调函数
     /// </summary>
     /// <param name="userData"></param>
-    public delegate void TimerCallback(TimerHandle timer);
+    public delegate void TimerCallback(TimerHandle timer, object userData);
 
     /// <summary>
-    /// 定义定时器的执行时机
+    /// 定义定时器的执行粒度
     /// </summary>
-    public enum ExecutionTiming
+    public enum TimerGranularities
     {
         /// <summary>
-        /// 每小时触发定时器
+        /// 粒度设置为按照秒触发
         /// </summary>
-        Hour,
+        Second,
 
         /// <summary>
-        /// 每天凌晨0点触发定时器
+        /// 粒度设置为按照分钟触发
         /// </summary>
-        Day
+        Minute,
+
+        ///// <summary>
+        ///// 粒度设置为按照小时触发
+        ///// </summary>
+        //Hour,
+
+        ///// <summary>
+        ///// 粒度设置为按照天触发
+        ///// </summary>
+        //Day
     }
 
     public class TimerHandle
@@ -37,9 +46,14 @@ namespace DotNEToolkit.Utility
         public string Name { get; set; }
 
         /// <summary>
-        /// 定时器间隔时间
+        /// 定时器粒度
         /// </summary>
-        public ExecutionTiming Interval { get; set; }
+        public TimerGranularities Interval { get; set; }
+
+        /// <summary>
+        /// 粒度值
+        /// </summary>
+        public int GranularityValue { get; set; }
 
         /// <summary>
         /// 当定时器到期的时候触发的回调
@@ -54,7 +68,7 @@ namespace DotNEToolkit.Utility
         /// <summary>
         /// 剩余多少毫秒可以执行
         /// </summary>
-        public int RemainMS { get; set; }
+        public long NextInterval { get; set; }
     }
 
     /// <summary>
@@ -68,7 +82,6 @@ namespace DotNEToolkit.Utility
         #region 实例变量
 
         private List<TimerHandle> timers;
-        private List<TimerHandle> timersCopy;
         private object timersLock;
         private bool timersChanged;
         private Thread timerThread;
@@ -91,41 +104,57 @@ namespace DotNEToolkit.Utility
 
         #region 实例方法
 
-        private void ExecuteTimer(TimerHandle timer, int elapsed)
+        private void ExecuteTimer(TimerHandle timer, long elapsed)
         {
-            timer.RemainMS -= elapsed;
-            if (timer.RemainMS <= 0)
+            timer.NextInterval -= elapsed;
+            if (timer.NextInterval <= 0)
             {
                 logger.InfoFormat("开始执行定时器, {0}", timer.Name);
 
                 try
                 {
-                    timer.Callback(timer);
+                    timer.Callback(timer, timer.UserData);
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("定时器执行异常, {0}, {1}", timer.Name, ex);
                 }
-                timer.RemainMS = this.GetRemainMS(timer.Interval);
+
+                // 计算定时器下次执行剩余时间
+                timer.NextInterval = this.GetNextInterval(timer.Interval, timer.GranularityValue);
             }
         }
 
-        private int GetRemainMS(ExecutionTiming interval)
+        private long GetNextInterval(TimerGranularities granularity, int value)
         {
-            switch (interval)
+            switch (granularity)
             {
-                case ExecutionTiming.Day:
+                //case TimerGranularities.Day:
+                //    {
+                //        DateTime now = DateTime.Now;
+                //        DateTime endTime = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
+                //        TimeSpan timeSpan = endTime - now;
+                //        return (int)timeSpan.TotalMilliseconds + 1000; // 加1000毫秒的余量
+                //    }
+
+                case TimerGranularities.Second:
                     {
-                        DateTime now = DateTime.Now;
-                        DateTime endTime = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
-                        TimeSpan timeSpan = endTime - now;
-                        return (int)timeSpan.TotalMilliseconds + 1000; // 加1000毫秒的余量
+                        return value * 1000;
                     }
 
-                case ExecutionTiming.Hour:
+                case TimerGranularities.Minute:
                     {
-                        return (60 - DateTime.Now.Minute) * 60 * 1000 + 500; // 加500毫秒的余量
+                        // 下一次要触发定时器的分钟数为value的整倍数
+                        // 比如value是5，那么触发的时机就是5，10，15，20分钟
+                        //int nextMinute = (int)Math.Ceiling((double)DateTime.Now.Minute / value);
+                        //return (nextMinute - DateTime.Now.Minute) * 60 * 1000;
+                        return value * 60 * 1000;
                     }
+
+                //case TimerGranularities.Hour:
+                //    {
+                //        return (60 - DateTime.Now.Minute) * 60 * 1000 + 500; // 加500毫秒的余量
+                //    }
 
                 default:
                     throw new NotImplementedException();
@@ -136,18 +165,28 @@ namespace DotNEToolkit.Utility
 
         #region 公开接口
 
-        public TimerHandle CreateTimer(string name, ExecutionTiming interval, TimerCallback callback, object userData)
+        /// <summary>
+        /// 新建一个定时器
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="granularity">设置定时器的粒度</param>
+        /// <param name="value">定时器的粒度值</param>
+        /// <param name="callback"></param>
+        /// <param name="userData"></param>
+        /// <returns></returns>
+        public TimerHandle CreateTimer(string name, TimerGranularities granularity, int value, TimerCallback callback, object userData)
         {
             // 计算多少毫秒之后该定时器执行
-            int remainMS = this.GetRemainMS(interval);
+            long nextInterval = this.GetNextInterval(granularity, value);
 
             TimerHandle timerHandle = new TimerHandle()
             {
                 Name = name,
-                Interval = interval,
+                Interval = granularity,
                 Callback = callback,
                 UserData = userData,
-                RemainMS = remainMS
+                NextInterval = nextInterval,
+                GranularityValue = value
             };
 
             lock (this.timersLock)
@@ -164,7 +203,7 @@ namespace DotNEToolkit.Utility
             }
             else
             {
-                // 线程已经创建了，但是创建完Timer之后列表里只有一个元素，说明此时该线程正在休眠状态，需要唤醒
+                // 如果此时定时器线程正在休眠，那么唤醒定时器线程
                 this.timerEvent2.Set();
 
                 // 唤醒定时器，让定时器重新计算下一个等待时间
@@ -203,6 +242,9 @@ namespace DotNEToolkit.Utility
         {
             logger.InfoFormat("定时器线程启动成功");
 
+            Stopwatch stopwatch = new Stopwatch();
+            List<TimerHandle> timers = new List<TimerHandle>();
+
             while (true)
             {
                 this.timerEvent2.WaitOne();
@@ -211,32 +253,25 @@ namespace DotNEToolkit.Utility
                 {
                     lock (this.timersLock)
                     {
-                        this.timersCopy = this.timers.ToList();
+                        timers = this.timers.ToList();
                         this.timersChanged = false;
                     }
                 }
 
-                // 没有定时器，那么直接休眠
-                if (this.timersCopy.Count == 0)
-                {
-                    Thread.Sleep(50);
-                    continue;
-                }
-
                 // 永远选择最近要触发的定时器作为超时时间
-                int timeout = this.timersCopy.Min(v => v.RemainMS);
+                long timeout = timers.Min(v => v.NextInterval);
 
                 logger.InfoFormat("定时器线程剩余执行时间 = {0}毫秒", timeout);
 
-                DateTime start = DateTime.Now;
-                this.timerEvent.WaitOne(timeout);
-                DateTime end = DateTime.Now;
+                stopwatch.Start();
+                this.timerEvent.WaitOne(TimeSpan.FromTicks(timeout * 10000));
+                stopwatch.Stop();
 
                 // 经过的毫秒数
-                int elapsed = (int)(end - start).TotalMilliseconds;
+                long elapsed = stopwatch.ElapsedMilliseconds;
 
                 // 执行定时器
-                foreach (TimerHandle timer in this.timersCopy)
+                foreach (TimerHandle timer in timers)
                 {
                     this.ExecuteTimer(timer, elapsed);
                 }

@@ -92,6 +92,11 @@ namespace DotNEToolkit
     {
         public string Name { get; set; }
 
+        /// <summary>
+        /// 指定列宽度
+        /// </summary>
+        public int Width { get; set; }
+
         //public CSVDataTypes DataType { get; set; }
 
         public TableColumnAttribute(string name)
