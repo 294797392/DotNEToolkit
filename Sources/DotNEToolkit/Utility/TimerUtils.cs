@@ -109,7 +109,7 @@ namespace DotNEToolkit.Utility
             timer.NextInterval -= elapsed;
             if (timer.NextInterval <= 0)
             {
-                logger.InfoFormat("开始执行定时器, {0}", timer.Name);
+                //logger.InfoFormat("开始执行定时器, {0}", timer.Name);
 
                 try
                 {
@@ -261,7 +261,7 @@ namespace DotNEToolkit.Utility
                 // 永远选择最近要触发的定时器作为超时时间
                 long timeout = timers.Min(v => v.NextInterval);
 
-                logger.InfoFormat("定时器线程剩余执行时间 = {0}毫秒", timeout);
+                //logger.InfoFormat("定时器线程剩余执行时间 = {0}毫秒", timeout);
 
                 stopwatch.Start();
                 this.timerEvent.WaitOne(TimeSpan.FromTicks(timeout * 10000));

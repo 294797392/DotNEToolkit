@@ -144,14 +144,8 @@ namespace DotNEToolkit.Modular
             }
         }
 
-        #endregion
-
-        #region 公开接口
-
-        public T GetParameter<T>(string key)
+        private T GetParameter<T>(IDictionary parameters, string key)
         {
-            IDictionary parameters = this.InputParameters;
-
             Type t = typeof(T);
 
             if (t == TypeString)
@@ -178,6 +172,23 @@ namespace DotNEToolkit.Modular
             throw new NotImplementedException();
         }
 
+        #endregion
+
+        #region 公开接口
+
+        public T GetParameter<T>(string key)
+        {
+            IDictionary parameters = this.InputParameters;
+
+            if (!parameters.Contains(key))
+            {
+                logger.ErrorFormat("没有找到必需的参数:{0}", key);
+                throw new KeyNotFoundException();
+            }
+
+            return this.GetParameter<T>(parameters, key);
+        }
+
         /// <summary>
         /// 读取该模块的输入参数
         /// </summary>
@@ -194,30 +205,7 @@ namespace DotNEToolkit.Modular
                 return defaultValue;
             }
 
-            Type t = typeof(T);
-
-            if (t == TypeString)
-            {
-                return parameters.GetValue<T>(key, defaultValue);
-            }
-
-            if (t.IsClass)
-            {
-                string json = parameters[key].ToString();
-                return JsonConvert.DeserializeObject<T>(json);
-            }
-
-            if (t.IsValueType)
-            {
-                return parameters.GetValue<T>(key, defaultValue);
-            }
-
-            if (t.IsEnum)
-            {
-                return parameters.GetValue<T>(key, defaultValue);
-            }
-
-            throw new NotImplementedException();
+            return this.GetParameter<T>(parameters, key);
         }
 
         /// <summary>

@@ -262,6 +262,27 @@ namespace DotNEToolkit
             return JSONHelper.Parse<T>(json);
         }
 
+        /// <summary>
+        /// 从配置文件里删除一个配置
+        /// </summary>
+        /// <param name="key"></param>
+        public void DeleteSetting(string key)
+        {
+            this.settings.Remove(key);
+
+            JSONHelper.Object2File<Dictionary<string, string>>(this.settingPath, this.settings);
+        }
+
+        /// <summary>
+        /// 确定指定的配置是否存在于配置文件里
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool ContainsSetting(string key) 
+        {
+            return this.settings.ContainsKey(key);
+        }
+
         #endregion
 
         #region 实例方法
