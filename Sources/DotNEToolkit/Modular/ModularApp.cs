@@ -15,7 +15,7 @@ namespace DotNEToolkit
     /// <summary>
     /// App清单文件
     /// 清单文件里只存储不可变的数据
-    /// 可变数据属于配置数据，调用ModularApp的GetConfig个SetConfig接口进行读写
+    /// 可变数据属于配置数据，调用ModularApp的ReadSetting个WriteSetting接口进行读写
     /// </summary>
     public abstract class AppManifest
     {
@@ -281,6 +281,18 @@ namespace DotNEToolkit
         public bool ContainsSetting(string key) 
         {
             return this.settings.ContainsKey(key);
+        }
+
+        public T EnsureSetting<T>(string key, T value)
+        {
+            if (this.settings.ContainsKey(key))
+            {
+                return this.ReadSetting<T>(key, default(T));
+            }
+
+            this.WriteSetting<T>(key, value);
+
+            return value;
         }
 
         #endregion

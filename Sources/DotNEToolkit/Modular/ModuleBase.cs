@@ -176,6 +176,12 @@ namespace DotNEToolkit.Modular
 
         #region 公开接口
 
+        /// <summary>
+        /// 读取该模块的输入参数，如果参数不存在则报异常
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public T GetParameter<T>(string key)
         {
             IDictionary parameters = this.InputParameters;
@@ -190,7 +196,7 @@ namespace DotNEToolkit.Modular
         }
 
         /// <summary>
-        /// 读取该模块的输入参数
+        /// 读取该模块的输入参数，如果参数不存在则返回defaultValue
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
