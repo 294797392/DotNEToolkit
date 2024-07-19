@@ -26,10 +26,24 @@ namespace DotNEToolkitConsole
             public int state { get; set; }
             [TableColumn("AlarmType")]
             public string automatic_mode { get; set; }
+        }
 
-            public DateTime starttime { get; set; }
+        public class AlarmItem
+        {
+            [TableColumn("ModuleName", Width = 8000)]
+            public string ModuleName { get; set; }
 
-            public DateTime? endtime { get; set; }
+            [TableColumn("Label", Width = 8000)]
+            public string Label { get; set; }
+
+            [TableColumn("StartTime", Width = 8000)]
+            public string DisplayStartTime { get; set; }
+
+            [TableColumn("EndTime", Width = 8000)]
+            public string DisplayEndTime { get; set; }
+
+            [TableColumn("UsedTime", Width = 8000)]
+            public string UsedTime { get; set; }
         }
 
         private static int value = 0;
@@ -87,6 +101,52 @@ namespace DotNEToolkitConsole
         {
             List<Msg_log> list = ExcelUtils.ExcelFile2Objects<Msg_log>("123.xls");
             Console.WriteLine();
+        }
+
+        public static void Objects2ExcelFile()
+        {
+            List<AlarmItem> messageItems = new List<AlarmItem>();
+            for (int i = 0; i < 11000; i++)
+            {
+                messageItems.Add(new AlarmItem()
+                {
+                    DisplayStartTime = DateTime.Now.ToString(),
+                    DisplayEndTime = DateTime.Now.ToString(),
+                    Label = Guid.NewGuid().ToString(),
+                    ModuleName = Guid.NewGuid().ToString(),
+                    UsedTime = Guid.NewGuid().ToString()
+                });
+            }
+
+            ExcelUtils.Objects2ExcelFile<AlarmItem>(messageItems, "1.xls", WriteOptions.Append, "Message");
+        }
+
+        public static void Array2Excel()
+        {
+            List<AlarmItem> messageItems = new List<AlarmItem>();
+            for (int i = 0; i < 11000; i++)
+            {
+                messageItems.Add(new AlarmItem()
+                {
+                    DisplayStartTime = DateTime.Now.ToString(),
+                    DisplayEndTime = DateTime.Now.ToString(),
+                    Label = Guid.NewGuid().ToString(),
+                    ModuleName = Guid.NewGuid().ToString(),
+                    UsedTime = Guid.NewGuid().ToString()
+                });
+            }
+
+
+            object[,] datas = new object[20000, 5];
+            for (int i = 0; i < 20000; i++)
+            {
+                for (int j = 0; j < 5; j++)
+                {
+                    datas[i, j] = Guid.NewGuid().ToString();
+                }
+            }
+
+            ExcelUtils.Array2Excel("1.xls", datas, WriteOptions.Append, "Message");
         }
     }
 }

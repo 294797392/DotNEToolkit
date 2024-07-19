@@ -152,6 +152,13 @@ namespace DotNEToolkit.Utility
             int rows = array.GetLength(0);
             int columns = array.GetLength(1);
 
+            // 设置每一列宽度，默认是8000
+            // TODO：后期需要可配置
+            for (int i = 0; i < columns; i++)
+            {
+                sheet.SetColumnWidth(i, 8000);
+            }
+
             for (int rowIndex = 0; rowIndex < rows; rowIndex++)
             {
                 IRow row = sheet.CreateRow(startRow++);

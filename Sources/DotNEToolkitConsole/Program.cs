@@ -27,7 +27,9 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestTimer.CreateTimer();
+            TestExcel.Array2Excel();
+
+            //TestTimer.CreateTimer();
 
             //TestCSV.CSVFile2Objects();
             //TestExcel.ExcelFile2Objects();

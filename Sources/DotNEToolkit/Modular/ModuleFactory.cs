@@ -24,13 +24,7 @@ namespace DotNEToolkit.Modular
         #endregion
 
         #region 公开事件
-
-        /// <summary>
-        /// 当所有模块都加载完成的时候触发
-        /// 只有在异步加载模块的时候才会触发
-        /// </summary>
-        public event Action<ModuleFactory> Initialized;
-
+        
         /// <summary>
         /// 当模块状态改变的时候触发
         /// </summary>
@@ -108,50 +102,6 @@ namespace DotNEToolkit.Modular
                 logger.Error("初始化模块异常", ex);
                 return DotNETCode.UNKNOWN_EXCEPTION;
             }
-        }
-
-        /// <summary>
-        /// 初始化一个模块，会解析依赖项
-        /// </summary>
-        /// <param name="moduleInst">要初始化的模块</param>
-        /// <param name="interval">
-        /// > 0  : 重新初始化的间隔时间，如果初始化失败，那么会一直初始化
-        /// = -1 : 失败直接返回，不尝试重新初始化
-        /// </param>
-        /// <param name="baseModule">当前初始化的模块</param>
-        private int InitializeModule(ModuleBase moduleInst, int interval, ModuleBase baseModule)
-        {
-            int code = DotNETCode.SUCCESS;
-
-            if (interval <= 0)
-            {
-                return this.InitializeModuleFinal(moduleInst);
-            }
-            else
-            {
-                while ((code = this.InitializeModuleFinal(moduleInst)) != DotNETCode.SUCCESS)
-                {
-                    Thread.Sleep(interval);
-                }
-
-                return DotNETCode.SUCCESS;
-            }
-        }
-
-        private void InitializeModulesAsync(IEnumerable<ModuleBase> moduleList, int interval)
-        {
-            Task.Factory.StartNew(() =>
-            {
-                foreach (ModuleBase moduleInst in moduleList)
-                {
-                    int code = this.InitializeModule(moduleInst, interval, moduleInst);
-                }
-
-                if (this.Initialized != null)
-                {
-                    this.Initialized(this);
-                }
-            });
         }
 
         /// <summary>
@@ -320,27 +270,27 @@ namespace DotNEToolkit.Modular
         /// <returns></returns>
         internal int InitializeModuleInstance()
         {
-            if (this.options.AsyncInitializing)
+            foreach (ModuleBase moduleInstance in moduleList)
             {
-                this.InitializeModulesAsync(this.moduleList, this.options.ReInitializeInterval);
-                return DotNETCode.SUCCESS;
-            }
-            else
-            {
-                foreach (ModuleBase moduleInstance in moduleList)
+                if (moduleInstance.Definition.AsyncInit)
                 {
-                    int code = moduleInstance.Initialize();
-                    if (code != DotNETCode.SUCCESS)
+                    Task.Factory.StartNew(() =>
                     {
-                        logger.DebugFormat("模块加载失败, 错误码:{0}", code);
-                        moduleInstance.Status = ModuleStatus.InitializeFailed;
-                        return DotNETCode.FAILED;
-                    }
-                    moduleInstance.Status = ModuleStatus.Initialized;
-                }
+                        int code = DotNETCode.SUCCESS;
 
-                return DotNETCode.SUCCESS;
+                        while ((code = this.InitializeModuleFinal(moduleInstance)) != DotNETCode.SUCCESS)
+                        {
+                            Thread.Sleep(moduleInstance.Definition.AsyncInitInterval);
+                        }
+                    });
+                }
+                else
+                {
+                     this.InitializeModuleFinal(moduleInstance);
+                }
             }
+
+            return DotNETCode.SUCCESS;
         }
 
         #endregion

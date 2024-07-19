@@ -38,6 +38,11 @@ namespace DotNEToolkit.Modular
         /// </summary>
         public event Action<ModuleBase, int, object> OnEvent;
 
+        /// <summary>
+        /// 模块消息，可以用来给用户看
+        /// </summary>
+        public event Action<ModuleBase, string> OnMessage;
+
         #endregion
 
         #region 实例变量
@@ -143,6 +148,17 @@ namespace DotNEToolkit.Modular
                 this.OnEvent(this, eventType, eventParam);
             }
         }
+
+        protected void NotifyMessage(string message, params object[] param)
+        {
+            string msg = string.Format(message, param);
+
+            if (this.OnMessage != null)
+            {
+                this.OnMessage(this, msg);
+            }
+        }
+
 
         private T GetParameter<T>(IDictionary parameters, string key)
         {

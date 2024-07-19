@@ -61,6 +61,19 @@ namespace DotNEToolkit.Modular
         public IDictionary InputParameters { get; private set; }
 
         /// <summary>
+        /// 是否异步加载该模块
+        /// 异步加载的情况下，如果该模块加载失败则会重试加载
+        /// </summary>
+        [JsonProperty("AsyncInit")]
+        public bool AsyncInit { get; set; }
+
+        /// <summary>
+        /// 当异步加载失败之后，重新加载的间隔时间，单位毫秒
+        /// </summary>
+        [JsonProperty("AsyncInitInterval")]
+        public int AsyncInitInterval { get; set; }
+
+        /// <summary>
         /// 该模块所依赖的其他模块ID
         /// 模块工厂会先初始化依赖的模块
         /// </summary>
@@ -74,6 +87,7 @@ namespace DotNEToolkit.Modular
         {
             this.ID = Guid.NewGuid().ToString();
             this.InputParameters = new Dictionary<string, object>();
+            this.AsyncInitInterval = 2000; // 默认2秒钟重新加载
             //this.References = new List<string>();
         }
 

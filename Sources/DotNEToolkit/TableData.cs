@@ -140,6 +140,7 @@ namespace DotNEToolkit
 
         /// <summary>
         /// 读取某个单元格的值
+        /// 如果没有这个单元格的值，那么返回空
         /// </summary>
         /// <param name="row"></param>
         /// <param name="col"></param>
@@ -185,7 +186,28 @@ namespace DotNEToolkit
         /// 把tableData追加到该tableData下面
         /// </summary>
         /// <param name="tableData">要合并的tableData</param>
-        public abstract void Merge(TableData tableData);
+        public void Merge(TableData tableData)
+        {
+            int thisRows = this.GetRows();
+
+            int rows = tableData.GetRows();
+
+            for (int row = 0; row < rows; row++)
+            {
+                int cols = tableData.GetColumns(row);
+
+                for (int col = 0; col < cols; col++)
+                {
+                    CellData cellData = tableData.Get(row, col);
+                    if (cellData == null)
+                    {
+                        continue;
+                    }
+
+                    this.Set(thisRows + row, col, cellData.SpanType, cellData.Span, cellData.Value);
+                }
+            }
+        }
 
         /// <summary>
         /// 创建一个TableData的实例
@@ -447,29 +469,94 @@ namespace DotNEToolkit
             }
         }
 
-        public override void Merge(TableData tableData)
+        #endregion
+    }
+
+    internal class DictionaryTableData : TableData
+    {
+        private Dictionary<string, CellData> cellMap;
+
+        public DictionaryTableData()
         {
-            int thisRows = this.GetRows();
+            this.cellMap = new Dictionary<string, CellData>();
+        }
 
-            int rows = tableData.GetRows();
+        private string GetKey(int row, int col)
+        {
+            return string.Format("{0},{1}", row, col);
+        }
 
-            for (int row = 0; row < rows; row++)
+        public override void Clear(int row, int col)
+        {
+            string key = this.GetKey(row, col);
+
+            this.cellMap.Remove(key);
+        }
+
+        public override CellData Get(int row, int col)
+        {
+            CellData cellData;
+            this.cellMap.TryGetValue(this.GetKey(row, col), out cellData);
+            return cellData;
+        }
+
+        public override int GetColumns()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetColumns(int row)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetRows()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetRows(int column)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool IsEmpty()
+        {
+            return this.cellMap.Count == 0;
+        }
+
+        public override void Set(int row, int col, object value)
+        {
+            string key = this.GetKey(row, col);
+
+            CellData cellData;
+            if (!this.cellMap.TryGetValue(key, out cellData))
             {
-                int cols = tableData.GetColumns(row);
-
-                for (int col = 0; col < cols; col++)
-                {
-                    CellData cellData = tableData.Get(row, col);
-                    if (cellData == null)
-                    {
-                        continue;
-                    }
-
-                    this.Set(thisRows + row, col, cellData.SpanType, cellData.Span, cellData.Value);
-                }
+                cellData = new CellData(row, col) { Value = value };
+                this.cellMap[key] = cellData;
+            }
+            else
+            {
+                cellData.Value = value;
             }
         }
 
-        #endregion
+        public override void Set(int row, int col, CellSpan spanType, int span, object value)
+        {
+            string key = this.GetKey(row, col);
+
+            CellData cellData;
+            if (!this.cellMap.TryGetValue(key, out cellData))
+            {
+                cellData = new CellData(row, col) { Value = value, SpanType = spanType, Span = span };
+                this.cellMap[key] = cellData;
+            }
+            else
+            {
+                cellData.Value = value;
+                cellData.SpanType = spanType;
+                cellData.Span = span;
+            }
+        }
     }
 }

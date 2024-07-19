@@ -20,13 +20,6 @@ namespace DotNEToolkit
     public abstract class AppManifest
     {
         /// <summary>
-        /// 是否异步初始化模块
-        /// 默认不异步，默认用同步初始化
-        /// </summary>
-        [JsonProperty("asyncInit")]
-        public bool AsynchronousInitialization { get; set; }
-
-        /// <summary>
         /// 配置文件里的所有的模块列表
         /// </summary>
         [JsonProperty("modules")]
@@ -44,7 +37,6 @@ namespace DotNEToolkit
         public AppManifest()
         {
             this.ModuleList = new List<ModuleDefinition>();
-            this.AsynchronousInitialization = false;
         }
     }
 
@@ -185,20 +177,13 @@ namespace DotNEToolkit
             logger.Info("开始加载ModuleFactory...");
             ModuleFactoryOptions options = new ModuleFactoryOptions()
             {
-                AsyncInitializing = this.Manifest.AsynchronousInitialization,
                 ModuleList = this.Manifest.ModuleList
             };
             this.Factory = ModuleFactory.CreateFactory(options);
-            this.Factory.Initialized += Factory_Initialized;
             this.Factory.ModuleStatusChanged += Factory_ModuleStatusChanged;
 
             // 创建模块的实例
             this.Factory.CreateModuleInstance();
-
-            // 初始化AppModule
-            // 1. 为Manifest字段赋值，使AppModule可以访问到AppManifest
-            // 2. 如果AppModule依赖于某个其他的模块，注入其他模块
-            this.InitializeAppModule();
 
             // 调用模块的初始化方法初始化模块
             int code = this.Factory.InitializeModuleInstance();
@@ -224,7 +209,6 @@ namespace DotNEToolkit
         /// </summary>
         public void Release()
         {
-            this.Factory.Initialized -= this.Factory_Initialized;
             this.Factory.ModuleStatusChanged -= this.Factory_ModuleStatusChanged;
 
             this.OnRelease();
@@ -301,53 +285,16 @@ namespace DotNEToolkit
 
         private void RaiseAppInitialized()
         {
-            List<AppModule<TManifest>> appModules = this.Factory.LookupModules<AppModule<TManifest>>();
-            foreach (AppModule<TManifest> appModule in appModules)
+            List<AppModule> appModules = this.Factory.LookupModules<AppModule>();
+            foreach (AppModule appModule in appModules)
             {
                 appModule.OnAppInitialized();
-            }
-        }
-
-        private void InitializeAppModule()
-        {
-            List<AppModule<TManifest>> appModules = this.Factory.LookupModules<AppModule<TManifest>>();
-            foreach (AppModule<TManifest> appModule in appModules)
-            {
-                appModule.AppManifest = this.Manifest;
-
-                #region 如果该模块依赖其他模块，对模块进行依赖注入
-
-                List<PropertyAttribute<InjectableAttribute>> propertyAttributes = ReflectionUtils.GetPropertyAttribute<InjectableAttribute>(appModule.GetType());
-                foreach (PropertyAttribute<InjectableAttribute> propertyAttribute in propertyAttributes)
-                {
-                    // 要依赖注入的模块类型
-                    Type targetType = propertyAttribute.Property.PropertyType;
-
-                    // 找到对应的类型的实例
-                    ModuleBase module = this.Factory.LookupModule(targetType);
-                    if (module == null)
-                    {
-                        // 没找到
-                        continue;
-                    }
-
-                    // 注入成功
-                    propertyAttribute.Property.SetValue(appModule, module);
-                }
-
-                #endregion
             }
         }
 
         #endregion
 
         #region 事件处理器
-
-        private void Factory_Initialized(ModuleFactory factory)
-        {
-            // 异步初始化会运行这个函数
-            this.OnModuleInitialized();
-        }
 
         private void Factory_ModuleStatusChanged(ModuleFactory factory, IModuleInstance moduleInst, ModuleStatus status)
         {
@@ -381,12 +328,6 @@ namespace DotNEToolkit
         /// <param name="moduleInst"></param>
         /// <param name="status">模块状态</param>
         protected virtual void OnModuleStatusEvent(IModuleInstance moduleInst, ModuleStatus status)
-        { }
-
-        /// <summary>
-        /// 处理所有模块都初始化成功的事件
-        /// </summary>
-        protected virtual void OnModuleInitialized()
         { }
 
         /// <summary>
