@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Factory.NET</RootNamespace>
     <AssemblyName>Factory.NET</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -51,17 +51,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Communictions\CommObjectExtension.cs" />
-    <Compile Include="Communictions\CommObjectFactory.cs" />
-    <Compile Include="Communictions\CommTypes.cs" />
-    <Compile Include="Communictions\CommObject.cs" />
-    <Compile Include="Communictions\SerialPortCommObject.cs" />
-    <Compile Include="Communictions\TcpClientCommObject.cs" />
-    <Compile Include="Modbus\ModbusRTUClient.cs" />
-    <Compile Include="Modules\CameraDriver.cs" />
-    <Compile Include="Modules\CardDriver.cs" />
-    <Compile Include="Modules\HostedImageQueue.cs" />
+    <Compile Include="DelegateUtility.cs" />
+    <Compile Include="DUTClient.cs" />
+    <Compile Include="FactoryUtils.cs" />
+    <Compile Include="IODrivers\MatchingRules.cs" />
+    <Compile Include="ResponseCode.cs" />
+    <Compile Include="IODrivers\AbstractIODriver.cs" />
+    <Compile Include="IODrivers\IODriverFactory.cs" />
+    <Compile Include="IODrivers\IODriverStatus.cs" />
+    <Compile Include="IODrivers\IODriverTypes.cs" />
+    <Compile Include="IODrivers\SerialPortIODriver.cs" />
+    <Compile Include="IODrivers\TcpClientIODriver.cs" />
+    <Compile Include="IODrivers\VirtualIODriver.cs" />
+    <Compile Include="TaskModule.cs" />
+    <Compile Include="TaskModuleStatus.cs" />
+    <Compile Include="DispatcherContext.cs" />
+    <Compile Include="TaskDefinition.cs" />
+    <Compile Include="TaskFlags.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskDispatcher.cs" />
+    <Compile Include="TaskDispatcherEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotNEToolkit\DotNEToolkit.csproj">
@@ -69,6 +78,8 @@
       <Name>DotNEToolkit</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Modules\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

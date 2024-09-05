@@ -71,14 +71,21 @@ namespace DotNEToolkit
 
         #region 类方法
 
-        public static INIReader Open(string path, BlankCharacterOptions options = BlankCharacterOptions.OnlyDeleteLast)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="openEncoding">指定使用什么编码方式打开文件</param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static INIReader Open(string path, Encoding openEncoding, BlankCharacterOptions options = BlankCharacterOptions.OnlyDeleteLast)
         {
             if (!File.Exists(path))
             {
                 return null;
             }
 
-            var values = InitializeFile(path, options);
+            var values = InitializeFile(path, openEncoding, options);
             if (values == null)
             {
                 return null;
@@ -164,7 +171,7 @@ namespace DotNEToolkit
             return result;
         }
 
-        private static Dictionary<string, Dictionary<string, string>> InitializeFile(string path, BlankCharacterOptions options)
+        private static Dictionary<string, Dictionary<string, string>> InitializeFile(string path, Encoding openEncoding, BlankCharacterOptions options)
         {
             FileStream stream = null;
             StreamReader reader = null;
@@ -172,7 +179,7 @@ namespace DotNEToolkit
             try
             {
                 stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.None);
-                reader = new StreamReader(stream);
+                reader = new StreamReader(stream, openEncoding);
 
                 Dictionary<string, Dictionary<string, string>> sections = new Dictionary<string, Dictionary<string, string>>();
 

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DotNEToolkit</RootNamespace>
     <AssemblyName>DotNEToolkit</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -22,7 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\DotNEToolkit.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
@@ -208,7 +209,6 @@
     <Compile Include="Modular\ModuleFactory.cs" />
     <Compile Include="Modular\ModuleFlags.cs" />
     <Compile Include="Modular\ModuleStatus.cs" />
-    <Compile Include="Modular\ModuleMetadata.cs" />
     <Compile Include="Utility\CollectionUtils.cs" />
     <Compile Include="Internals\Confguration.cs" />
     <Compile Include="JSONHelper.cs" />
@@ -242,7 +242,6 @@
     <None Include="Expressions\predefined.exp.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Modular\ModuleMetadata.json" />
     <None Include="Modular\app.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

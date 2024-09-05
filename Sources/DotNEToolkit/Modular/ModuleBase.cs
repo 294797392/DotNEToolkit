@@ -1,12 +1,14 @@
 ﻿using DotNEToolkit.Bindings;
 using DotNEToolkit.Extentions;
 using DotNEToolkit.Modular.Attributes;
+using log4net.Repository.Hierarchy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -24,8 +26,6 @@ namespace DotNEToolkit.Modular
         /// 日志记录器
         /// </summary>
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ModuleBase");
-
-        private static readonly Type TypeString = typeof(string);
 
         #endregion
 
@@ -159,33 +159,17 @@ namespace DotNEToolkit.Modular
             }
         }
 
-
-        private T GetParameter<T>(IDictionary parameters, string key)
+        protected T GetParameter<T>(IDictionary dictionary, string key)
         {
             Type t = typeof(T);
 
-            if (t == TypeString)
-            {
-                return parameters.GetValue<T>(key);
-            }
-
             if (t.IsClass)
             {
-                string json = parameters[key].ToString();
+                string json = dictionary[key].ToString();
                 return JsonConvert.DeserializeObject<T>(json);
             }
 
-            if (t.IsValueType)
-            {
-                return parameters.GetValue<T>(key);
-            }
-
-            if (t.IsEnum)
-            {
-                return parameters.GetValue<T>(key);
-            }
-
-            throw new NotImplementedException();
+            return dictionary.GetValue<T>(key);
         }
 
         #endregion
@@ -243,13 +227,7 @@ namespace DotNEToolkit.Modular
             IDictionary parameters = this.InputParameters;
 
             Type t = typeof(T);
-
-            if (t == TypeString)
-            {
-                parameters[key] = value;
-                return;
-            }
-
+            
             if (t.IsClass)
             {
                 string json = JsonConvert.SerializeObject(value);
@@ -257,17 +235,9 @@ namespace DotNEToolkit.Modular
                 return;
             }
 
-            if (t.IsValueType)
-            {
-                parameters[key] = value;
-                return;
-            }
+            parameters[key] = value;
 
-            if (t.IsEnum)
-            {
-                parameters[key] = value;
-                return;
-            }
+            return;
 
             throw new NotImplementedException();
         }

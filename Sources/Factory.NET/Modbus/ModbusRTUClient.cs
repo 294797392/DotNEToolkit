@@ -2,7 +2,7 @@
 using DotNEToolkit.Crypto;
 using DotNEToolkit.Extentions;
 using DotNEToolkit.Modular;
-using Factory.NET.Communictions;
+using DotNEToolkit.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -67,8 +67,9 @@ namespace DotNEToolkit.Modbus
 
         protected override int OnInitialize()
         {
-            this.commObject = CommObjectFactory.Create(this.InputParameters);
-            return this.commObject.Initialize(this.InputParameters);
+            //this.commObject = CommObjectFactory.Create(this.InputParameters);
+            //return this.commObject.Initialize(this);
+            throw new NotImplementedException();
         }
 
         protected override void OnRelease()
@@ -185,7 +186,7 @@ namespace DotNEToolkit.Modbus
 
             byte[] result = this.commObject.ReadBytes(8);
 
-            if (!Bytes.Compare(result, data))
+            if (!ByteUtils.Compare(result, data))
             {
                 logger.ErrorFormat("WriteDigtalOutput失败, 返回的数据和发送的数据不一致");
                 return false;
@@ -250,7 +251,7 @@ namespace DotNEToolkit.Modbus
 
             byte[] result = this.commObject.ReadBytes(8);
 
-            if (!Bytes.Compare(result, data))
+            if (!ByteUtils.Compare(result, data))
             {
                 logger.ErrorFormat("WriteDigtalOutput失败, 返回的数据和发送的数据不一致");
                 return false;

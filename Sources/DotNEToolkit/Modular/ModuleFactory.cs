@@ -34,8 +34,6 @@ namespace DotNEToolkit.Modular
 
         #region 实例变量
 
-        private List<ModuleMetadata> metadataList;
-
         /// <summary>
         /// 存储已经加载了的模块
         /// </summary>
@@ -47,11 +45,6 @@ namespace DotNEToolkit.Modular
 
         #region 属性
 
-        /// <summary>
-        /// 所有模块的元数据信息
-        /// </summary>
-        public ReadOnlyCollection<ModuleMetadata> MetadataList { get; private set; }
-
         #endregion
 
         #region 构造方法
@@ -62,9 +55,6 @@ namespace DotNEToolkit.Modular
         protected ModuleFactory()
         {
             this.moduleList = new List<ModuleBase>();
-            this.metadataList = new List<ModuleMetadata>();
-            this.metadataList.AddRange(LookupModuleMetadatas());
-            this.MetadataList = new ReadOnlyCollection<ModuleMetadata>(this.metadataList);
         }
 
         #endregion
@@ -125,19 +115,6 @@ namespace DotNEToolkit.Modular
                 // 优先加载ClassName
                 string className = module.ClassName;
 
-                // 如果ClassName不存在，那么根据MetadataID寻找ClassName
-                if (string.IsNullOrEmpty(className))
-                {
-                    ModuleMetadata metadata = this.metadataList.FirstOrDefault(info => info.ID == module.MetadataID);
-                    if (metadata == null)
-                    {
-                        logger.ErrorFormat("客户端不存在模块:{0}", module);
-                        throw new ModuleNotFoundException(module);
-                    }
-
-                    className = metadata.ClassName;
-                }
-
                 // 开始加载实例
                 ModuleBase moduleInst = ConfigFactory<ModuleBase>.CreateInstance(className);
                 moduleInst.Definition = module;
@@ -155,15 +132,6 @@ namespace DotNEToolkit.Modular
         #endregion
 
         #region 公开接口
-
-        /// <summary>
-        /// 读取所有的类型定义
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<ModuleMetadata> LookupModuleMetadatas()
-        {
-            return JSONHelper.ParseDirectory<ModuleMetadata>(AppDomain.CurrentDomain.BaseDirectory, ModuleMetadataFilePattern);
-        }
 
         /// <summary>
         /// 创建一个空的工厂
