@@ -187,10 +187,6 @@
       <Project>{2A9FB13C-E7F4-4770-B731-B653372E25D2}</Project>
       <Name>DotNEToolkit</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ModuleHost\ModuleHost.csproj">
-      <Project>{049ac4b3-647b-4275-ba32-276c77ece464}</Project>
-      <Name>ModuleHost</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="demo.json">

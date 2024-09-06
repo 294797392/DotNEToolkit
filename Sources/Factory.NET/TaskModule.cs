@@ -61,7 +61,7 @@ namespace Factory.NET
         }
 
         /// <summary>
-        /// 查询到目前为止已经运行了的测试项的测试结果
+        /// 查询到目前为止已经运行结束的测试项的测试结果
         /// </summary>
         /// <returns></returns>
         public List<TaskResult> GetTaskResults()

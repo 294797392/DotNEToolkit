@@ -20,16 +20,25 @@ namespace Factory.NET
 
         /// <summary>
         /// 项目的运行次数
-        /// 当Repetitions是Repeatable的时候，用这个属性来标识运行次数
-        /// 如果Repetitions == Continuously && Repeats == 0，那么表示无限循环执行工作流
+        /// 取值范围：
+        /// 小于0：运行无数次
+        /// 0：只运行一次
+        /// 大于0：指定运行次数
         /// </summary>
         public int Cycles { get; set; }
+
+        /// <summary>
+        /// 全局输入参数，由所有测试流程共享
+        /// </summary>
+        public Dictionary<string, object> GloablParameters { get; set; }
+
+        #region Internal属性
 
         /// <summary>
         /// 所有工作流的输入参数
         /// 如果输入参数里有表达式，那么存储表达式的值
         /// </summary>
-        public Dictionary<string, IDictionary> TaskInputs { get; private set; }
+        internal Dictionary<string, IDictionary> TaskInputs { get; private set; }
 
         /// <summary>
         /// 存储工作流中到目前为止所有的Task的输出
@@ -37,17 +46,14 @@ namespace Factory.NET
         /// 
         /// TaskID -> OutputParameters
         /// </summary>
-        public Dictionary<string, IDictionary> TaskProperties { get; private set; }
-
-        /// <summary>
-        /// 全局输入参数，由所有测试流程共享
-        /// </summary>
-        public Dictionary<string, object> GloablParameters { get; set; }
+        internal Dictionary<string, IDictionary> TaskProperties { get; private set; }
 
         /// <summary>
         /// 存储到目前为止已经运行了的测试项的测试结果
         /// </summary>
-        public List<TaskResult> TaskResults { get; private set; }
+        internal List<TaskResult> TaskResults { get; private set; }
+
+        #endregion
 
         public DispatcherContext()
         {

@@ -11,6 +11,9 @@ namespace Factory.NET
     /// </summary>
     public class TaskResult
     {
+        /// <summary>
+        /// 测试流程元数据信息
+        /// </summary>
         public TaskDefinition TaskDefinition { get; set; }
 
         /// <summary>

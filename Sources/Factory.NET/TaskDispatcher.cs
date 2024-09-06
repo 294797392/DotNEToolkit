@@ -80,21 +80,21 @@ namespace Factory.NET
             {
                 while (true)
                 {
-                    this.Reset();
                     this.ExecuteTasks();
+                    this.Reset();
                 }
             }
             else if (this.Context.Cycles == 0)
             {
-                this.Reset();
                 this.ExecuteTasks();
+                this.Reset();
             }
             else
             {
                 for (int i = 0; i < this.Context.Cycles; i++)
                 {
-                    this.Reset();
                     this.ExecuteTasks();
+                    this.Reset();
                 }
             }
 
@@ -131,21 +131,24 @@ namespace Factory.NET
             this.ProcessEvent(TaskDispatcherEvent.Started, null);
             result.Add(this.ExecuteTasksFinally(normalTasks, out failureTask1));
 
-            if (result.All(s => s))
+            bool success = result.All(s => s);
+
+            if (success)
             {
                 List<TaskDefinition> failureTask3 = null;
                 this.ExecuteTasksFinally(onlyPassPostTasks, out failureTask3);
-                this.ProcessEvent(TaskDispatcherEvent.Completed, true);
             }
             else
             {
                 List<TaskDefinition> failureTask4 = null;
                 this.ExecuteTasksFinally(onlyFailPostTasks, out failureTask4);
-                this.ProcessEvent(TaskDispatcherEvent.Completed, false);
             }
 
             // 最后执行PostTask
             this.ExecuteTasksFinally(alwayPostTasks, out failureTask2);
+
+            // 所有Task都运行完了再通知运行结束事件
+            this.ProcessEvent(TaskDispatcherEvent.Completed, success);
         }
 
         private bool ExecuteTasksFinally(IEnumerable<TaskDefinition> taskList, out List<TaskDefinition> failureTasks)
@@ -168,6 +171,12 @@ namespace Factory.NET
                 }
             }
             return result.All(r => r);
+        }
+
+        private void HandleMessage(string msg, params object[] param) 
+        {
+            logger.InfoFormat(msg, param);
+            this.PubMessage(msg, param);
         }
 
         /// <summary>
@@ -196,8 +205,7 @@ namespace Factory.NET
                 {
                     taskStatus = TaskModuleStatus.SKIP;
                     this.ProcessTaskStatusChanged(TaskModuleStatus.SKIP, task);
-                    logger.InfoFormat("{0}未启用, 跳过", taskDef.Name);
-                    this.PubMessage("{0}未启用, 跳过", taskDef.Name);
+                    this.HandleMessage("{0}未启用, 跳过", taskDef.Name);
                     return true;
                 }
 
@@ -206,15 +214,13 @@ namespace Factory.NET
                 {
                     taskStatus = TaskModuleStatus.WAIT;
                     this.ProcessTaskStatusChanged(TaskModuleStatus.WAIT, task);
-                    logger.InfoFormat("延时{0}秒运行{1}", (double)taskDef.Delay / (double)1000, taskDef.Name);
-                    this.PubMessage("延时{0}秒运行{1}", (double)taskDef.Delay / (double)1000, taskDef.Name);
+                    this.HandleMessage("延时{0}秒运行{1}", (double)taskDef.Delay / (double)1000, taskDef.Name);
                     Thread.Sleep(taskDef.Delay);
                 }
 
                 taskStatus = TaskModuleStatus.RUN;
                 this.ProcessTaskStatusChanged(TaskModuleStatus.RUN, task);
-                logger.InfoFormat("开始运行:{0}", taskDef.Name);
-                this.PubMessage("开始运行:{0}", taskDef.Name);
+                this.HandleMessage("开始运行:{0}", taskDef.Name);
 
                 //// 解析参数表达式
                 IDictionary inputParams = taskDef.InputParameters;
@@ -233,8 +239,7 @@ namespace Factory.NET
                 {
                     taskStatus = TaskModuleStatus.FAIL;
                     this.ProcessTaskStatusChanged(TaskModuleStatus.FAIL, task);
-                    logger.ErrorFormat("初始化{0}失败, code = {1}, {2}", taskDef.Name, code, ResponseCode.GetMessage(code));
-                    this.PubMessage("初始化{0}失败, code = {1}, {2}", taskDef.Name, code, ResponseCode.GetMessage(code));
+                    this.HandleMessage("初始化{0}失败, code = {1}, {2}", taskDef.Name, code, ResponseCode.GetMessage(code));
                     return false;
                 }
 
@@ -244,32 +249,27 @@ namespace Factory.NET
                 {
                     taskStatus = TaskModuleStatus.FAIL;
                     this.ProcessTaskStatusChanged(TaskModuleStatus.FAIL, task);
-                    logger.ErrorFormat("运行{0}失败, code = {1}, {2}", taskDef.Name, code, ResponseCode.GetMessage(code));
-                    this.PubMessage("运行{0}失败, code = {1}, {2}", taskDef.Name, code, ResponseCode.GetMessage(code));
+                    this.HandleMessage("运行{0}失败, code = {1}, {2}", taskDef.Name, code, ResponseCode.GetMessage(code));
                     return false;
                 }
 
                 taskStatus = TaskModuleStatus.PASS;
                 this.ProcessTaskStatusChanged(TaskModuleStatus.PASS, task);
-                logger.InfoFormat("运行{0}成功", taskDef.Name);
-                this.PubMessage("运行{0}成功", taskDef.Name);
+                this.HandleMessage("运行{0}成功", taskDef.Name);
                 return true;
             }
             catch (Exception ex)
             {
                 taskStatus = TaskModuleStatus.EXCEPTION;
                 this.ProcessTaskStatusChanged(TaskModuleStatus.EXCEPTION, task);
-                logger.Error(string.Format("{0}出现异常", taskDef.Name), ex);
-                this.PubMessage(string.Format("{0}出现异常, {1}", taskDef.Name, ex));
+                this.HandleMessage("{0}出现异常, {1}", taskDef.Name, ex);
                 if (taskDef.HasFlag((int)TaskFlags.IgnoreFailure))
                 {
-                    logger.WarnFormat("{0}运行出现异常, 执行下一个流程", taskDef.Name);
-                    this.PubMessage("{0}运行出现异常, 执行下一个流程", taskDef.Name);
+                    this.HandleMessage("{0}运行出现异常, 执行下一个流程", taskDef.Name);
                 }
                 else
                 {
-                    logger.WarnFormat("{0}运行出现异常, 退出", taskDef.Name);
-                    this.PubMessage("{0}运行出现异常, 退出", taskDef.Name);
+                    this.HandleMessage("{0}运行出现异常, 退出", taskDef.Name);
                 }
                 return false;
             }
@@ -335,7 +335,7 @@ namespace Factory.NET
             this.Context.TaskInputs.Clear();
             this.Context.TaskProperties.Clear();
             this.Context.TaskResults.Clear();
-            this.Context.GloablParameters.Clear();
+            //this.Context.GloablParameters.Clear();
             this.asyncTasks.Clear();
         }
 

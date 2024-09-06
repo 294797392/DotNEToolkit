@@ -11,6 +11,11 @@ namespace Factory.NET
     public enum PostTaskStrategy 
     {
         /// <summary>
+        /// 该测试流程不是一个PostTask
+        /// </summary>
+        None,
+
+        /// <summary>
         /// 总是运行，不管工作流的结果
         /// 这个选项在所有测试流运行完最后运行
         /// </summary>
@@ -32,7 +37,6 @@ namespace Factory.NET
     /// <summary>
     /// 存储任务详细信息
     /// </summary>
-    [JsonObject("Task")]
     public class TaskDefinition : ModuleDefinition
     {
         /// <summary>
