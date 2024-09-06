@@ -33,6 +33,11 @@ namespace Factory.NET
         internal DispatcherContext Context { get; set; }
 
         /// <summary>
+        /// 当测试流程运行错误的时候，保存错误消息
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
         /// 运行测试流程
         /// </summary>
         /// <returns></returns>
@@ -53,6 +58,15 @@ namespace Factory.NET
         public T GetGlobalParameter<T>(string key) 
         {
             return base.GetParameter<T>(this.Context.GloablParameters, key);
+        }
+
+        /// <summary>
+        /// 查询到目前为止已经运行了的测试项的测试结果
+        /// </summary>
+        /// <returns></returns>
+        public List<TaskResult> GetTaskResults()
+        {
+            return this.Context.TaskResults;
         }
     }
 }

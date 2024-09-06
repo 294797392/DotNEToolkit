@@ -102,6 +102,11 @@ namespace Factory.NET.IODrivers
         {
             Type t = typeof(T);
 
+            if (t == typeof(string))
+            {
+                return dictionary.GetValue<T>(key);
+            }
+
             if (t.IsClass)
             {
                 string json = dictionary[key].ToString();

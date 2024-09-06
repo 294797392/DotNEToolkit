@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Drawing.Design;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace DotNEToolkit.Modular
@@ -162,6 +163,11 @@ namespace DotNEToolkit.Modular
         protected T GetParameter<T>(IDictionary dictionary, string key)
         {
             Type t = typeof(T);
+
+            if (t == typeof(string))
+            {
+                return dictionary.GetValue<T>(key);
+            }
 
             if (t.IsClass)
             {

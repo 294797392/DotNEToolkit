@@ -12,7 +12,7 @@ namespace Factory.NET
     /// </summary>
     public static class DelegateUtility
     {
-        public static bool ContinuousInvoke<T1>(Func<T1, bool> action, T1 t1, int max_times)
+        public static bool ContinuousInvoke<T1>(Func<T1, bool> action, T1 t1, int max_times, int retryInterval)
         {
             if (max_times == 0)
             {
@@ -22,6 +22,11 @@ namespace Factory.NET
             {
                 for (int i = 0; i <= max_times; i++)
                 {
+                    if (i > 0 && retryInterval > 0)
+                    {
+                        Thread.Sleep(retryInterval);
+                    }
+
                     if (!action(t1))
                     {
                         continue;

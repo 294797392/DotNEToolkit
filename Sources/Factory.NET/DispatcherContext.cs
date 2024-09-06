@@ -42,13 +42,19 @@ namespace Factory.NET
         /// <summary>
         /// 全局输入参数，由所有测试流程共享
         /// </summary>
-        public Dictionary<string, object> GloablParameters { get; private set; }
+        public Dictionary<string, object> GloablParameters { get; set; }
+
+        /// <summary>
+        /// 存储到目前为止已经运行了的测试项的测试结果
+        /// </summary>
+        public List<TaskResult> TaskResults { get; private set; }
 
         public DispatcherContext()
         {
             this.TaskInputs = new Dictionary<string, IDictionary>();
             this.TaskProperties = new Dictionary<string, IDictionary>();
             this.GloablParameters = new Dictionary<string, object>();
+            this.TaskResults = new List<TaskResult>();
         }
     }
 }

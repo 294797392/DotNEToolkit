@@ -64,6 +64,7 @@
     <Compile Include="IODrivers\TcpClientIODriver.cs" />
     <Compile Include="IODrivers\VirtualIODriver.cs" />
     <Compile Include="TaskModule.cs" />
+    <Compile Include="TaskResult.cs" />
     <Compile Include="TaskModuleStatus.cs" />
     <Compile Include="DispatcherContext.cs" />
     <Compile Include="TaskDefinition.cs" />

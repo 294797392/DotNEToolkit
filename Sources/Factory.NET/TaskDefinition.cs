@@ -12,16 +12,19 @@ namespace Factory.NET
     {
         /// <summary>
         /// 总是运行，不管工作流的结果
+        /// 这个选项在所有测试流运行完最后运行
         /// </summary>
         Always,
 
         /// <summary>
         /// 只有在所有工作流PASS之后再运行
+        /// 这个选项在Always之前运行
         /// </summary>
         OnlyPass,
 
         /// <summary>
         /// 只有在工作流FAIL之后再运行
+        /// 这个选项在Always之前运行
         /// </summary>
         OnlyFail
     }
@@ -43,6 +46,12 @@ namespace Factory.NET
         /// </summary>
         [JsonProperty("RetryTimes")]
         public int RetryTimes { get; set; }
+
+        /// <summary>
+        /// 重试工作流之间的间隔时间
+        /// </summary>
+        [JsonProperty("retryInterval")]
+        public int RetryInterval { get; set; }
 
         /// <summary>
         /// 是否在所有工作流运行结束之后运行
