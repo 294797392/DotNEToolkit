@@ -24,9 +24,6 @@ namespace Factory.NET.IODrivers
     /// 1.管理IODevice的连接
     /// 2.管理IODevice的输入和输出
     /// 3.向外部模块提供输入/输出接口
-    /// 
-    /// 该类不对读写异常做处理，需要外部模块去处理
-    /// 
     /// </summary>
     public abstract class AbstractIODriver
     {
@@ -133,7 +130,12 @@ namespace Factory.NET.IODrivers
         /// <returns>读取到的字节数，有可能是0</returns>
         public abstract int ReadBytes(byte[] bytes, int offset, int len);
 
-        public abstract int ReadLine(out string line);
+        /// <summary>
+        /// 从IO驱动读取一行数据
+        /// 该方法不捕捉异常，需要调用者处理异常情况
+        /// </summary>
+        /// <returns></returns>
+        public abstract string ReadLine();
 
         public abstract void WriteBytes(byte[] bytes);
 
@@ -223,10 +225,14 @@ namespace Factory.NET.IODrivers
                     }
                 }
 
-                int ret = this.ReadLine(out line);
-                if (ret != ResponseCode.SUCCESS)
+                try
                 {
-                    continue;
+                    line = this.ReadLine();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("读取异常", ex);
+                    return ResponseCode.FAILED;
                 }
 
                 if (string.IsNullOrEmpty(line))
@@ -311,10 +317,16 @@ namespace Factory.NET.IODrivers
 
             while ((DateTime.Now - start).TotalMilliseconds < this.submitTimeout)
             {
-                string receivedLine;
-                if ((rc = this.ReadLine(out receivedLine)) != ResponseCode.SUCCESS)
+                string receivedLine = null;
+
+                try
                 {
-                    return rc;
+                    receivedLine = this.ReadLine();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("读取数据异常", ex);
+                    return ResponseCode.FAILED;
                 }
 
                 logger.DebugFormat("IODriver OUT = {0}", receivedLine);
@@ -361,16 +373,19 @@ namespace Factory.NET.IODrivers
         {
             read = null;
 
-            int code = ResponseCode.SUCCESS;
-
-            this.WriteLine(line);
-
-            if ((code = this.ReadLine(out read)) != ResponseCode.SUCCESS)
+            try
             {
-                return code;
-            }
+                this.WriteLine(line);
 
-            return ResponseCode.SUCCESS;
+                read = this.ReadLine();
+
+                return ResponseCode.SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                logger.Error("读取数据异常", ex);
+                return ResponseCode.FAILED;
+            }
         }
 
         public int SubmitBytes(byte[] bytes, string match1, out string matchedLine, string match2 = "")
@@ -386,9 +401,15 @@ namespace Factory.NET.IODrivers
             while ((DateTime.Now - start).TotalMilliseconds < this.submitTimeout)
             {
                 string receivedLine;
-                if ((rc = this.ReadLine(out receivedLine)) != ResponseCode.SUCCESS)
+
+                try 
                 {
-                    return rc;
+                    receivedLine = this.ReadLine();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("读取数据异常", ex);
+                    return ResponseCode.FAILED;
                 }
 
                 logger.DebugFormat("IODriver OUT = {0}", receivedLine);

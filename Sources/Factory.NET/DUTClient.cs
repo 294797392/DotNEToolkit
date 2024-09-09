@@ -57,19 +57,6 @@ namespace Factory.NET
             this.driver.WriteBytes(bytes);
         }
 
-        protected void WriteLine(string line)
-        {
-            logger.DebugFormat("write = {0}", line);
-            this.driver.WriteLine(line);
-        }
-
-        protected int ReadLine(out string line)
-        {
-            int rc = this.driver.ReadLine(out line);
-            logger.DebugFormat("read = {0}", line);
-            return rc;
-        }
-
         /// <summary>
         /// 不知道要读取多少字节，使用重试机制来读取
         /// </summary>
@@ -118,6 +105,35 @@ namespace Factory.NET
             }
 
             return read;
+        }
+
+        protected byte[] ReadBytes(int len) 
+        {
+            byte[] message = new byte[len];
+
+            int left = len;
+            int read = 0;
+
+            while (left > 0)
+            {
+                int n = this.driver.ReadBytes(message, read, left);
+
+                left -= n;
+                read += n;
+            }
+
+            return message;
+        }
+
+        protected void WriteLine(string line)
+        {
+            logger.DebugFormat("write = {0}", line);
+            this.driver.WriteLine(line);
+        }
+
+        protected string ReadLine()
+        {
+            return this.driver.ReadLine();
         }
 
 

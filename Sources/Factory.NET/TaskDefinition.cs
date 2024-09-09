@@ -58,16 +58,10 @@ namespace Factory.NET
         public int RetryInterval { get; set; }
 
         /// <summary>
-        /// 是否在所有工作流运行结束之后运行
-        /// </summary>
-        [JsonProperty("post")]
-        public bool PostTask { get; set; }
-
-        /// <summary>
         /// 工作流结束之后运行的策略
         /// </summary>
-        [JsonProperty("postStrategy")]
-        public int PostTaskStrategy { get; set; }
+        [JsonProperty("postTask")]
+        public int PostTask { get; set; }
 
         public TaskDefinition()
         {

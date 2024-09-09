@@ -137,45 +137,9 @@ namespace Factory.NET.IODrivers
             logger.DebugFormat("向串口发送数据:{0}", cmd);
         }
 
-        public override int ReadLine(out string data)
+        public override string ReadLine()
         {
-            data = null;
-
-            if (!this.port.IsOpen)
-            {
-                return ResponseCode.IODRV_NOT_OPENED;
-            }
-
-            try
-            {
-                data = this.port.ReadLine();
-                return ResponseCode.SUCCESS;
-            }
-            catch (TimeoutException ex)
-            {
-                data = this.port.ReadExisting();
-                if (string.IsNullOrEmpty(data))
-                {
-                    logger.Error("从串口读取数据超时", ex);
-                }
-                else
-                {
-                    logger.ErrorFormat("从串口读取数据超时, 缓冲区中剩余的数据:{0}", data);
-                }
-                return ResponseCode.IODRV_READ_TIMEOUT;
-            }
-            catch (InvalidOperationException ex)
-            {
-                // 串口在中途被拔掉会出现
-                logger.Error("串口断开连接, 关闭串口连接");
-                this.port.Close();
-                return ResponseCode.IODRV_NOT_OPENED;
-            }
-            catch (Exception ex)
-            {
-                logger.Error("从串口读取数据异常", ex);
-                return ResponseCode.UNKOWN_EXCEPTION;
-            }
+            return this.port.ReadLine();
         }
 
         public override void ClearExisting()

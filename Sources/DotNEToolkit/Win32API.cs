@@ -156,6 +156,13 @@ namespace DotNEToolkit
             public bool bInheritHandle;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct COORD
+        {
+            public short X;
+            public short Y;
+        }
+
         /// <summary>
         /// 加载动态链接库
         /// </summary>
@@ -183,6 +190,13 @@ namespace DotNEToolkit
 
         [DllImport(DllName, SetLastError = true)]
         public static extern IntPtr CreateFileMapping(IntPtr hFile, IntPtr lpFileMappingAttributes, int flProtect, int dwMaximumSizeHigh, int dwMaximumSizeLow, string lpName);
+
+        [DllImport(DllName, SetLastError = true)]
+        public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, IntPtr lpPipeAttributes, int nSize);
+
+        [DllImport(DllName, SetLastError = true)]
+        public static extern bool CreatePseudoConsole(COORD size, IntPtr hInput, IntPtr hOutput, int dwFlags, out IntPtr phPC);
+
 
         //[DllImport(DllName, SetLastError = true)]
         //public static extern IntPtr MapViewOfFile(IntPtr hFileMappingObject, int dwDesiredAccess, int dwFileOffsetHigh,int dwFileOffsetLow, );

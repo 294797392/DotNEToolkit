@@ -132,25 +132,9 @@ namespace Factory.NET.IODrivers
             this.stream.Write(data, 0, data.Length);
         }
 
-        public override int ReadLine(out string data)
+        public override string ReadLine()
         {
-            data = null;
-
-            try
-            {
-                data = this.sr.ReadLine();
-                return ResponseCode.SUCCESS;
-            }
-            catch (IOException ex)
-            {
-                logger.Error("ReadLine异常", ex);
-                return ResponseCode.IODRV_READ_FAILED;
-            }
-            catch (ObjectDisposedException ex)
-            {
-                logger.Error("ReadLine异常", ex);
-                return ResponseCode.IODRV_READ_FAILED;
-            }
+            return this.sr.ReadLine();
         }
 
         public override void ClearExisting()

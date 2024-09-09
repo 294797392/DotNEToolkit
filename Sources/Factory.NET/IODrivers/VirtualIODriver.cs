@@ -27,10 +27,9 @@ namespace Factory.NET.IODrivers
         {
         }
 
-        public override int ReadLine(out string line)
+        public override string ReadLine()
         {
-            line = string.Empty;
-            return ResponseCode.SUCCESS;
+            return string.Empty;
         }
 
         public override void WriteBytes(byte[] bytes)

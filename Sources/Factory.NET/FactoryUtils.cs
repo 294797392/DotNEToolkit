@@ -21,7 +21,8 @@ namespace Factory.NET
         {
             ProcessStartInfo processStartInfo = new ProcessStartInfo()
             {
-                FileName = "adb devices",
+                FileName = "adb.exe",
+                Arguments = "devices",
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
@@ -34,7 +35,7 @@ namespace Factory.NET
                 Process process = Process.Start(processStartInfo);
                 string message = process.StandardOutput.ReadToEnd();
 
-                return message.Contains("devices");
+                return message.Contains("\tdevices");
             }
             catch (Exception ex)
             {

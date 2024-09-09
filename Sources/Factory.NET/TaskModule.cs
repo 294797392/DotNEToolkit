@@ -1,6 +1,9 @@
-﻿using DotNEToolkit.Modular;
+﻿using DotNEToolkit;
+using DotNEToolkit.Media.Audio;
+using DotNEToolkit.Modular;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
@@ -55,7 +58,7 @@ namespace Factory.NET
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
         /// <returns></returns>
-        public T GetGlobalParameter<T>(string key) 
+        public T GetGlobalParameter<T>(string key)
         {
             return base.GetParameter<T>(this.Context.GloablParameters, key);
         }

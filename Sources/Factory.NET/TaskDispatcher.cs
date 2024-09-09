@@ -1,13 +1,9 @@
-﻿using DotNEToolkit;
-using DotNEToolkit.Modular;
+﻿using DotNEToolkit.Modular;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading;
-using System.Windows;
 using AsyncTask = System.Threading.Tasks.Task<bool>;
 
 namespace Factory.NET
@@ -123,10 +119,10 @@ namespace Factory.NET
             List<TaskDefinition> failureTask2 = null;
             List<bool> result = new List<bool>();
 
-            List<TaskDefinition> normalTasks = this.Context.Tasks.Where(v => !v.PostTask).ToList();
-            List<TaskDefinition> alwayPostTasks = this.Context.Tasks.Where(v => v.PostTask && ((PostTaskStrategy)v.PostTaskStrategy) == PostTaskStrategy.Always).ToList();
-            List<TaskDefinition> onlyPassPostTasks = this.Context.Tasks.Where(v => v.PostTask && ((PostTaskStrategy)v.PostTaskStrategy) == PostTaskStrategy.OnlyPass).ToList();
-            List<TaskDefinition> onlyFailPostTasks = this.Context.Tasks.Where(v => v.PostTask && ((PostTaskStrategy)v.PostTaskStrategy) == PostTaskStrategy.OnlyFail).ToList();
+            List<TaskDefinition> normalTasks = this.Context.Tasks.Where(v => (PostTaskStrategy)v.PostTask == PostTaskStrategy.None).ToList();
+            List<TaskDefinition> alwayPostTasks = this.Context.Tasks.Where(v => ((PostTaskStrategy)v.PostTask) == PostTaskStrategy.Always).ToList();
+            List<TaskDefinition> onlyPassPostTasks = this.Context.Tasks.Where(v => ((PostTaskStrategy)v.PostTask) == PostTaskStrategy.OnlyPass).ToList();
+            List<TaskDefinition> onlyFailPostTasks = this.Context.Tasks.Where(v => ((PostTaskStrategy)v.PostTask) == PostTaskStrategy.OnlyFail).ToList();
 
             this.ProcessEvent(TaskDispatcherEvent.Started, null);
             result.Add(this.ExecuteTasksFinally(normalTasks, out failureTask1));
@@ -173,7 +169,7 @@ namespace Factory.NET
             return result.All(r => r);
         }
 
-        private void HandleMessage(string msg, params object[] param) 
+        private void HandleMessage(string msg, params object[] param)
         {
             logger.InfoFormat(msg, param);
             this.PubMessage(msg, param);

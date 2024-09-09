@@ -11,26 +11,28 @@
 
 int main()
 {
-	HANDLE screenBuffer = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-	if(screenBuffer == NULL)
-	{
-		return 0;
-	}
+	STARTUPINFOEX
 
-	SetConsoleActiveScreenBuffer(screenBuffer);
+	//HANDLE screenBuffer = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+	//if(screenBuffer == NULL)
+	//{
+	//	return 0;
+	//}
 
-	COORD coordBufSize;
-	coordBufSize.X = 2;
-	coordBufSize.Y = 80;
-	CHAR_INFO chiBuffer[160];
-	ReadConsoleOutput(screenBuffer, chiBuffer, coordBufSize, 0,)
+	//SetConsoleActiveScreenBuffer(screenBuffer);
 
-	DWORD n;
-	WriteConsole(screenBuffer, "123\r\n", 3, &n, NULL);
+	//COORD coordBufSize;
+	//coordBufSize.X = 2;
+	//coordBufSize.Y = 80;
+	//CHAR_INFO chiBuffer[160];
+	//ReadConsoleOutput(screenBuffer, chiBuffer, coordBufSize, 0,)
 
-	DWORD readed;
-	char buffer[1024];
-	ReadConsole(screenBuffer, buffer, 1024, &readed, NULL);
+	//DWORD n;
+	//WriteConsole(screenBuffer, "123\r\n", 3, &n, NULL);
+
+	//DWORD readed;
+	//char buffer[1024];
+	//ReadConsole(screenBuffer, buffer, 1024, &readed, NULL);
 
 
 
