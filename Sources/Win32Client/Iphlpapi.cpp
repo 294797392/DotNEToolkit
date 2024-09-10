@@ -11,8 +11,6 @@
 
 int main()
 {
-	STARTUPINFOEX
-
 	//HANDLE screenBuffer = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	//if(screenBuffer == NULL)
 	//{

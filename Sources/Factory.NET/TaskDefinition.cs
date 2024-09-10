@@ -63,6 +63,12 @@ namespace Factory.NET
         [JsonProperty("postTask")]
         public int PostTask { get; set; }
 
+        /// <summary>
+        /// 执行序号
+        /// </summary>
+        [JsonProperty("ordinal")]
+        public int Ordinal { get; set; }
+
         public TaskDefinition()
         {
         }

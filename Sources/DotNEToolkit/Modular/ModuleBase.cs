@@ -233,7 +233,13 @@ namespace DotNEToolkit.Modular
             IDictionary parameters = this.InputParameters;
 
             Type t = typeof(T);
-            
+
+            if (t == typeof(string))
+            {
+                parameters[key] = value.ToString();
+                return;
+            }
+
             if (t.IsClass)
             {
                 string json = JsonConvert.SerializeObject(value);
