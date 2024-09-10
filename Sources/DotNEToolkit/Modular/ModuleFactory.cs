@@ -112,6 +112,8 @@ namespace DotNEToolkit.Modular
                     continue;
                 }
 
+                logger.InfoFormat("开始加载模块:{0}, {1}", module.Name, module.ClassName);
+
                 // 优先加载ClassName
                 string className = module.ClassName;
 
