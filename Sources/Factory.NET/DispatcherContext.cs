@@ -32,6 +32,12 @@ namespace Factory.NET
         /// </summary>
         public Dictionary<string, object> GloablParameters { get; set; }
 
+        /// <summary>
+        /// 控制测试流程是否停止运行
+        /// 如果设置为True，那么未完成的所有测试流程将不会继续运行，包括PostTask也不会运行
+        /// </summary>
+        public bool IsStop { get; set; }
+
         #region Internal属性
 
         /// <summary>

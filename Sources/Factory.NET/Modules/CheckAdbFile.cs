@@ -1,19 +1,47 @@
-﻿using log4net.Util;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Security;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Factory.NET.Modules
 {
     public class CheckAdbFile : TaskModule
     {
+        /// <summary>
+        /// 定义该测试流程的错误码
+        /// </summary>
+        public enum FailReasons
+        {
+            /// <summary>
+            /// 测试成功
+            /// </summary>
+            PASS,
+
+            /// <summary>
+            /// 执行pull指令失败
+            /// </summary>
+            PullCommandFailed,
+
+            /// <summary>
+            /// 创建本地文件失败
+            /// </summary>
+            CreateFileFailed,
+
+            /// <summary>
+            /// 设备里不存在这个文件
+            /// </summary>
+            FileNotExist,
+
+            /// <summary>
+            /// 文件内容不匹配
+            /// </summary>
+            NotMatch,
+
+            /// <summary>
+            /// 读取文件内容失败
+            /// </summary>
+            ReadFileFailed
+        }
+
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger("CheckAdbFile");
 
         public override int Run()
@@ -26,29 +54,22 @@ namespace Factory.NET.Modules
 
             bool success = true;
 
+            this.Message = FailReasons.PASS.ToString();
+
             #region 先创建一个本地文件
 
-            if (File.Exists(target))
+            if (!File.Exists(target))
             {
                 try
                 {
-                    File.Delete(target);
+                    File.Create(target).Close();
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("删除本地文件异常", ex);
+                    this.Message = FailReasons.CreateFileFailed.ToString();
+                    logger.Error("创建本地文件异常", ex);
                     return ResponseCode.FAILED;
                 }
-            }
-
-            try
-            {
-                File.Create(target).Close();
-            }
-            catch (Exception ex)
-            {
-                logger.Error("创建本地文件异常", ex);
-                return ResponseCode.FAILED;
             }
 
             #endregion
@@ -56,8 +77,18 @@ namespace Factory.NET.Modules
             #region 用adb拷贝到本机
 
             bool fileExist;
-            if (!this.AdbPullFile(adbPath, source, target, out fileExist))
+            string output;
+            if (!this.AdbPullFile(adbPath, source, target, out fileExist, out output))
             {
+                // ADB指令执行失败
+                this.Message = string.Format("{0},{1}", FailReasons.PullCommandFailed, output);
+                return ResponseCode.FAILED;
+            }
+
+            // pull指令执行成功，但是设备不存在这个文件
+            if (!fileExist)
+            {
+                this.Message = string.Format("{0}", FailReasons.FileNotExist);
                 return ResponseCode.FAILED;
             }
 
@@ -76,10 +107,16 @@ namespace Factory.NET.Modules
                 }
                 catch (Exception ex)
                 {
+                    this.Message = string.Format("{0},{1}", FailReasons.ReadFileFailed, ex.Message);
                     logger.Error("读取文件内容异常", ex);
                     return ResponseCode.FAILED;
                 }
                 success = content.Contains(match);
+
+                if (!success)
+                {
+                    this.Message = string.Format("{0},{1}", FailReasons.NotMatch, content);
+                }
             }
 
             #endregion
@@ -103,12 +140,13 @@ namespace Factory.NET.Modules
         /// <param name="srcPath"></param>
         /// <param name="destPath"></param>
         /// <param name="fileExist">远程文件是否存在</param>
-        /// <returns></returns>
-        private bool AdbPullFile(string adbPath, string srcPath, string destPath, out bool fileExist)
+        /// <returns>pull指令是否执行成功</returns>
+        private bool AdbPullFile(string adbPath, string srcPath, string destPath, out bool fileExist, out string output)
         {
             fileExist = false;
+            output = string.Empty;
 
-            string command = string.Format("pull {0} {1}", srcPath, destPath);
+            string pullCommand = string.Format("pull {0} {1}", srcPath, destPath);
 
             ProcessStartInfo psi = new ProcessStartInfo()
             {
@@ -117,7 +155,7 @@ namespace Factory.NET.Modules
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 FileName = adbPath,
-                Arguments = command
+                Arguments = pullCommand
             };
 
             Process process = null;
@@ -126,26 +164,33 @@ namespace Factory.NET.Modules
             {
                 process = Process.Start(psi);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 logger.Error("adb pull异常", ex);
+                output = ex.Message;
                 return false;
             }
 
-            string output = process.StandardOutput.ReadToEnd();
+            output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
             process.Dispose();
 
             if (output.Contains("remote object") && output.Contains("does not exist"))
             {
                 fileExist = false;
+                return true;
+            }
+            else if (output.Contains("file pulled"))
+            {
+                fileExist = true;
+                return true;
             }
             else
             {
-                fileExist = true;
+                logger.ErrorFormat("pull指令执行失败, {0}, {1}", pullCommand, output);
+                fileExist = false;
+                return false;
             }
-
-            return true;
         }
     }
 }

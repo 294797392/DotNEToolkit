@@ -154,6 +154,13 @@ namespace Factory.NET
 
             foreach (TaskDefinition toExecute in taskList)
             {
+                if (this.Context.IsStop)
+                {
+                    // 调用者设置了停止运行工作流
+
+                    return result.Count > 0 && result.All(r => r);
+                }
+
                 bool ret = DelegateUtility.ContinuousInvoke<TaskDefinition>(this.ExecuteTask, toExecute, toExecute.RetryTimes, toExecute.RetryInterval);
 
                 result.Add(ret);
@@ -166,6 +173,7 @@ namespace Factory.NET
                     }
                 }
             }
+
             return result.All(r => r);
         }
 

@@ -36,6 +36,11 @@ namespace Factory.NET
         internal DispatcherContext Context { get; set; }
 
         /// <summary>
+        /// 控制该工作流程是否停止运行
+        /// </summary>
+        protected bool IsStop { get { return this.Context.IsStop; } }
+
+        /// <summary>
         /// 当测试流程运行错误的时候，保存错误消息
         /// </summary>
         public string Message { get; set; }
