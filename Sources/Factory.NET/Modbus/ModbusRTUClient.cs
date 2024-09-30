@@ -49,7 +49,7 @@ namespace DotNEToolkit.Modbus
         /// <summary>
         /// 与PLC通信的对象
         /// </summary>
-        private CommObject commObject;
+        //private CommObject commObject;
 
         #endregion
 

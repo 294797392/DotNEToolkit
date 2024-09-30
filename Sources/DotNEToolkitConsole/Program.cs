@@ -5,6 +5,7 @@ using DotNEToolkit.Expressions;
 using DotNEToolkit.Media;
 using DotNEToolkit.Modular;
 using DotNEToolkit.Utility;
+using Factory.NET;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,14 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            TestExcel.Array2Excel();
+            string content;
+            FactoryUtils.AdbReadFile("adb.exe", "/etc/version.conf", "123", out content);
+
+            Console.WriteLine(content);
+
+            Console.ReadLine();
+
+            //TestExcel.Array2Excel();
 
             //TestTimer.CreateTimer();
 

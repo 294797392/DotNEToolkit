@@ -187,6 +187,10 @@
       <Project>{2A9FB13C-E7F4-4770-B731-B653372E25D2}</Project>
       <Name>DotNEToolkit</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Factory.NET\Factory.NET.csproj">
+      <Project>{7e5683e2-dbc8-4143-9a88-165c2e8c8f60}</Project>
+      <Name>Factory.NET</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="demo.json">

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using AsyncTask = System.Threading.Tasks.Task<bool>;
 
 namespace Factory.NET
@@ -72,26 +73,46 @@ namespace Factory.NET
         /// <returns></returns>
         public int Start()
         {
+            start:
+
             if (this.Context.Cycles == -1)
             {
                 while (true)
                 {
-                    this.ExecuteTasks();
                     this.Reset();
+                    this.ExecuteTasks();
                 }
             }
             else if (this.Context.Cycles == 0)
             {
-                this.ExecuteTasks();
                 this.Reset();
+                this.ExecuteTasks();
             }
             else
             {
                 for (int i = 0; i < this.Context.Cycles; i++)
                 {
-                    this.ExecuteTasks();
                     this.Reset();
+                    this.ExecuteTasks();
                 }
+            }
+
+            // 测试流结束运行之后的行为
+            switch (this.Context.CompletedBehavior)
+            {
+                case CompletedBehaviors.None:
+                    {
+                        break;
+                    }
+
+                case CompletedBehaviors.Restart:
+                    {
+                        this.ProcessEvent(TaskDispatcherEvent.Restart);
+                        goto start;
+                    }
+
+                default:
+                    throw new NotImplementedException();
             }
 
             return ResponseCode.SUCCESS;
@@ -132,16 +153,19 @@ namespace Factory.NET
             if (success)
             {
                 List<TaskDefinition> failureTask3 = null;
-                this.ExecuteTasksFinally(onlyPassPostTasks, out failureTask3);
+                result.Add(this.ExecuteTasksFinally(onlyPassPostTasks, out failureTask3));
             }
             else
             {
                 List<TaskDefinition> failureTask4 = null;
-                this.ExecuteTasksFinally(onlyFailPostTasks, out failureTask4);
+                result.Add(this.ExecuteTasksFinally(onlyFailPostTasks, out failureTask4));
             }
 
             // 最后执行PostTask
-            this.ExecuteTasksFinally(alwayPostTasks, out failureTask2);
+            result.Add(this.ExecuteTasksFinally(alwayPostTasks, out failureTask2));
+
+            // PostTask也算总结果
+            success = result.All(s => s);
 
             // 所有Task都运行完了再通知运行结束事件
             this.ProcessEvent(TaskDispatcherEvent.Completed, success);
@@ -154,13 +178,6 @@ namespace Factory.NET
 
             foreach (TaskDefinition toExecute in taskList)
             {
-                if (this.Context.IsStop)
-                {
-                    // 调用者设置了停止运行工作流
-
-                    return result.Count > 0 && result.All(r => r);
-                }
-
                 bool ret = DelegateUtility.ContinuousInvoke<TaskDefinition>(this.ExecuteTask, toExecute, toExecute.RetryTimes, toExecute.RetryInterval);
 
                 result.Add(ret);
@@ -339,6 +356,7 @@ namespace Factory.NET
             this.Context.TaskInputs.Clear();
             this.Context.TaskProperties.Clear();
             this.Context.TaskResults.Clear();
+            this.Context.CompletedBehavior = CompletedBehaviors.None;
             //this.Context.GloablParameters.Clear();
             this.asyncTasks.Clear();
         }

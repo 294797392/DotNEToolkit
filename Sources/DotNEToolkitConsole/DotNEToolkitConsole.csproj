@@ -59,7 +59,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestAudioPlay.cs" />
-    <Compile Include="TestBytePool.cs" />
     <Compile Include="TestCSV.cs" />
     <Compile Include="TestDirectSound.cs" />
     <Compile Include="TestExcel.cs" />
@@ -75,6 +74,10 @@
     <ProjectReference Include="..\DotNEToolkit\DotNEToolkit.csproj">
       <Project>{2a9fb13c-e7f4-4770-b731-b653372e25d2}</Project>
       <Name>DotNEToolkit</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Factory.NET\Factory.NET.csproj">
+      <Project>{7e5683e2-dbc8-4143-9a88-165c2e8c8f60}</Project>
+      <Name>Factory.NET</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

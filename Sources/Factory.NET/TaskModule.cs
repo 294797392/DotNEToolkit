@@ -33,12 +33,7 @@ namespace Factory.NET
     /// </summary>
     public abstract class TaskModule : ModuleBase
     {
-        internal DispatcherContext Context { get; set; }
-
-        /// <summary>
-        /// 控制该工作流程是否停止运行
-        /// </summary>
-        protected bool IsStop { get { return this.Context.IsStop; } }
+        public DispatcherContext Context { get; internal set; }
 
         /// <summary>
         /// 当测试流程运行错误的时候，保存错误消息
@@ -48,7 +43,7 @@ namespace Factory.NET
         /// <summary>
         /// 运行测试流程
         /// </summary>
-        /// <returns></returns>
+        /// <returns>测试流程运行之后的状态</returns>
         public abstract int Run();
 
         /// <summary>

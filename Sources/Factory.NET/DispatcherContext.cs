@@ -9,6 +9,22 @@ using System.Threading.Tasks;
 namespace Factory.NET
 {
     /// <summary>
+    /// 定义测试流程结束之后的行为
+    /// </summary>
+    public enum CompletedBehaviors
+    {
+        /// <summary>
+        /// 没有行为
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// 从新执行测试流
+        /// </summary>
+        Restart,
+    }
+
+    /// <summary>
     /// 存储所有Task运行时的上下文数据
     /// </summary>
     public class DispatcherContext
@@ -33,10 +49,9 @@ namespace Factory.NET
         public Dictionary<string, object> GloablParameters { get; set; }
 
         /// <summary>
-        /// 控制测试流程是否停止运行
-        /// 如果设置为True，那么未完成的所有测试流程将不会继续运行，包括PostTask也不会运行
+        /// 控制当测试流程运行结束之后的行为
         /// </summary>
-        public bool IsStop { get; set; }
+        public CompletedBehaviors CompletedBehavior {  get; set; }
 
         #region Internal属性
 
@@ -57,9 +72,11 @@ namespace Factory.NET
         /// <summary>
         /// 存储到目前为止已经运行了的测试项的测试结果
         /// </summary>
-        internal List<TaskResult> TaskResults { get; private set; }
+        public List<TaskResult> TaskResults { get; private set; }
 
         #endregion
+
+        #region 构造方法
 
         public DispatcherContext()
         {
@@ -68,5 +85,7 @@ namespace Factory.NET
             this.GloablParameters = new Dictionary<string, object>();
             this.TaskResults = new List<TaskResult>();
         }
+
+        #endregion
     }
 }

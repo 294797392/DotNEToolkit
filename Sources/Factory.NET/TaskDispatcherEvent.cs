@@ -31,7 +31,12 @@ namespace Factory.NET
         /// <summary>
         /// 输出消息
         /// </summary>
-        Message
+        Message,
+
+        /// <summary>
+        /// 测试流程被重启
+        /// </summary>
+        Restart
     }
 
     /// <summary>

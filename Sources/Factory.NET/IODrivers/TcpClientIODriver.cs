@@ -57,20 +57,11 @@ namespace Factory.NET.IODrivers
 
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(this.ipAddress), this.port);
             this.tcpClient = new TcpClient();
-            try
-            {
-                this.tcpClient.ReceiveBufferSize = base.readBufferSize;
-                this.tcpClient.ReceiveTimeout = base.readTimeout;
-                this.tcpClient.SendBufferSize = base.writeBufferSize;
-                this.tcpClient.SendTimeout = base.writeTimeout;
-                this.tcpClient.Connect(ep);
-            }
-            catch (Exception ex)
-            {
-                this.tcpClient = null;
-                logger.ErrorFormat("TcpIODriver连接失败, ip = {0}, port = {1}, Message = {2}", ipAddress, port, ex);
-                return ResponseCode.IODRV_RECONNECT;
-            }
+            this.tcpClient.ReceiveBufferSize = base.readBufferSize;
+            this.tcpClient.ReceiveTimeout = base.readTimeout;
+            this.tcpClient.SendBufferSize = base.writeBufferSize;
+            this.tcpClient.SendTimeout = base.writeTimeout;
+            this.tcpClient.Connect(ep);
 
             logger.DebugFormat("TcpIODriver - {0}:{1}连接成功", ipAddress, port);
 
@@ -122,6 +113,7 @@ namespace Factory.NET.IODrivers
         public override void WriteBytes(byte[] bytes)
         {
             this.stream.Write(bytes, 0, bytes.Length);
+            this.stream.Flush();
         }
 
         public override void WriteLine(string cmd)
