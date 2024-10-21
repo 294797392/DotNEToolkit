@@ -28,10 +28,9 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            string content;
-            FactoryUtils.AdbReadFile("adb.exe", "/etc/version.conf", "123", out content);
-
-            Console.WriteLine(content);
+            //string content;
+            //FactoryUtils.AdbReadFile("adb.exe", "/etc/version.conf", "123", out content);
+            //Console.WriteLine(content);
 
             Console.ReadLine();
 
