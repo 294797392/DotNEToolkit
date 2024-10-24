@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Factory.NET.Utility
@@ -56,6 +58,36 @@ namespace Factory.NET.Utility
         AdbProcessException,
     }
 
+    public enum AdbShellResult
+    {
+        /// <summary>
+        /// Push指令执行成功
+        /// </summary>
+        Success,
+
+        /// <summary>
+        /// 登录失败
+        /// </summary>
+        LoginFailed,
+
+        /// <summary>
+        /// Push发生异常情况
+        /// </summary>
+        AdbProcessException,
+    }
+
+    public class AdbPassword
+    {
+        public Dictionary<string, string> Prompts { get; set; }
+
+        public string Prompt { get; set; }
+
+        /// <summary>
+        /// 登录超时时间
+        /// </summary>
+        public int Timeout { get; set; }
+    }
+
     public static class AdbUtility
     {
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger("AdbUtility");
@@ -82,7 +114,7 @@ namespace Factory.NET.Utility
                 Process process = Process.Start(processStartInfo);
                 string message = process.StandardOutput.ReadToEnd();
 
-                return message.Contains("\tdevices");
+                return message.Contains("\tdevice");
             }
             catch (Exception ex)
             {
@@ -245,6 +277,102 @@ namespace Factory.NET.Utility
             content = File.ReadAllText(tempPath);
 
             return ResponseCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// 使用用户名和密码登录shell，并执行一条指令
+        /// 注意用户名和密码后面要加\r\n
+        /// 命令后面也要加\r\n
+        /// </summary>
+        /// <param name="adbExePath"></param>
+        /// <param name="command"></param>
+        /// <param name="password"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static AdbShellResult AdbShellExecute(string adbExePath, string command, AdbPassword password, out string message)
+        {
+            message = string.Empty;
+
+            ProcessStartInfo psi = new ProcessStartInfo()
+            {
+                UseShellExecute = false,
+                Arguments = "shell",
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                FileName = adbExePath,
+            };
+
+            Process process = null;
+
+            try
+            {
+                process = Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("启动adb进程异常", ex);
+                message = ex.Message;
+                return AdbShellResult.AdbProcessException;
+            }
+
+            foreach (KeyValuePair<string, string> keyValue in password.Prompts)
+            {
+                if (!HandlePrompt(keyValue, process.StandardOutput, process.StandardInput, password.Timeout))
+                {
+                    return AdbShellResult.LoginFailed;
+                }
+            }
+
+            // 这里说明登录成功
+            if (!ReadUntil(process.StandardOutput, password.Prompt, password.Timeout))
+            {
+                return AdbShellResult.LoginFailed;
+            }
+
+            process.StandardInput.Write(command);
+
+            return AdbShellResult.Success;
+        }
+
+        private static bool ReadUntil(StreamReader streamReader, string until, int timeout)
+        {
+            string read = string.Empty;
+            int left = timeout;
+
+            while (true)
+            {
+                char[] buffer = new char[1024];
+                int size = streamReader.Read(buffer, 0, buffer.Length);
+                string read1 = new string(buffer, 0, size);
+                read += read1;
+
+                if (read.Contains(until))
+                {
+                    return true;
+                }
+
+                left -= 50;
+                if (left <= 0)
+                {
+                    return false;
+                }
+
+                // 50毫秒之后再继续读
+                Thread.Sleep(50);
+            }
+        }
+
+        private static bool HandlePrompt(KeyValuePair<string, string> kv, StreamReader streamReader, StreamWriter streamWriter, int timeout)
+        {
+            if (!ReadUntil(streamReader, kv.Key, timeout))
+            {
+                return false;
+            }
+
+            streamWriter.Write(kv.Value);
+
+            return true;
         }
     }
 }
