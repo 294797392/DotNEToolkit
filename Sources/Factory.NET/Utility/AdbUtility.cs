@@ -22,10 +22,30 @@ namespace Factory.NET.Utility
         /// </summary>
         DeviceFileNotExist,
 
+        AdbProcessException,
+
         /// <summary>
-        /// Pull指令执行失败，未知错误
+        /// 创建本地文件失败
         /// </summary>
-        UnkownFailed,
+        CreateLocalFileFailed,
+
+        /// <summary>
+        /// 未知的指令执行失败
+        /// </summary>
+        UnkownFailed
+    }
+
+    public enum AdbReadResult
+    {
+        /// <summary>
+        /// Pull成功
+        /// </summary>
+        Susccess,
+
+        /// <summary>
+        /// 设备内部不存在这个文件
+        /// </summary>
+        DeviceFileNotExist,
 
         AdbProcessException,
 
@@ -33,6 +53,16 @@ namespace Factory.NET.Utility
         /// 创建本地文件失败
         /// </summary>
         CreateLocalFileFailed,
+
+        /// <summary>
+        /// 未知的指令执行失败
+        /// </summary>
+        UnkownFailed,
+
+        /// <summary>
+        /// 读取文件失败
+        /// </summary>
+        ReadFileFailed,
     }
 
     public enum AdbPushResult
@@ -86,6 +116,12 @@ namespace Factory.NET.Utility
         /// 登录超时时间
         /// </summary>
         public int Timeout { get; set; }
+
+        /// <summary>
+        /// 执行指令的时间
+        /// 超过该时间之后会关闭ADB进程
+        /// </summary>
+        public int Interval { get; set; }
     }
 
     public static class AdbUtility
@@ -262,21 +298,29 @@ namespace Factory.NET.Utility
         /// <param name="remotePath"></param>
         /// <param name="tempPath">要保存本地文件的名字</param>
         /// <param name="content">保存读取到的文件内容</param>
+        /// <param name="adbMessage">adb输出的消息</param>
         /// <returns></returns>
-        public static int AdbReadFile(string adbExePath, string remotePath, string tempPath, out string content)
+        public static AdbReadResult AdbReadFile(string adbExePath, string remotePath, string tempPath, out string content, out string adbMessage)
         {
             content = string.Empty;
 
-            string adbMessage;
             AdbPullResult pullResult = AdbPullFile(adbExePath, remotePath, tempPath, out adbMessage);
-            if (pullResult != AdbPullResult.Susccess)
+            if (pullResult != AdbPullResult.Susccess) 
             {
-                return ResponseCode.FAILED;
+                return (AdbReadResult)pullResult;
             }
 
-            content = File.ReadAllText(tempPath);
+            try
+            {
+                content = File.ReadAllText(tempPath);
 
-            return ResponseCode.SUCCESS;
+                return AdbReadResult.Susccess;
+            }
+            catch (Exception ex) 
+            {
+                logger.Error("AdbReadFile异常", ex);
+                return AdbReadResult.ReadFileFailed;
+            }
         }
 
         /// <summary>
@@ -331,6 +375,17 @@ namespace Factory.NET.Utility
             }
 
             process.StandardInput.Write(command);
+
+            // 等到下次读取的Prompt就表示指令执行结束
+            ReadUntil(process.StandardOutput, password.Prompt, password.Timeout);
+
+            try
+            {
+                process.Close();
+                process.Dispose();
+            }
+            finally
+            { }
 
             return AdbShellResult.Success;
         }
