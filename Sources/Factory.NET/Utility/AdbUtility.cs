@@ -104,6 +104,12 @@ namespace Factory.NET.Utility
         /// Push发生异常情况
         /// </summary>
         AdbProcessException,
+
+        /// <summary>
+        /// 命令执行超时
+        /// 超过指定的时间还没读到Prompt
+        /// </summary>
+        ExecutionTimeout
     }
 
     public class AdbPassword
@@ -113,7 +119,7 @@ namespace Factory.NET.Utility
         public string Prompt { get; set; }
 
         /// <summary>
-        /// 登录超时时间
+        /// 登录和执行命令的超时时间
         /// </summary>
         public int Timeout { get; set; }
 
@@ -377,7 +383,10 @@ namespace Factory.NET.Utility
             process.StandardInput.Write(command);
 
             // 等到下次读取的Prompt就表示指令执行结束
-            ReadUntil(process.StandardOutput, password.Prompt, password.Timeout);
+            if (!ReadUntil(process.StandardOutput, password.Prompt, password.Timeout)) 
+            {
+                return AdbShellResult.ExecutionTimeout;
+            }
 
             try
             {
