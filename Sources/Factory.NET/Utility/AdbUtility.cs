@@ -122,12 +122,6 @@ namespace Factory.NET.Utility
         /// 登录和执行命令的超时时间
         /// </summary>
         public int Timeout { get; set; }
-
-        /// <summary>
-        /// 执行指令的时间
-        /// 超过该时间之后会关闭ADB进程
-        /// </summary>
-        public int Interval { get; set; }
     }
 
     public static class AdbUtility
