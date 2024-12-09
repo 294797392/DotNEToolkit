@@ -34,7 +34,7 @@ namespace DotNEToolkitConsole
             {
                 Timeout = 5000,
                 Prompt = "root@midea",
-                Prompts = new Dictionary<string, string>()
+                Password = new Dictionary<string, string>()
                 {
                     { "midea login", "root\r\n" },
                     { "Password", "206cd3e2\r\n" }
@@ -42,10 +42,7 @@ namespace DotNEToolkitConsole
             };
             AdbShellResult result = AdbUtility.AdbShellExecute("adb.exe", "midea_licrw get meizhi/tuya productId: /usr/bin/midea_licrw -g -c 16 -f /tmp/12.lic -t 12 -d\r\n", password, out message);
 
-            string content;
-            AdbUtility.AdbReadFile("adb.exe", "/tmp/12.lic", "tmp_12lic", out content);
-
-            Console.WriteLine("{0},{1}", result.ToString(), content);
+            Console.WriteLine(result);
 
             //string content;
             //FactoryUtils.AdbReadFile("adb.exe", "/etc/version.conf", "123", out content);

@@ -114,8 +114,15 @@ namespace Factory.NET.Utility
 
     public class AdbPassword
     {
-        public Dictionary<string, string> Prompts { get; set; }
+        /// <summary>
+        /// 登录的用户名和密码
+        /// </summary>
+        public Dictionary<string, string> Password { get; set; }
 
+        /// <summary>
+        /// 当读取到Prompt的时候，表示登录和执行指令
+        /// 一般使用用户的提示符作为Prompt
+        /// </summary>
         public string Prompt { get; set; }
 
         /// <summary>
@@ -360,7 +367,7 @@ namespace Factory.NET.Utility
                 return AdbShellResult.AdbProcessException;
             }
 
-            foreach (KeyValuePair<string, string> keyValue in password.Prompts)
+            foreach (KeyValuePair<string, string> keyValue in password.Password)
             {
                 if (!HandlePrompt(keyValue, process.StandardOutput, process.StandardInput, password.Timeout))
                 {

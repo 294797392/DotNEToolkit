@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,5 +26,12 @@ namespace Factory.NET
         /// 错误消息
         /// </summary>
         public string Message { get; set; }
+
+        /// <summary>
+        /// 测试流程输出参数
+        /// </summary>
+        public IDictionary Properties { get; internal set; }
+
+        public TaskResult() { }
     }
 }

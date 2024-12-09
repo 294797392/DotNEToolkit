@@ -308,7 +308,8 @@ namespace Factory.NET
                         {
                             Status = taskStatus,
                             TaskDefinition = taskDef,
-                            Message = task.Message
+                            Message = task.Message,
+                            Properties = task.Properties
                         });
                     }
 
