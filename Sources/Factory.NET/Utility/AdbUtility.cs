@@ -202,7 +202,9 @@ namespace Factory.NET.Utility
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 FileName = adbExePath,
-                Arguments = pullCommand
+                Arguments = pullCommand,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
             Process process = null;
