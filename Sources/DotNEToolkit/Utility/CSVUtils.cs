@@ -1,11 +1,8 @@
-﻿using DotNEToolkit.Excels;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DotNEToolkit.Utility
 {
@@ -23,13 +20,13 @@ namespace DotNEToolkit.Utility
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("CSV");
 
-        /// <summary>
-        /// CSV文件一行的分隔符
-        /// 有的CSV文件是用逗号，有的是用空格分隔
-        /// </summary>
-        private static readonly char[] CSVSplitter = new char[] { ',', ' ', '\t' };
+        ///// <summary>
+        ///// CSV文件一行的分隔符
+        ///// 有的CSV文件是用逗号，有的是用空格分隔
+        ///// </summary>
+        //private static readonly char[] CSVSplitter = new char[] { ',', ' ', '\t' };
 
-        private static TableData CSV2TableData(string[] lines)
+        private static TableData CSV2TableData(string[] lines, string[] splitters)
         {
             TableData table = TableData.Create();
 
@@ -37,11 +34,11 @@ namespace DotNEToolkit.Utility
 
             foreach (string line in lines)
             {
-                string[] csvItems = line.Split(CSVSplitter, StringSplitOptions.None);
+                string[] csvItems = line.Split(splitters, StringSplitOptions.None);
 
                 foreach (string csvItem in csvItems)
                 {
-                    table.Set(row, col, csvItem);
+                    table.SetCell(row, col, csvItem);
                     col++;
                 }
 
@@ -52,7 +49,7 @@ namespace DotNEToolkit.Utility
             return table;
         }
 
-        private static string[] ReadCSVLines(string csvFile)
+        private static string[] ReadCSVLines(string csvFile, Encoding encoding)
         {
             if (!File.Exists(csvFile))
             {
@@ -62,7 +59,7 @@ namespace DotNEToolkit.Utility
 
             try
             {
-                string[] lines = File.ReadAllLines(csvFile);
+                string[] lines = File.ReadAllLines(csvFile, encoding);
                 return lines;
             }
             catch (Exception ex)
@@ -78,14 +75,19 @@ namespace DotNEToolkit.Utility
             TableData2CSVFile(tableData, csvPath, Encoding.Default, ",");
         }
 
+        public static void TableData2CSVFile(TableData tableData, string csvPath, Encoding encoding)
+        {
+            TableData2CSVFile(tableData, csvPath, encoding, ",");
+        }
+
         /// <summary>
         /// 把TableData保存成一个CSV文件
         /// </summary>
         /// <param name="tableData"></param>
         /// <param name="csvPath"></param>
-        /// <param name="fileEncoding">CSV文件的编码方式</param>
+        /// <param name="encoding">CSV文件的编码方式</param>
         /// <param name="splitter">CSV文件的分隔符</param>
-        public static void TableData2CSVFile(TableData tableData, string csvPath, Encoding fileEncoding, string splitter)
+        public static void TableData2CSVFile(TableData tableData, string csvPath, Encoding encoding, string splitter)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -97,7 +99,7 @@ namespace DotNEToolkit.Utility
 
                 for (int col = 0; col < cols; col++)
                 {
-                    object data = tableData.Get(row, col).Value;
+                    object data = tableData.GetCellValue(row, col, null);
 
                     builder.AppendFormat("{0}{1}", data == null ? string.Empty : data, splitter);
                 }
@@ -106,17 +108,17 @@ namespace DotNEToolkit.Utility
                 builder.Replace(splitter, Environment.NewLine, builder.Length - splitter.Length, splitter.Length);
             }
 
-            File.WriteAllText(csvPath, builder.ToString(), fileEncoding);
+            File.WriteAllText(csvPath, builder.ToString(), encoding);
         }
 
         /// <summary>
         /// CSV格式的字符串转成DataTable
         /// </summary>
         /// <returns></returns>
-        public static TableData CSV2TableData(string csvText)
+        public static TableData CSV2TableData(string csvText, string[] splitters)
         {
             string[] lines = csvText.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            return CSV2TableData(lines);
+            return CSV2TableData(lines, splitters);
         }
 
         /// <summary>
@@ -124,15 +126,15 @@ namespace DotNEToolkit.Utility
         /// </summary>
         /// <param name="csvFile"></param>
         /// <returns></returns>
-        public static TableData CSVFile2TableData(string csvFile)
+        public static TableData CSVFile2TableData(string csvFile, string[] splitters, Encoding encoding)
         {
-            string[] lines = ReadCSVLines(csvFile);
+            string[] lines = ReadCSVLines(csvFile, encoding);
             if (lines == null)
             {
                 return null;
             }
 
-            return CSV2TableData(lines);
+            return CSV2TableData(lines, splitters);
         }
 
         /// <summary>
@@ -142,9 +144,9 @@ namespace DotNEToolkit.Utility
         /// <param name="excelPath"></param>
         /// <param name="options">写入Excel文件的选项</param>
         /// <returns></returns>
-        public static void CSVFile2Excel(string csvPath, string excelPath, WriteOptions options)
+        public static void CSVFile2Excel(string csvPath, string excelPath, WriteOptions options, string[] splitters, Encoding csvEncoding)
         {
-            TableData tableData = CSVFile2TableData(csvPath);
+            TableData tableData = CSVFile2TableData(csvPath, splitters, csvEncoding);
             ExcelUtils.TableData2ExcelFile(excelPath, tableData, options);
         }
 
@@ -154,9 +156,9 @@ namespace DotNEToolkit.Utility
         /// <param name="csvText"></param>
         /// <param name="excelPath"></param>
         /// <param name="options">写入Excel文件的选项</param>
-        public static void CSV2Excel(string csvText, string excelPath, WriteOptions options)
+        public static void CSV2Excel(string csvText, string excelPath, string[] splitters, WriteOptions options)
         {
-            TableData tableData = CSV2TableData(csvText);
+            TableData tableData = CSV2TableData(csvText, splitters);
             ExcelUtils.TableData2ExcelFile(excelPath, tableData, options);
         }
 
@@ -168,18 +170,18 @@ namespace DotNEToolkit.Utility
         /// <param name="csvPath"></param>
         /// <param name="splitter">CSV文件分隔符</param>
         /// <returns></returns>
-        public static List<T> CSVFile2Objects<T>(string csvPath)
+        public static List<T> CSVFile2Objects<T>(string csvPath, string[] splitters, Encoding encoding)
         {
-            string[] lines = ReadCSVLines(csvPath);
+            string[] lines = ReadCSVLines(csvPath, encoding);
             if (lines == null)
             {
                 return default(List<T>);
             }
 
-            return CSVLines2Objects<T>(lines);
+            return CSVLines2Objects<T>(lines, splitters);
         }
 
-        public static List<T> CSVLines2Objects<T>(string[] lines)
+        public static List<T> CSVLines2Objects<T>(string[] lines, string[] splitters)
         {
             #region 判断CSV文件的分隔符
 
@@ -206,7 +208,7 @@ namespace DotNEToolkit.Utility
 
             #endregion
 
-            List<string> headers = lines[0].Split(CSVSplitter, splitOptions).ToList();
+            List<string> headers = lines[0].Split(splitters, splitOptions).ToList();
 
             List<T> result = new List<T>();
 
@@ -214,7 +216,7 @@ namespace DotNEToolkit.Utility
 
             for (int i = 1; i < lines.Length; i++)
             {
-                string[] values = lines[i].Split(CSVSplitter, splitOptions);
+                string[] values = lines[i].Split(splitters, splitOptions);
 
                 if (values.Length != headers.Count)
                 {

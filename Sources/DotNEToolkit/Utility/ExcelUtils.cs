@@ -98,7 +98,7 @@ namespace DotNEToolkit.Utility
 
                 for (int col = 0; col < cols; col++)
                 {
-                    CellData cellData = table.Get(row, col);
+                    CellData cellData = table.GetCell(row, col);
 
                     if (cellData == null || cellData.Value == null)
                     {
@@ -465,19 +465,19 @@ namespace DotNEToolkit.Utility
                     {
                         case CellType.Numeric:
                             {
-                                tableData.Set(row, col, icell.NumericCellValue);
+                                tableData.SetCell(row, col, icell.NumericCellValue);
                                 break;
                             }
 
                         case CellType.String:
                             {
-                                tableData.Set(row, col, icell.StringCellValue);
+                                tableData.SetCell(row, col, icell.StringCellValue);
                                 break;
                             }
 
                         case CellType.Blank:
                             {
-                                tableData.Set(row, col, string.Empty);
+                                tableData.SetCell(row, col, string.Empty);
                                 break;
                             }
 
@@ -595,7 +595,7 @@ namespace DotNEToolkit.Utility
             {
                 TableColumnAttribute column = tableColumns[i];
 
-                tableData.Set(0, i, column.Name);
+                tableData.SetCell(0, i, column.Name);
             }
 
             // 写入内容
@@ -609,7 +609,7 @@ namespace DotNEToolkit.Utility
 
                     object value = attr.Property.GetValue(o);
 
-                    tableData.Set(i + 1, j, value);
+                    tableData.SetCell(i + 1, j, value);
                 }
             }
 

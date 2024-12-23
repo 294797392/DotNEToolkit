@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DotNEToolkit.Excels
+namespace DotNEToolkit
 {
     public enum WriteOptions
     {

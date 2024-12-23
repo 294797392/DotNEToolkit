@@ -125,7 +125,7 @@ namespace DotNEToolkit
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <param name="value">该单元格的值</param>
-        public abstract void Set(int row, int col, object value);
+        public abstract void SetCell(int row, int col, object value);
 
         /// <summary>
         /// 设置某个跨行或者跨列单元格的值
@@ -136,7 +136,13 @@ namespace DotNEToolkit
         /// <param name="spanType"></param>
         /// <param name="span"></param>
         /// <param name="value">该单元格的值</param>
-        public abstract void Set(int row, int col, CellSpan spanType, int span, object value);
+        public abstract void SetCell(int row, int col, CellSpan spanType, int span, object value);
+
+        public object GetCellValue(int row, int col, object defaultValue) 
+        {
+            CellData cellData = this.GetCell(row, col);
+            return cellData == null ? defaultValue : cellData.Value;
+        }
 
         /// <summary>
         /// 读取某个单元格的值
@@ -145,7 +151,13 @@ namespace DotNEToolkit
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <returns></returns>
-        public abstract CellData Get(int row, int col);
+        public abstract CellData GetCell(int row, int col);
+
+        /// <summary>
+        /// 获取某一行的所有列
+        /// </summary>
+        /// <returns></returns>
+        public abstract List<CellData> GetCells(int row);
 
         /// <summary>
         /// 清除指定的单元格
@@ -156,7 +168,7 @@ namespace DotNEToolkit
         public abstract void Clear(int row, int col);
 
         /// <summary>
-        /// 获取从行数
+        /// 获取总行数
         /// </summary>
         /// <returns></returns>
         public abstract int GetRows();
@@ -198,13 +210,13 @@ namespace DotNEToolkit
 
                 for (int col = 0; col < cols; col++)
                 {
-                    CellData cellData = tableData.Get(row, col);
+                    CellData cellData = tableData.GetCell(row, col);
                     if (cellData == null)
                     {
                         continue;
                     }
 
-                    this.Set(thisRows + row, col, cellData.SpanType, cellData.Span, cellData.Value);
+                    this.SetCell(thisRows + row, col, cellData.SpanType, cellData.Span, cellData.Value);
                 }
             }
         }
@@ -242,7 +254,7 @@ namespace DotNEToolkit
                 {
                     string propertyName = property.Property.Name;
                     int valueIndex = headers.IndexOf(property.Attribute.Name);
-                    object propertyValue = this.Get(i, valueIndex).Value;
+                    object propertyValue = this.GetCell(i, valueIndex).Value;
 
                     // 如果从excel里读到的数据类型和要转换的类的属性类型不一致，那么尝试转换成类里的属性类型
                     object convertedValue = Convert.ChangeType(propertyValue, property.Property.PropertyType);
@@ -268,7 +280,7 @@ namespace DotNEToolkit
 
             for (int i = 0; i < cols; i++)
             {
-                CellData cellData = this.Get(row, i);
+                CellData cellData = this.GetCell(row, i);
                 result.Add(cellData.Value == null ? string.Empty : cellData.Value.ToString());
             }
 
@@ -361,13 +373,13 @@ namespace DotNEToolkit
             return this.cellDatas.Count == 0;
         }
 
-        public override void Set(int row, int col, object value)
+        public override void SetCell(int row, int col, object value)
         {
             CellData cellData = this.EnsureCellData(row, col, CellSpan.None, 0);
             cellData.Value = value;
         }
 
-        public override void Set(int row, int col, CellSpan spanType, int span, object value)
+        public override void SetCell(int row, int col, CellSpan spanType, int span, object value)
         {
             if (span == 0)
             {
@@ -378,7 +390,7 @@ namespace DotNEToolkit
             {
                 case CellSpan.None:
                     {
-                        this.Set(row, col, value);
+                        this.SetCell(row, col, value);
                         break;
                     }
 
@@ -405,9 +417,14 @@ namespace DotNEToolkit
             }
         }
 
-        public override CellData Get(int row, int col)
+        public override CellData GetCell(int row, int col)
         {
             return this.cellDatas.FirstOrDefault(v => v.Row == row && v.Column == col);
+        }
+
+        public override List<CellData> GetCells(int row)
+        {
+            return this.cellDatas.Where(v => v.Row == row).ToList();
         }
 
         public override void Clear(int row, int col)
@@ -470,93 +487,5 @@ namespace DotNEToolkit
         }
 
         #endregion
-    }
-
-    internal class DictionaryTableData : TableData
-    {
-        private Dictionary<string, CellData> cellMap;
-
-        public DictionaryTableData()
-        {
-            this.cellMap = new Dictionary<string, CellData>();
-        }
-
-        private string GetKey(int row, int col)
-        {
-            return string.Format("{0},{1}", row, col);
-        }
-
-        public override void Clear(int row, int col)
-        {
-            string key = this.GetKey(row, col);
-
-            this.cellMap.Remove(key);
-        }
-
-        public override CellData Get(int row, int col)
-        {
-            CellData cellData;
-            this.cellMap.TryGetValue(this.GetKey(row, col), out cellData);
-            return cellData;
-        }
-
-        public override int GetColumns()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetColumns(int row)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetRows()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetRows(int column)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool IsEmpty()
-        {
-            return this.cellMap.Count == 0;
-        }
-
-        public override void Set(int row, int col, object value)
-        {
-            string key = this.GetKey(row, col);
-
-            CellData cellData;
-            if (!this.cellMap.TryGetValue(key, out cellData))
-            {
-                cellData = new CellData(row, col) { Value = value };
-                this.cellMap[key] = cellData;
-            }
-            else
-            {
-                cellData.Value = value;
-            }
-        }
-
-        public override void Set(int row, int col, CellSpan spanType, int span, object value)
-        {
-            string key = this.GetKey(row, col);
-
-            CellData cellData;
-            if (!this.cellMap.TryGetValue(key, out cellData))
-            {
-                cellData = new CellData(row, col) { Value = value, SpanType = spanType, Span = span };
-                this.cellMap[key] = cellData;
-            }
-            else
-            {
-                cellData.Value = value;
-                cellData.SpanType = spanType;
-                cellData.Span = span;
-            }
-        }
     }
 }

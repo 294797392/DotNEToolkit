@@ -53,12 +53,12 @@ namespace DotNEToolkitConsole
             string excelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "1.xls");
 
             TableData tableData = TableData.Create();
-            tableData.Set(0, 0, "0");
-            tableData.Set(0, 1, "0");
-            tableData.Set(0, 2, "0");
-            tableData.Set(0, 3, "0");
-            tableData.Set(0, 4, "0");
-            tableData.Set(0, 5, "0");
+            tableData.SetCell(0, 0, "0");
+            tableData.SetCell(0, 1, "0");
+            tableData.SetCell(0, 2, "0");
+            tableData.SetCell(0, 3, "0");
+            tableData.SetCell(0, 4, "0");
+            tableData.SetCell(0, 5, "0");
             ExcelUtils.TableData2ExcelFile(excelPath, tableData, WriteOptions.CreateNew);
         }
 
@@ -67,12 +67,12 @@ namespace DotNEToolkitConsole
             string excelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "1.xls");
 
             TableData tableData = TableData.Create();
-            tableData.Set(0, 0, value++.ToString());
-            tableData.Set(0, 1, value++.ToString());
-            tableData.Set(0, 2, value++.ToString());
-            tableData.Set(0, 3, value++.ToString());
-            tableData.Set(0, 4, value++.ToString());
-            tableData.Set(0, 6, value++.ToString());
+            tableData.SetCell(0, 0, value++.ToString());
+            tableData.SetCell(0, 1, value++.ToString());
+            tableData.SetCell(0, 2, value++.ToString());
+            tableData.SetCell(0, 3, value++.ToString());
+            tableData.SetCell(0, 4, value++.ToString());
+            tableData.SetCell(0, 6, value++.ToString());
             ExcelUtils.TableData2ExcelFile(excelPath, tableData, WriteOptions.Append);
         }
 
@@ -81,16 +81,16 @@ namespace DotNEToolkitConsole
             string excelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "1.xls");
 
             TableData tableData = TableData.Create();
-            tableData.Set(0, 0, CellSpan.RowSpan, 10, 0);
-            tableData.Set(0, 1, CellSpan.RowSpan, 9, 1);
-            tableData.Set(0, 2, CellSpan.RowSpan, 8, 2);
-            tableData.Set(0, 3, CellSpan.RowSpan, 7, 3);
-            tableData.Set(0, 4, CellSpan.RowSpan, 6, 4);
-            tableData.Set(0, 5, CellSpan.RowSpan, 5, 5);
-            tableData.Set(0, 6, CellSpan.RowSpan, 4, 6);
-            tableData.Set(0, 7, CellSpan.RowSpan, 3, 7);
-            tableData.Set(0, 8, CellSpan.RowSpan, 2, 8);
-            tableData.Set(0, 9, CellSpan.RowSpan, 1, 9);
+            tableData.SetCell(0, 0, CellSpan.RowSpan, 10, 0);
+            tableData.SetCell(0, 1, CellSpan.RowSpan, 9, 1);
+            tableData.SetCell(0, 2, CellSpan.RowSpan, 8, 2);
+            tableData.SetCell(0, 3, CellSpan.RowSpan, 7, 3);
+            tableData.SetCell(0, 4, CellSpan.RowSpan, 6, 4);
+            tableData.SetCell(0, 5, CellSpan.RowSpan, 5, 5);
+            tableData.SetCell(0, 6, CellSpan.RowSpan, 4, 6);
+            tableData.SetCell(0, 7, CellSpan.RowSpan, 3, 7);
+            tableData.SetCell(0, 8, CellSpan.RowSpan, 2, 8);
+            tableData.SetCell(0, 9, CellSpan.RowSpan, 1, 9);
 
             tableData.Merge(tableData);
 
