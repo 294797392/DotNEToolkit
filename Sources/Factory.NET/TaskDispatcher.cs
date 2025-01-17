@@ -222,7 +222,7 @@ namespace Factory.NET
                 this.CurrentTask = task;
 
                 // 如果Task有Disabled标记，那么跳过运行
-                if (taskDef.HasFlag(ModuleFlags.Disabled))
+                if (taskDef.HasFlag((int)TaskFlags.Disabled))
                 {
                     taskStatus = TaskModuleStatus.SKIP;
                     this.ProcessTaskStatusChanged(TaskModuleStatus.SKIP, task);

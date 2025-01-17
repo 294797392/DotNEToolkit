@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,6 +62,7 @@ namespace Factory.NET
         /// 工作流结束之后运行的策略
         /// </summary>
         [JsonProperty("postTask")]
+        [EnumDataType(typeof(PostTaskStrategy))]
         public int PostTask { get; set; }
 
         /// <summary>

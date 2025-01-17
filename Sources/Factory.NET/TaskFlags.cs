@@ -11,6 +11,8 @@ namespace Factory.NET
     /// </summary>
     public enum TaskFlags : ulong
     {
+        Disabled = 1,
+
         /// <summary>
         /// 忽略任务执行错误
         /// 如果忽略，则工作流运行失败后继续运行下一个工作流
