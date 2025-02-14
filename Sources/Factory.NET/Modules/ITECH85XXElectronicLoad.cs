@@ -10,12 +10,12 @@ using System.Runtime.ConstrainedExecution;
 using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
-using static Factory.NET.Modules.IT85XXElectronicLoad;
+using static Factory.NET.Modules.ITECH85XXElectronicLoad;
 using static System.Collections.Specialized.BitVector32;
 
 namespace Factory.NET.Modules
 {
-    public class IT85XXElectronicLoad : ModuleBase
+    public class ITECH85XXElectronicLoad : ModuleBase
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("IT85XXElectronicLoad");
 

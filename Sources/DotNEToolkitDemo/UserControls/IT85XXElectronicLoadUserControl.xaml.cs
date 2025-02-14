@@ -24,7 +24,7 @@ namespace DotNEToolkitDemo.UserControls
     public partial class IT85XXElectronicLoadUserControl : UserControl
     {
         private ModuleFactory moduleFactory;
-        private IT85XXElectronicLoad electronicLoad;
+        private ITECH85XXElectronicLoad electronicLoad;
 
         public IT85XXElectronicLoadUserControl()
         {
@@ -42,14 +42,14 @@ namespace DotNEToolkitDemo.UserControls
 
             this.moduleFactory = ModuleFactory.CreateFactory(moduleFactoryOptions);
             this.moduleFactory.Initialize();
-            this.electronicLoad = this.moduleFactory.LookupModule<IT85XXElectronicLoad>();
+            this.electronicLoad = this.moduleFactory.LookupModule<ITECH85XXElectronicLoad>();
 
-            List<IT85XXElectronicLoad.ElectronicLoadMode> electronicLoadModes = new List<IT85XXElectronicLoad.ElectronicLoadMode>() 
+            List<ITECH85XXElectronicLoad.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XXElectronicLoad.ElectronicLoadMode>() 
             {
-                IT85XXElectronicLoad.ElectronicLoadMode.CW,
-                IT85XXElectronicLoad.ElectronicLoadMode.CV,
-                IT85XXElectronicLoad.ElectronicLoadMode.CR,
-                IT85XXElectronicLoad.ElectronicLoadMode.CC
+                ITECH85XXElectronicLoad.ElectronicLoadMode.CW,
+                ITECH85XXElectronicLoad.ElectronicLoadMode.CV,
+                ITECH85XXElectronicLoad.ElectronicLoadMode.CR,
+                ITECH85XXElectronicLoad.ElectronicLoadMode.CC
             };
             ComboBoxModes.ItemsSource = electronicLoadModes;
             ComboBoxModes.SelectedIndex = 0;
@@ -57,29 +57,50 @@ namespace DotNEToolkitDemo.UserControls
 
         private void ButtonOpen_Click(object sender, RoutedEventArgs e)
         {
-            this.electronicLoad.SetInputMode(IT85XXElectronicLoad.InputMode.ON);
+            this.electronicLoad.SetInputMode(ITECH85XXElectronicLoad.InputMode.ON);
         }
 
         private void ButtonSetMode_Click(object sender, RoutedEventArgs e)
         {
-            IT85XXElectronicLoad.ElectronicLoadMode electronicLoad = (IT85XXElectronicLoad.ElectronicLoadMode)ComboBoxModes.SelectedItem;
+            ITECH85XXElectronicLoad.ElectronicLoadMode electronicLoad = (ITECH85XXElectronicLoad.ElectronicLoadMode)ComboBoxModes.SelectedItem;
 
             this.electronicLoad.SetMode(electronicLoad);
         }
 
         private void ButtonSetVoltage_Click(object sender, RoutedEventArgs e)
         {
-            this.electronicLoad.SetVoltage(int.Parse(TextBoxVol.Text));
+            int vol;
+            if (!int.TryParse(TextBoxVol.Text, out vol))
+            {
+                MessageBox.Show("请输入正确的电压");
+                return;
+            }
+
+            this.electronicLoad.SetVoltage(vol);
         }
 
         private void ButtonSetPower_Click(object sender, RoutedEventArgs e)
         {
-            this.electronicLoad.SetPower(int.Parse(TextBoxPow.Text));
+            int power;
+            if (!int.TryParse(TextBoxPow.Text, out power))
+            {
+                MessageBox.Show("请输入正确的功率");
+                return;
+            }
+
+            this.electronicLoad.SetPower(power);
         }
 
         private void ButtonSetCurrent_Click(object sender, RoutedEventArgs e)
         {
-            this.electronicLoad.SetCurrent(int.Parse(TextBoxCur.Text));
+            int cur;
+            if (!int.TryParse(TextBoxCur.Text, out cur))
+            {
+                MessageBox.Show("请输入正确的电流");
+                return;
+            }
+
+            this.electronicLoad.SetCurrent(cur);
         }
     }
 }

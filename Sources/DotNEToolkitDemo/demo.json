@@ -1,8 +1,8 @@
 ﻿[
     {
         "ID": "1",
-        "Name": "IT85XXElectronicLoad",
-        "ClassName": "Factory.NET.Modules.IT85XXElectronicLoad, Factory.NET",
+        "Name": "ITECH85XXElectronicLoad",
+        "ClassName": "Factory.NET.Modules.ITECH85XXElectronicLoad, Factory.NET",
         "Inputs": {
             "PortName": "COM64",
             "BaudRate": 9600
