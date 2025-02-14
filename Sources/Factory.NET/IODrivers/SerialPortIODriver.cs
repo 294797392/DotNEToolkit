@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotNEToolkit;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -123,6 +124,16 @@ namespace Factory.NET.IODrivers
             return this.port.Read(bytes, offset, len);
         }
 
+        public override string ReadLine()
+        {
+            return this.port.ReadLine();
+        }
+
+        public override byte[] ReadBytesFull(int size)
+        {
+            return StreamUtils.ReadFull(this.port.BaseStream, size);
+        }
+
         public override void WriteBytes(byte[] buffer)
         {
             this.port.Write(buffer, 0, buffer.Length);
@@ -131,15 +142,7 @@ namespace Factory.NET.IODrivers
         public override void WriteLine(string cmd)
         {
             this.port.WriteLine(cmd);
-            //cmd = string.Format("{0}{1}", cmd, this.newLine);
-            //byte[] data = this.port.Encoding.GetBytes(cmd);
-            //this.port.Write(data, 0, data.Length);
             logger.DebugFormat("向串口发送数据:{0}", cmd);
-        }
-
-        public override string ReadLine()
-        {
-            return this.port.ReadLine();
         }
 
         public override void ClearExisting()

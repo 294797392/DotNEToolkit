@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 using System.Runtime;
+using DotNEToolkit;
 
 namespace Factory.NET.IODrivers
 {
@@ -109,6 +110,10 @@ namespace Factory.NET.IODrivers
             return this.stream.Read(bytes, offset, len);
         }
 
+        public override byte[] ReadBytesFull(int size)
+        {
+            return StreamUtils.ReadFull(this.stream, size);
+        }
 
         public override void WriteBytes(byte[] bytes)
         {

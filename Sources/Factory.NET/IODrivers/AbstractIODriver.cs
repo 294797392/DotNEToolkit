@@ -31,7 +31,7 @@ namespace Factory.NET.IODrivers
         private const int DefaultReadTimeout = 30;          // 读取数据超时时间，单位是秒
         private const int DefaultWriteTimeout = 30;         // 写入数据超时时间，单位是秒
         private const int DefaultReadBufferSize = 16384;    // 接收缓冲区大小
-        private const int DefaultWriteBufferSize = 1638;    // 发送缓冲区大小
+        private const int DefaultWriteBufferSize = 16384;    // 发送缓冲区大小
 
         #region 类变量
 
@@ -131,11 +131,19 @@ namespace Factory.NET.IODrivers
         public abstract int ReadBytes(byte[] bytes, int offset, int len);
 
         /// <summary>
+        /// 读取指定长度的数据，如果读取不到指定长度的数据会一直阻塞
+        /// </summary>
+        /// <param name="size">要读取的数据长度</param>
+        /// <returns></returns>
+        public abstract byte[] ReadBytesFull(int size);
+
+        /// <summary>
         /// 从IO驱动读取一行数据
         /// 该方法不捕捉异常，需要调用者处理异常情况
         /// </summary>
         /// <returns></returns>
         public abstract string ReadLine();
+
 
         public abstract void WriteBytes(byte[] bytes);
 

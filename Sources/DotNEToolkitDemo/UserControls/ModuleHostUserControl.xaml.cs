@@ -33,12 +33,10 @@ namespace DotNEToolkitDemo.UserControls
         {
             ModuleFactoryOptions moduleFactoryOptions = new ModuleFactoryOptions() 
             {
-                AsyncInitializing = false,
                 ModuleList = new List<ModuleDefinition>()
             };
 
             this.moduleFactory = ModuleFactory.CreateFactory(moduleFactoryOptions);
-            this.moduleFactory.Initialized += ModuleFactory_Initialized;
         }
 
         private void ModuleFactory_ModuleEvent(ModuleFactory arg1, IModuleInstance arg2, int arg3, object arg4)

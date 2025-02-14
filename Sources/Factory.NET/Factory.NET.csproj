@@ -57,6 +57,7 @@
     <Compile Include="FactoryUtils.cs" />
     <Compile Include="IODrivers\MatchingRules.cs" />
     <Compile Include="Modules\CheckAdbFile.cs" />
+    <Compile Include="Modules\IT85XXElectronicLoad.cs" />
     <Compile Include="ResponseCode.cs" />
     <Compile Include="IODrivers\AbstractIODriver.cs" />
     <Compile Include="IODrivers\IODriverFactory.cs" />

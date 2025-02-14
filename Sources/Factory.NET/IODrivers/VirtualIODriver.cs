@@ -23,6 +23,11 @@ namespace Factory.NET.IODrivers
             return len;
         }
 
+        public override byte[] ReadBytesFull(int size)
+        {
+            return new byte[size];
+        }
+
         public override void ClearExisting()
         {
         }

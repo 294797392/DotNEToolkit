@@ -96,7 +96,7 @@ namespace DotNEToolkit.Modular
         /// <summary>
         /// 模块的输入参数
         /// </summary>
-        internal IDictionary InputParameters { get; set; }
+        public IDictionary InputParameters { get; internal set; }
 
         #endregion
 

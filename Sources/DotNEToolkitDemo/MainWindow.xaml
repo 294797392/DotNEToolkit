@@ -13,6 +13,9 @@
 
         <!--<uc:ProcessCommUserControl/>-->
 
-        <uc:TestWcfRestUserControl/>
+        <!--<uc:TestWcfRestUserControl/>-->
+
+        <uc:IT85XXElectronicLoadUserControl/>
+
     </Grid>
 </Window>

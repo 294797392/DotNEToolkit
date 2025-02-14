@@ -1,14 +1,11 @@
-﻿{
-	"resultcode": "200",
-	"reason": "Return Successd!",
-	"result": {
-		"province": "北京",
-		"city": "北京",
-		"areacode": "010",
-		"zip": "100000",
-		"company": "联通",
-		"card": ""
-
-	},
-	"error_code": 0
-}
+﻿[
+    {
+        "ID": "1",
+        "Name": "IT85XXElectronicLoad",
+        "ClassName": "Factory.NET.Modules.IT85XXElectronicLoad, Factory.NET",
+        "Inputs": {
+            "PortName": "COM64",
+            "BaudRate": 9600
+        }
+    }
+]

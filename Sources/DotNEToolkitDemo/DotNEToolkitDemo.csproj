@@ -96,6 +96,9 @@
     <Compile Include="Forms\libVLCForm.Designer.cs">
       <DependentUpon>libVLCForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\IT85XXElectronicLoadUserControl.xaml.cs">
+      <DependentUpon>IT85XXElectronicLoadUserControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ModuleHostUserControl.xaml.cs">
       <DependentUpon>ModuleHostUserControl.xaml</DependentUpon>
     </Compile>
@@ -139,6 +142,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\IT85XXElectronicLoadUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\ModuleHostUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
