@@ -4,7 +4,7 @@
         "Name": "ITECH85XXElectronicLoad",
         "ClassName": "Factory.NET.Modules.ITECH85XXElectronicLoad, Factory.NET",
         "Inputs": {
-            "PortName": "COM64",
+            "PortName": "COM63",
             "BaudRate": 9600
         }
     }

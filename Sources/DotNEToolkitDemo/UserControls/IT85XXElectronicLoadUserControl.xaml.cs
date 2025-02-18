@@ -43,6 +43,7 @@ namespace DotNEToolkitDemo.UserControls
             this.moduleFactory = ModuleFactory.CreateFactory(moduleFactoryOptions);
             this.moduleFactory.Initialize();
             this.electronicLoad = this.moduleFactory.LookupModule<ITECH85XXElectronicLoad>();
+            this.electronicLoad.SetControlMode(ITECH85XXElectronicLoad.ControlMode.Remote);
 
             List<ITECH85XXElectronicLoad.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XXElectronicLoad.ElectronicLoadMode>() 
             {

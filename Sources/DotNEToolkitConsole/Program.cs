@@ -29,20 +29,19 @@ namespace DotNEToolkitConsole
 
             DotNEToolkit.Log4net.InitializeLog4net();
 
-            string message;
-            AdbPassword password = new AdbPassword()
-            {
-                Timeout = 5000,
-                Prompt = "root@midea",
-                Password = new Dictionary<string, string>()
-                {
-                    { "midea login", "root\r\n" },
-                    { "Password", "206cd3e2\r\n" }
-                }
-            };
-            AdbShellResult result = AdbUtility.AdbShellExecute("adb.exe", "midea_licrw get meizhi/tuya productId: /usr/bin/midea_licrw -g -c 16 -f /tmp/12.lic -t 12 -d\r\n", password, out message);
+            Console.WriteLine(byte.MaxValue);
 
-            Console.WriteLine(result);
+            Console.ReadLine();
+
+            byte[] buffer = new byte[] { 0xAA, 0x2A, 0x20, 0x4E };
+            int v = 0;
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                v += buffer[i];
+            }
+
+            Console.WriteLine(v % 256);
+            Console.ReadLine();
 
             //string content;
             //FactoryUtils.AdbReadFile("adb.exe", "/etc/version.conf", "123", out content);

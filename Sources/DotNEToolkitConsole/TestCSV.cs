@@ -37,8 +37,8 @@ namespace DotNEToolkitConsole
 
         public static void CSVFile2Objects()
         {
-            List<Msg_log> list = CSVUtils.CSVFile2Objects<Msg_log>("1.csv");
-            Console.WriteLine();
+            //List<Msg_log> list = CSVUtils.CSVFile2Objects<Msg_log>("1.csv");
+            //Console.WriteLine();
         }
     }
 }

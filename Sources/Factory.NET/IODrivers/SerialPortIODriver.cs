@@ -69,6 +69,7 @@ namespace Factory.NET.IODrivers
                 this.port.BaudRate = this.baudRate;
                 this.port.DataBits = this.dataBits;
                 this.port.StopBits = this.stopBits;
+                this.port.Parity = Parity.None;
                 if (!string.IsNullOrEmpty(base.newLine))
                 {
                     this.port.NewLine = base.newLine;

@@ -9,12 +9,16 @@ using System.Net.Http.Headers;
 using System.Runtime.ConstrainedExecution;
 using System.Security.AccessControl;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static Factory.NET.Modules.ITECH85XXElectronicLoad;
 using static System.Collections.Specialized.BitVector32;
 
 namespace Factory.NET.Modules
 {
+    /// <summary>
+    /// IT8500Plus
+    /// </summary>
     public class ITECH85XXElectronicLoad : ModuleBase
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("IT85XXElectronicLoad");
@@ -236,10 +240,10 @@ namespace Factory.NET.Modules
             int checksum = 0;
             for (int i = 0; i < packet.Length - 1; i++)
             {
-                checksum += i;
+                checksum += packet[i];
             }
 
-            packet[25] = checksum > 0xFF ? (byte)0xFF : (byte)checksum;
+            packet[25] = checksum > byte.MaxValue ? (byte)(checksum % 256) : (byte)checksum;
 
             return packet;
         }
