@@ -97,6 +97,7 @@ namespace Factory.NET.Modules
 
         protected override void OnRelease()
         {
+            this.channel.Release();
         }
 
         #endregion

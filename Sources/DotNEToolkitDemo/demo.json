@@ -1,11 +1,22 @@
 ﻿[
+    //{
+    //    "ID": "1",
+    //    "Name": "ITECH85XXElectronicLoad",
+    //    "ClassName": "Factory.NET.Modules.ITECH85XXElectronicLoad, Factory.NET",
+    //    "Inputs": {
+    //        "PortName": "COM63",
+    //        "BaudRate": 9600
+    //    }
+    //},
+
     {
-        "ID": "1",
-        "Name": "ITECH85XXElectronicLoad",
-        "ClassName": "Factory.NET.Modules.ITECH85XXElectronicLoad, Factory.NET",
+        "ID": "2",
+        "Name": "ZDotCH2221HDigitalOutputModule",
+        "ClassName": "Factory.NET.Modules.ZDotCH2221HDigitalOutputModule, Factory.NET",
         "Inputs": {
-            "PortName": "COM63",
-            "BaudRate": 9600
+            "IODriverType": 2,
+            "IPAddress": "192.168.1.100",
+            "Port": 502
         }
     }
 ]

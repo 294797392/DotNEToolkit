@@ -3,6 +3,8 @@ using DotNEToolkit.Crypto;
 using DotNEToolkit.Extentions;
 using DotNEToolkit.Modular;
 using DotNEToolkit.Utility;
+using Factory.NET;
+using Factory.NET.IODrivers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +14,8 @@ using System.Text;
 namespace DotNEToolkit.Modbus
 {
     /// <summary>
+    /// AddressCode(1字节) FunctionCode(1字节) Data(4字节，Address + Value) CRC(2字节)
+    /// 
     /// Modbus名词解释：https://blog.csdn.net/lingshi75/article/details/105991450
     /// Modbus协议：https://blog.csdn.net/qq_36339249/article/details/90664839
     /// 
@@ -49,7 +53,7 @@ namespace DotNEToolkit.Modbus
         /// <summary>
         /// 与PLC通信的对象
         /// </summary>
-        //private CommObject commObject;
+        private AbstractIODriver channel;
 
         #endregion
 
@@ -67,14 +71,15 @@ namespace DotNEToolkit.Modbus
 
         protected override int OnInitialize()
         {
-            //this.commObject = CommObjectFactory.Create(this.InputParameters);
-            //return this.commObject.Initialize(this);
-            throw new NotImplementedException();
+            this.channel = IODriverFactory.Create(this.InputParameters);
+            this.channel.Initialize(this.InputParameters);
+
+            return ResponseCode.SUCCESS;
         }
 
         protected override void OnRelease()
         {
-            this.commObject.Release();
+            this.channel.Release();
         }
 
         #endregion
@@ -96,14 +101,14 @@ namespace DotNEToolkit.Modbus
 
         #region 数字输出
 
-        public bool ReadDO(byte address, out byte value)
+        public bool ReadDO(ushort address, out byte value)
         {
-            return this.ReadDigtalIO(address, FUNCTION_CODE_READ_DO, out value);
+            return this.ReadDigtalIO(FUNCTION_CODE_READ_DO, address, out value);
         }
 
-        public bool WriteDO(byte address, short value)
+        public bool WriteDO(ushort address, ushort value)
         {
-            return this.WriteDigtalOutput(address, FUNCTION_CODE_WRITE_DO, value);
+            return this.WriteDigtalOutput(FUNCTION_CODE_WRITE_DO, address, value);
         }
 
         #endregion
@@ -140,7 +145,7 @@ namespace DotNEToolkit.Modbus
         /// <param name="fcode"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        private bool ReadDigtalIO(byte address, byte fcode, out byte value)
+        private bool ReadDigtalIO(byte fcode, ushort address, out byte value)
         {
             value = 0;
 
@@ -151,9 +156,9 @@ namespace DotNEToolkit.Modbus
             Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
 
             byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            this.commObject.WriteBytes(data);
+            this.channel.WriteBytes(data);
 
-            byte[] result = this.commObject.ReadBytes(6);
+            byte[] result = this.channel.ReadBytesFull(6);
 
             if (result[0] != this.AddressCode || result[1] != fcode || result[2] != 1)
             {
@@ -173,7 +178,7 @@ namespace DotNEToolkit.Modbus
         /// <param name="fcode">功能代码</param>
         /// <param name="value">寄存器的值</param>
         /// <returns></returns>
-        private bool WriteDigtalOutput(byte fcode, byte address, short value)
+        private bool WriteDigtalOutput(byte fcode, ushort address, ushort value)
         {
             byte[] buffer = new byte[4];
             byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
@@ -182,9 +187,9 @@ namespace DotNEToolkit.Modbus
             Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
 
             byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            this.commObject.WriteBytes(data);
+            this.channel.WriteBytes(data);
 
-            byte[] result = this.commObject.ReadBytes(8);
+            byte[] result = this.channel.ReadBytesFull(8);
 
             if (!ByteUtils.Compare(result, data))
             {
@@ -214,10 +219,10 @@ namespace DotNEToolkit.Modbus
             Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
 
             byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            this.commObject.WriteBytes(data);
+            this.channel.WriteBytes(data);
 
             int valueBytes = numReg * 2;    // 寄存器的值所占用的字节数
-            byte[] result = this.commObject.ReadBytes(3 + valueBytes + 2);
+            byte[] result = this.channel.ReadBytesFull(3 + valueBytes + 2);
 
             // result[2]是字节数，参考MODBUS_Communication_Protocol_Chinese_Version# MODBUS通讯协议中文版.pdf, 16页
             if (result[0] != this.AddressCode || result[1] != fcode || result[2] != valueBytes)
@@ -247,9 +252,9 @@ namespace DotNEToolkit.Modbus
             Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
 
             byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            this.commObject.WriteBytes(data);
+            this.channel.WriteBytes(data);
 
-            byte[] result = this.commObject.ReadBytes(8);
+            byte[] result = this.channel.ReadBytesFull(8);
 
             if (!ByteUtils.Compare(result, data))
             {

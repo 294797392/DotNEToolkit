@@ -25,6 +25,7 @@ namespace DotNEToolkitDemo.UserControls
     {
         private ModuleFactory moduleFactory;
         private ITECH85XXElectronicLoad electronicLoad;
+        private ZDotCH2221HDigitalOutputModule ch2221Module;
 
         public IT85XXElectronicLoadUserControl()
         {
@@ -43,7 +44,13 @@ namespace DotNEToolkitDemo.UserControls
             this.moduleFactory = ModuleFactory.CreateFactory(moduleFactoryOptions);
             this.moduleFactory.Initialize();
             this.electronicLoad = this.moduleFactory.LookupModule<ITECH85XXElectronicLoad>();
-            this.electronicLoad.SetControlMode(ITECH85XXElectronicLoad.ControlMode.Remote);
+            if (this.electronicLoad != null)
+            {
+                this.electronicLoad.SetControlMode(ITECH85XXElectronicLoad.ControlMode.Remote);
+            }
+
+            this.ch2221Module = this.moduleFactory.LookupModule<ZDotCH2221HDigitalOutputModule>();
+
 
             List<ITECH85XXElectronicLoad.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XXElectronicLoad.ElectronicLoadMode>() 
             {
@@ -102,6 +109,14 @@ namespace DotNEToolkitDemo.UserControls
             }
 
             this.electronicLoad.SetCurrent(cur);
+        }
+
+        private void ButtonHigh_Click(object sender, RoutedEventArgs e)
+        {
+            byte v;
+            this.ch2221Module.ReadDO(0x00, out v);
+
+            this.ch2221Module.WriteDO(0x00, 1);
         }
     }
 }
