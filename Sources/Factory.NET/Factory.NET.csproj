@@ -57,6 +57,7 @@
     <Compile Include="FactoryUtils.cs" />
     <Compile Include="Channels\MatchingRules.cs" />
     <Compile Include="Modbus\ModbusRTUClient.cs" />
+    <Compile Include="Modbus\ModbusTCPClient.cs" />
     <Compile Include="Modules\CheckAdbFile.cs" />
     <Compile Include="Modules\ITECH85XXElectronicLoad.cs" />
     <Compile Include="Modules\ZDotCH2221HDigitalOutputModule.cs" />

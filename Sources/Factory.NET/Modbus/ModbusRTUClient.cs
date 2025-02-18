@@ -1,17 +1,13 @@
 ﻿using DotNEToolkit.Bindings;
 using DotNEToolkit.Crypto;
-using DotNEToolkit.Extentions;
 using DotNEToolkit.Modular;
 using DotNEToolkit.Utility;
-using Factory.NET;
 using Factory.NET.IODrivers;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace DotNEToolkit.Modbus
+namespace Factory.NET.Modbus
 {
     /// <summary>
     /// AddressCode(1字节) FunctionCode(1字节) Data(4字节，Address + Value) CRC(2字节)

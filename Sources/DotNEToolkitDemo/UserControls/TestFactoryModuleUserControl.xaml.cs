@@ -34,9 +34,9 @@ namespace DotNEToolkitDemo.UserControls
             this.InitializeUserControl();
         }
 
-        private void InitializeUserControl() 
+        private void InitializeUserControl()
         {
-            ModuleFactoryOptions moduleFactoryOptions = new ModuleFactoryOptions() 
+            ModuleFactoryOptions moduleFactoryOptions = new ModuleFactoryOptions()
             {
                 ModuleList = JSONHelper.File2Object<List<ModuleDefinition>>("demo.json")
             };
@@ -52,7 +52,7 @@ namespace DotNEToolkitDemo.UserControls
             this.ch2221Module = this.moduleFactory.LookupModule<ZDotCH2221HDigitalOutputModule>();
 
 
-            List<ITECH85XXElectronicLoad.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XXElectronicLoad.ElectronicLoadMode>() 
+            List<ITECH85XXElectronicLoad.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XXElectronicLoad.ElectronicLoadMode>()
             {
                 ITECH85XXElectronicLoad.ElectronicLoadMode.CW,
                 ITECH85XXElectronicLoad.ElectronicLoadMode.CV,
@@ -113,10 +113,14 @@ namespace DotNEToolkitDemo.UserControls
 
         private void ButtonHigh_Click(object sender, RoutedEventArgs e)
         {
-            byte v;
-            this.ch2221Module.ReadDO(0x00, out v);
+            //byte[] v = this.ch2221Module.ReadCoils(0x00, 32);
 
-            this.ch2221Module.WriteDO(0x00, 1);
+            //this.ch2221Module.WriteCoils(0x00, 32, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+
+            //this.ch2221Module.WriteCoils(0x00, 32, new byte[] { 0x00, 0x00, 0x00, 0x00 });
+
+            this.ch2221Module.WriteCoils(0, 32, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+            //this.ch2221Module.WriteCoils(0, 32, new byte[] { 0x00, 0x00, 0x00, 0x00 });
         }
     }
 }

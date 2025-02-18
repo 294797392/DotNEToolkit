@@ -1,18 +1,11 @@
-﻿using DotNEToolkit.Modbus;
-using DotNEToolkit.Modular;
-using Factory.NET.IODrivers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Factory.NET.Modbus;
 
 namespace Factory.NET.Modules
 {
     /// <summary>
     /// 零点自动化CH2221H数字输出模块
     /// </summary>
-    public class ZDotCH2221HDigitalOutputModule : ModbusRTUClient
+    public class ZDotCH2221HDigitalOutputModule : ModbusTCPClient
     {
         #region 类变量
 
