@@ -117,8 +117,10 @@ namespace Factory.NET.Modbus
             return tcpPacket;
         }
 
-        private byte[] SendAndReceive(byte[] pduBytes)
+        private bool SendAndReceive(byte[] pduBytes, out byte[] readPacket)
         {
+            readPacket = null;
+
             byte[] sendPacket = this.CreatePacket(pduBytes);
 
             try
@@ -128,17 +130,17 @@ namespace Factory.NET.Modbus
             catch (Exception ex)
             {
                 logger.Error("发送数据异常", ex);
-                return null;
+                return false;
             }
 
-            byte[] readPacket = this.ReadPacket();
+            readPacket = this.ReadPacket();
             if (readPacket[7] != readPacket[7])
             {
                 logger.ErrorFormat("指令执行失败, {0}, {1}", this.FCode2Text(readPacket[7]), this.ErrorCode2Text(readPacket[8]));
-                return null;
+                return false;
             }
 
-            return readPacket;
+            return true;
         }
 
         private string ErrorCode2Text(byte code)
@@ -200,20 +202,8 @@ namespace Factory.NET.Modbus
 
             #endregion
 
-            byte[] sendPacket = this.CreatePacket(pduBytes);
-
-            try
-            {
-                this.channel.WriteBytes(sendPacket);
-            }
-            catch (Exception ex)
-            {
-                logger.Error("数据交互异常", ex);
-                return null;
-            }
-
-            byte[] readPacket = this.ReadPacket();
-            if (readPacket == null)
+            byte[] readPacket;
+            if (!this.SendAndReceive(pduBytes, out readPacket))
             {
                 return null;
             }
@@ -255,22 +245,9 @@ namespace Factory.NET.Modbus
 
             #endregion
 
-            byte[] sendPacket = this.CreatePacket(pduBytes);
-
-            try
+            byte[] readPacket = null;
+            if (!this.SendAndReceive(pduBytes, out readPacket))
             {
-                this.channel.WriteBytes(sendPacket);
-            }
-            catch (Exception ex)
-            {
-                logger.Error("数据交互异常", ex);
-                return false;
-            }
-
-            byte[] readPacket = this.ReadPacket();
-            if (readPacket[7] != 0x0F)
-            {
-                logger.ErrorFormat("写入线圈失败, {0}", this.ErrorCode2Text(readPacket[8]));
                 return false;
             }
 
