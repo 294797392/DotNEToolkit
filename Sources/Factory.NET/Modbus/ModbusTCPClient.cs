@@ -1,10 +1,7 @@
 ﻿using DotNEToolkit.Modular;
 using Factory.NET.IODrivers;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Factory.NET.Modbus
 {
@@ -90,6 +87,60 @@ namespace Factory.NET.Modbus
             return packet;
         }
 
+        private byte[] CreatePacket(byte[] pduBytes) 
+        {
+            #region MBAP（Modbus Application Protocol Header）
+
+            byte[] mbapBytes = new byte[7];
+
+            // 事务标识符2字节
+            ushort transactionId = this.GetTransactionId();
+            byte[] transactionIdBytes = BitConverter.GetBytes(transactionId).Reverse().ToArray();
+            Buffer.BlockCopy(transactionIdBytes, 0, mbapBytes, 0, transactionIdBytes.Length);
+
+            // 协议标识符2字节，0x0000
+
+            // 长度2字节，表示后续字节数，包括单元标识符和PDU总长度
+            ushort length = (ushort)(pduBytes.Length + 1);
+            byte[] lengthBytes = BitConverter.GetBytes(length).Reverse().ToArray();
+            Buffer.BlockCopy(lengthBytes, 0, mbapBytes, 4, lengthBytes.Length);
+
+            // 单元标识符1字节，指定目标设备地址，通常为1表示主设备
+            mbapBytes[6] = this.UnitIdentifier;
+
+            #endregion
+
+            byte[] tcpPacket = new byte[mbapBytes.Length + pduBytes.Length];
+            Buffer.BlockCopy(mbapBytes, 0, tcpPacket, 0, mbapBytes.Length);
+            Buffer.BlockCopy(pduBytes, 0, tcpPacket, mbapBytes.Length, pduBytes.Length);
+
+            return tcpPacket;
+        }
+
+        private byte[] SendAndReceive(byte[] pduBytes)
+        {
+            byte[] sendPacket = this.CreatePacket(pduBytes);
+
+            try
+            {
+                this.channel.WriteBytes(sendPacket);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("发送数据异常", ex);
+                return null;
+            }
+
+            byte[] readPacket = this.ReadPacket();
+            if (readPacket[7] != readPacket[7])
+            {
+                logger.ErrorFormat("指令执行失败, {0}, {1}", this.FCode2Text(readPacket[7]), this.ErrorCode2Text(readPacket[8]));
+                return null;
+            }
+
+            return readPacket;
+        }
+
         private string ErrorCode2Text(byte code)
         {
             switch (code)
@@ -99,6 +150,23 @@ namespace Factory.NET.Modbus
                 case 0x03: return "非法数据值";
                 case 0x04: return "设备故障";
                 default: return string.Format("未知错误码:{0}", code);
+            }
+        }
+
+        private string FCode2Text(byte fcode) 
+        {
+            switch (fcode) 
+            {
+                case 0x01: return "读线圈状态";
+                case 0x02: return "读离散输入";
+                case 0x03: return "读保持寄存器";
+                case 0x04: return "读输入寄存器";
+                case 0x05: return "写单个线圈";
+                case 0x06: return "写单个寄存器";
+                case 0x0F: return "写多个线圈";
+                case 0x10: return "写多个寄存器";
+                default:
+                    throw new NotImplementedException();
             }
         }
 
@@ -115,28 +183,24 @@ namespace Factory.NET.Modbus
         /// <returns></returns>
         public byte[] ReadCoils(ushort addr, ushort count)
         {
-            byte[] sendPacket = new byte[12];
+            #region PDU
 
-            // 事务标识符
-            ushort transactionId = this.GetTransactionId();
-            byte[] transactionIdBytes = BitConverter.GetBytes(transactionId).Reverse().ToArray();
-            Buffer.BlockCopy(transactionIdBytes, 0, sendPacket, 0, transactionIdBytes.Length);
+            byte[] pduBytes = new byte[5];
 
-            // 长度
-            byte[] lengthBytes = BitConverter.GetBytes((ushort)6).Reverse().ToArray();
-            Buffer.BlockCopy(lengthBytes, 0, sendPacket, 4, lengthBytes.Length);
+            // 功能码1字节
+            pduBytes[0] = 0x01;
 
-            // 单元标识符
-            sendPacket[6] = this.UnitIdentifier;
-
-            // 功能码
-            sendPacket[7] = 0x01;
-
+            // 起始地址2字节，从0x0000开始
             byte[] addrBytes = BitConverter.GetBytes(addr).Reverse().ToArray();
-            Buffer.BlockCopy(addrBytes, 0, sendPacket, 8, addrBytes.Length);
+            Buffer.BlockCopy(addrBytes, 0, pduBytes, 1, addrBytes.Length);
 
+            // 线圈数量2字节，最大值为0x07D0，即2000个线圈
             byte[] countBytes = BitConverter.GetBytes(count).Reverse().ToArray();
-            Buffer.BlockCopy(countBytes, 0, sendPacket, 10, countBytes.Length);
+            Buffer.BlockCopy(countBytes, 0, pduBytes, 3, countBytes.Length);
+
+            #endregion
+
+            byte[] sendPacket = this.CreatePacket(pduBytes);
 
             try
             {
@@ -168,33 +232,30 @@ namespace Factory.NET.Modbus
         /// <returns></returns>
         public bool WriteCoils(ushort addr, ushort count, byte[] values)
         {
-            byte[] sendPacket = new byte[13 + values.Length];
+            #region PDU
 
-            // 事务标识符
-            ushort transactionId = this.GetTransactionId();
-            byte[] transactionIdBytes = BitConverter.GetBytes(transactionId).Reverse().ToArray();
-            Buffer.BlockCopy(transactionIdBytes, 0, sendPacket, 0, transactionIdBytes.Length);
+            byte[] pduBytes = new byte[6 + values.Length];
 
-            // 长度
-            byte[] lengthBytes = BitConverter.GetBytes((ushort)(sendPacket.Length - 6)).Reverse().ToArray();
-            Buffer.BlockCopy(lengthBytes, 0, sendPacket, 4, lengthBytes.Length);
+            // 功能码1字节
+            pduBytes[0] = 0x0F;
 
-            // 单元标识符
-            sendPacket[6] = this.UnitIdentifier;
-
-            // 功能码，0x0F是写多个线圈
-            sendPacket[7] = 0x0F;
-
+            // 起始地址2字节，从0x0000开始
             byte[] addrBytes = BitConverter.GetBytes(addr).Reverse().ToArray();
-            Buffer.BlockCopy(addrBytes, 0, sendPacket, 8, addrBytes.Length);
+            Buffer.BlockCopy(addrBytes, 0, pduBytes, 1, addrBytes.Length);
 
+            // 线圈数量2字节，最大值为0x07B0，即1968个线圈
             byte[] countBytes = BitConverter.GetBytes(count).Reverse().ToArray();
-            Buffer.BlockCopy(countBytes, 0, sendPacket, 10, countBytes.Length);
+            Buffer.BlockCopy(countBytes, 0, pduBytes, 3, countBytes.Length);
 
-            // 数据部分的字节数
-            sendPacket[12] = (byte)values.Length;
+            // 数据部分的字节数1字节
+            pduBytes[5] = (byte)values.Length;
 
-            Buffer.BlockCopy(values.Reverse().ToArray(), 0, sendPacket, 13, values.Length);
+            // 数据，N字节，实际要写入的线圈状态，按位排列
+            Buffer.BlockCopy(values.Reverse().ToArray(), 0, pduBytes, 6, values.Length);
+
+            #endregion
+
+            byte[] sendPacket = this.CreatePacket(pduBytes);
 
             try
             {
