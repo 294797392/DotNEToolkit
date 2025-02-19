@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Factory.NET.IODrivers
+namespace Factory.NET.Channels
 {
-    public class VirtualIODriver : AbstractIODriver
+    public class VirtualChannel : ChannelBase
     {
-        public override IODriverTypes Type { get { return IODriverTypes.VirtualDevice; } }
+        public override ChannelTypes Type { get { return ChannelTypes.VirtualDevice; } }
 
         protected override int OnInitialize()
         {

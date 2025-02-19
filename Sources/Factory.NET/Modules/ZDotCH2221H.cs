@@ -5,11 +5,11 @@ namespace Factory.NET.Modules
     /// <summary>
     /// 零点自动化CH2221H数字输出模块
     /// </summary>
-    public class ZDotCH2221HDigitalOutputModule : ModbusTCPClient
+    public class ZDotCH2221H : ModbusTCPClient
     {
         #region 类变量
 
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("ZDotCH2221HDigitalOutputModule");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("ZDotCH2221H");
 
         #endregion
 

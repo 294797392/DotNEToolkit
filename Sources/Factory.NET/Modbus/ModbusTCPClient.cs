@@ -1,5 +1,5 @@
 ﻿using DotNEToolkit.Modular;
-using Factory.NET.IODrivers;
+using Factory.NET.Channels;
 using System;
 using System.Linq;
 
@@ -25,7 +25,7 @@ namespace Factory.NET.Modbus
         /// <summary>
         /// 与PLC通信的对象
         /// </summary>
-        private AbstractIODriver channel;
+        private ChannelBase channel;
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace Factory.NET.Modbus
         {
             this.UnitIdentifier = 1;
 
-            this.channel = IODriverFactory.Create(this.InputParameters);
+            this.channel = ChannelFactory.Create(this.InputParameters);
             this.channel.Initialize(this.InputParameters);
 
             return ResponseCode.SUCCESS;

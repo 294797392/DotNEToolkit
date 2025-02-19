@@ -3,33 +3,33 @@ using System.Collections;
 using System.Collections.Generic;
 using DotNEToolkit;
 
-namespace Factory.NET.IODrivers
+namespace Factory.NET.Channels
 {
-    public static class IODriverFactory
+    public static class ChannelFactory
     {
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("IODriverFactory");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("ChannelFactory");
 
-        public static AbstractIODriver Create(IODriverTypes driverType)
+        public static ChannelBase Create(ChannelTypes driverType)
         {
             switch (driverType)
             {
-                case IODriverTypes.SerialPort: return new SerialPortIODriver();
-                case IODriverTypes.TcpClient: return new TcpClientIODriver();
-                case IODriverTypes.VirtualDevice: return new VirtualIODriver();
+                case ChannelTypes.SerialPort: return new SerialPortChannel();
+                case ChannelTypes.TcpClient: return new TcpClientChannel();
+                case ChannelTypes.VirtualDevice: return new VirtualChannel();
                 default:
                     // 不应该发生
                     throw new NotImplementedException();
             }
         }
 
-        public static AbstractIODriver Create(IDictionary parameters)
+        public static ChannelBase Create(IDictionary parameters)
         {
             string entryClass = parameters.GetValue<string>("IODriverEntryClass", string.Empty);
             if (!string.IsNullOrEmpty(entryClass))
             {
                 try
                 {
-                    return ConfigFactory<AbstractIODriver>.CreateInstance(entryClass);
+                    return ConfigFactory<ChannelBase>.CreateInstance(entryClass);
                 }
                 catch (Exception ex)
                 {
@@ -39,7 +39,7 @@ namespace Factory.NET.IODrivers
             }
             else
             {
-                IODriverTypes types = parameters.GetValue<IODriverTypes>("IODriverType", IODriverTypes.SerialPort);
+                ChannelTypes types = parameters.GetValue<ChannelTypes>("IODriverType", ChannelTypes.SerialPort);
                 return Create(types);
             }
         }

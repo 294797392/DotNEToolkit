@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Factory.NET.IODrivers
+namespace Factory.NET.Channels
 {
     /// <summary>
     /// 字符串匹配规则

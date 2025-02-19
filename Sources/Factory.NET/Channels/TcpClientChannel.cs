@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Runtime;
 using DotNEToolkit;
 
-namespace Factory.NET.IODrivers
+namespace Factory.NET.Channels
 {
-    public class TcpClientIODriver : AbstractIODriver
+    public class TcpClientChannel : ChannelBase
     {
         private const string DefaultServerIPAddress = "192.168.1.1";
         private const int DefaultServerPort = 1018;
@@ -36,7 +36,7 @@ namespace Factory.NET.IODrivers
 
         #region AbstractIODriver
 
-        public override IODriverTypes Type { get { return IODriverTypes.TcpClient; } }
+        public override ChannelTypes Type { get { return ChannelTypes.TcpClient; } }
 
         protected override int OnInitialize()
         {

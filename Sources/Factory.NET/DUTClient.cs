@@ -1,5 +1,5 @@
 ﻿using DotNEToolkit.Modular;
-using Factory.NET.IODrivers;
+using Factory.NET.Channels;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ namespace Factory.NET
 
         #region 实例变量
 
-        protected AbstractIODriver driver;
+        protected ChannelBase driver;
 
         #endregion
 
@@ -34,7 +34,7 @@ namespace Factory.NET
         /// <summary>
         /// 输入/输出驱动
         /// </summary>
-        public AbstractIODriver Driver { get { return this.driver; } }
+        public ChannelBase Driver { get { return this.driver; } }
 
         #endregion
 
@@ -143,12 +143,12 @@ namespace Factory.NET
             this.driver.ClearExisting();
         }
 
-        protected int SubmitLine(AbstractIODriver driver, string line, string match1, out string matchedLine, string match2 = "")
+        protected int SubmitLine(ChannelBase driver, string line, string match1, out string matchedLine, string match2 = "")
         {
             return driver.SubmitLine(line, match1, out matchedLine, match2);
         }
 
-        protected int SubmitLine(AbstractIODriver driver, string line, string match1, string match2 = "")
+        protected int SubmitLine(ChannelBase driver, string line, string match1, string match2 = "")
         {
             string matchedLine;
             return this.SubmitLine(driver, line, match1, out matchedLine, match2);

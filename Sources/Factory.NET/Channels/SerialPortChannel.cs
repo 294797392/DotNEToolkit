@@ -7,7 +7,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Runtime;
 
-namespace Factory.NET.IODrivers
+namespace Factory.NET.Channels
 {
     /// <summary>
     /// 修改历史
@@ -15,7 +15,7 @@ namespace Factory.NET.IODrivers
     ///     1. 在读写串口之前加入串口是否打开的检测
     ///     2. 读写失败后，对InvalidOperationException做关闭串口的处理
     /// </summary>
-    public class SerialPortIODriver : AbstractIODriver
+    public class SerialPortChannel : ChannelBase
     {
         private const string DefaultCOMPort = "COM3";
         private const int DefaultBaudRate = 115200;
@@ -41,13 +41,13 @@ namespace Factory.NET.IODrivers
 
         #region 属性
 
-        public override IODriverTypes Type { get { return IODriverTypes.SerialPort; } }
+        public override ChannelTypes Type { get { return ChannelTypes.SerialPort; } }
 
         #endregion
 
         #region 构造方法
 
-        public SerialPortIODriver()
+        public SerialPortChannel()
         {
         }
 

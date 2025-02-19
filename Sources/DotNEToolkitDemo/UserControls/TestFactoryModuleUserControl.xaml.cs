@@ -24,8 +24,8 @@ namespace DotNEToolkitDemo.UserControls
     public partial class IT85XXElectronicLoadUserControl : UserControl
     {
         private ModuleFactory moduleFactory;
-        private ITECH85XXElectronicLoad electronicLoad;
-        private ZDotCH2221HDigitalOutputModule ch2221Module;
+        private ITECH85XX electronicLoad;
+        private ZDotCH2221H ch2221Module;
 
         public IT85XXElectronicLoadUserControl()
         {
@@ -43,21 +43,21 @@ namespace DotNEToolkitDemo.UserControls
 
             this.moduleFactory = ModuleFactory.CreateFactory(moduleFactoryOptions);
             this.moduleFactory.Initialize();
-            this.electronicLoad = this.moduleFactory.LookupModule<ITECH85XXElectronicLoad>();
+            this.electronicLoad = this.moduleFactory.LookupModule<ITECH85XX>();
             if (this.electronicLoad != null)
             {
-                this.electronicLoad.SetControlMode(ITECH85XXElectronicLoad.ControlMode.Remote);
+                this.electronicLoad.SetControlMode(ITECH85XX.ControlMode.Remote);
             }
 
-            this.ch2221Module = this.moduleFactory.LookupModule<ZDotCH2221HDigitalOutputModule>();
+            this.ch2221Module = this.moduleFactory.LookupModule<ZDotCH2221H>();
 
 
-            List<ITECH85XXElectronicLoad.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XXElectronicLoad.ElectronicLoadMode>()
+            List<ITECH85XX.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XX.ElectronicLoadMode>()
             {
-                ITECH85XXElectronicLoad.ElectronicLoadMode.CW,
-                ITECH85XXElectronicLoad.ElectronicLoadMode.CV,
-                ITECH85XXElectronicLoad.ElectronicLoadMode.CR,
-                ITECH85XXElectronicLoad.ElectronicLoadMode.CC
+                ITECH85XX.ElectronicLoadMode.CW,
+                ITECH85XX.ElectronicLoadMode.CV,
+                ITECH85XX.ElectronicLoadMode.CR,
+                ITECH85XX.ElectronicLoadMode.CC
             };
             ComboBoxModes.ItemsSource = electronicLoadModes;
             ComboBoxModes.SelectedIndex = 0;
@@ -65,12 +65,12 @@ namespace DotNEToolkitDemo.UserControls
 
         private void ButtonOpen_Click(object sender, RoutedEventArgs e)
         {
-            this.electronicLoad.SetInputMode(ITECH85XXElectronicLoad.InputMode.ON);
+            this.electronicLoad.SetInputMode(ITECH85XX.InputMode.ON);
         }
 
         private void ButtonSetMode_Click(object sender, RoutedEventArgs e)
         {
-            ITECH85XXElectronicLoad.ElectronicLoadMode electronicLoad = (ITECH85XXElectronicLoad.ElectronicLoadMode)ComboBoxModes.SelectedItem;
+            ITECH85XX.ElectronicLoadMode electronicLoad = (ITECH85XX.ElectronicLoadMode)ComboBoxModes.SelectedItem;
 
             this.electronicLoad.SetMode(electronicLoad);
         }

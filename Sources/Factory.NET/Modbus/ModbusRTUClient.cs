@@ -2,7 +2,7 @@
 using DotNEToolkit.Crypto;
 using DotNEToolkit.Modular;
 using DotNEToolkit.Utility;
-using Factory.NET.IODrivers;
+using Factory.NET.Channels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +49,7 @@ namespace Factory.NET.Modbus
         /// <summary>
         /// 与PLC通信的对象
         /// </summary>
-        private AbstractIODriver channel;
+        private ChannelBase channel;
 
         #endregion
 
@@ -67,7 +67,7 @@ namespace Factory.NET.Modbus
 
         protected override int OnInitialize()
         {
-            this.channel = IODriverFactory.Create(this.InputParameters);
+            this.channel = ChannelFactory.Create(this.InputParameters);
             this.channel.Initialize(this.InputParameters);
 
             return ResponseCode.SUCCESS;

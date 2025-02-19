@@ -9,7 +9,7 @@ using DotNEToolkit.Modular;
 using log4net.Config;
 using Newtonsoft.Json;
 
-namespace Factory.NET.IODrivers
+namespace Factory.NET.Channels
 {
     public enum IODriverProperies
     {
@@ -25,7 +25,7 @@ namespace Factory.NET.IODrivers
     /// 2.管理IODevice的输入和输出
     /// 3.向外部模块提供输入/输出接口
     /// </summary>
-    public abstract class AbstractIODriver
+    public abstract class ChannelBase
     {
         private const string DefaultNewLine = "\r\n";
         private const int DefaultReadTimeout = 30;          // 读取数据超时时间，单位是秒
@@ -41,7 +41,7 @@ namespace Factory.NET.IODrivers
 
         #region 实例变量
 
-        protected IODriverStatus status;
+        protected ChannelStatus status;
         protected string newLine;
         protected int readTimeout;
         protected int writeTimeout;
@@ -53,7 +53,7 @@ namespace Factory.NET.IODrivers
 
         #region 属性
 
-        public abstract IODriverTypes Type { get; }
+        public abstract ChannelTypes Type { get; }
 
         /// <summary>
         /// 模块的输入参数
@@ -64,7 +64,7 @@ namespace Factory.NET.IODrivers
 
         #region 构造方法
 
-        public AbstractIODriver()
+        public ChannelBase()
         {
         }
 

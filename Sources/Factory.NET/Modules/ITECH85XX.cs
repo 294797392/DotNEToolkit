@@ -1,7 +1,7 @@
 ﻿using DotNEToolkit;
 using DotNEToolkit.DataAccess;
 using DotNEToolkit.Modular;
-using Factory.NET.IODrivers;
+using Factory.NET.Channels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static Factory.NET.Modules.ITECH85XXElectronicLoad;
+using static Factory.NET.Modules.ITECH85XX;
 using static System.Collections.Specialized.BitVector32;
 
 namespace Factory.NET.Modules
@@ -19,9 +19,9 @@ namespace Factory.NET.Modules
     /// <summary>
     /// IT8500Plus
     /// </summary>
-    public class ITECH85XXElectronicLoad : ModuleBase
+    public class ITECH85XX : ModuleBase
     {
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("IT85XXElectronicLoad");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("ITECH85XX");
 
         public enum ControlMode
         {
@@ -72,7 +72,7 @@ namespace Factory.NET.Modules
 
         #region 实例变量
 
-        private AbstractIODriver channel;
+        private ChannelBase channel;
 
         #endregion
 
@@ -89,7 +89,7 @@ namespace Factory.NET.Modules
 
         protected override int OnInitialize()
         {
-            this.channel = IODriverFactory.Create(this.InputParameters);
+            this.channel = ChannelFactory.Create(this.InputParameters);
             this.channel.Initialize(this.InputParameters);
 
             return ResponseCode.SUCCESS;
