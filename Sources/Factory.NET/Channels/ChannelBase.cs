@@ -144,7 +144,6 @@ namespace Factory.NET.Channels
         /// <returns></returns>
         public abstract string ReadLine();
 
-
         public abstract void WriteBytes(byte[] bytes);
 
         public abstract void WriteLine(string line);

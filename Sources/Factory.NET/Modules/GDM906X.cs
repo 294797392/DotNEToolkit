@@ -39,13 +39,39 @@ namespace Factory.NET.Modules
 
         #endregion
 
+        private string Query(params string[] commands) 
+        {
+            try
+            {
+                foreach (string command in commands)
+                {
+                    this.channel.WriteLine(command);
+                }
+
+                this.channel.WriteLine("READ?");
+
+                return this.channel.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                logger.Error("发送查询指令异常", ex);
+                return string.Empty;
+            }
+        }
+
         /// <summary>
         /// 读取电压值
         /// </summary>
         /// <returns></returns>
         public bool ReadVoltage() 
         {
-            throw new NotImplementedException();
+            string result = this.Query("CONF:VOLT:DC");
+            if (string.IsNullOrEmpty(result))
+            {
+                return false;
+            }
+
+
         }
 
         /// <summary>
@@ -54,7 +80,11 @@ namespace Factory.NET.Modules
         /// <returns></returns>
         public bool ReadCurrent() 
         {
-            throw new NotImplementedException();
+            string result = this.Query("CONF:CURR:DC");
+            if (string.IsNullOrEmpty(result)) 
+            {
+                return false;
+            }
         }
     }
 }
