@@ -17,7 +17,7 @@ using static System.Collections.Specialized.BitVector32;
 namespace Factory.NET.Modules
 {
     /// <summary>
-    /// IT8500Plus
+    /// IT8500Plus电子负载
     /// </summary>
     public class ITECH85XX : ModuleBase
     {

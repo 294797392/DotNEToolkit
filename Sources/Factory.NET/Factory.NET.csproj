@@ -60,7 +60,9 @@
     <Compile Include="Modbus\ModbusTCPClient.cs" />
     <Compile Include="Modules\CheckAdbFile.cs" />
     <Compile Include="Modules\GDM906X.cs" />
+    <Compile Include="Modules\ITECH6500CDDCPower.cs" />
     <Compile Include="Modules\ITECH85XX.cs" />
+    <Compile Include="Modules\N36100DCPower.cs" />
     <Compile Include="Modules\ZDotCH2221H.cs" />
     <Compile Include="ResponseCode.cs" />
     <Compile Include="Channels\ChannelBase.cs" />

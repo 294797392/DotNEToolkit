@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 namespace Factory.NET.Modules
 {
     /// <summary>
-    /// GDM906X万用表
+    /// NGI N36100系列直流电源
     /// </summary>
-    public class GDM906X : ModuleBase
+    public class N36100DCPower : ModuleBase
     {
         #region 类变量
 
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("GDM906X");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("N36100DCPower");
 
         #endregion
 

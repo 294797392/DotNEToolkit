@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 namespace Factory.NET.Modules
 {
     /// <summary>
-    /// GDM906X万用表
+    /// ITECH6500CD系列直流程控电源
     /// </summary>
-    public class GDM906X : ModuleBase
+    public class ITECH6500CDDCPower : ModuleBase
     {
         #region 类变量
 
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("GDM906X");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("ITECH6500CDDCPower");
 
         #endregion
 
@@ -134,5 +134,6 @@ namespace Factory.NET.Modules
         }
 
         #endregion
+
     }
 }

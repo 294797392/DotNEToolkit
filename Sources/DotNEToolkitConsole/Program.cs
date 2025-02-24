@@ -23,8 +23,31 @@ namespace DotNEToolkitConsole
 {
     class Program
     {
+        public class TestItem
+        {
+            public void Run() { }
+        }
+
         static void Main(string[] args)
         {
+            List<TestItem> testItems = new List<TestItem>();
+            for (int i = 0; i < 19; i++)
+            {
+                testItems.Add(new TestItem());
+            }
+
+            foreach (TestItem testItem in testItems)
+            {
+                testItem.Run();
+            }
+
+            //
+
+
+
+
+
+
             Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().Id);
 
             DotNEToolkit.Log4net.InitializeLog4net();
