@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DotNEToolkit.Utility
 {
@@ -79,9 +78,36 @@ namespace DotNEToolkit.Utility
             return values.Select(v => byte.Parse(v, System.Globalization.NumberStyles.HexNumber)).ToArray();
         }
 
+        /// <summary>
+        /// 获取某一位的值
+        /// </summary>
+        /// <param name="value">要获取的值</param>
+        /// <param name="bit">要获取第几位</param>
+        /// <returns></returns>
         public static bool GetBit(int value, byte bit)
         {
             return (value >> bit & 0x00000001) == 1;
+        }
+
+        /// <summary>
+        /// 设置某一位的值
+        /// </summary>
+        /// <param name="value">要设置的值</param>
+        /// <param name="bit">要设置第几位</param>
+        /// <param name="target">设置为1还是0</param>
+        /// <returns></returns>
+        public static int SetBit(int value, byte bit, bool target) 
+        {
+            if (target)
+            {
+                // 设置某一位为1
+                return value | (1 << bit);
+            }
+            else
+            {
+                // 设置某一位为0
+                return value & ~(1 << bit);
+            }
         }
 
         /// <summary>

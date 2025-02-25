@@ -216,7 +216,7 @@ namespace Factory.NET.Modbus
         /// <summary>
         /// 写入线圈状态
         /// </summary>
-        /// <param name="addr"></param>
+        /// <param name="addr">要写入的线圈地址</param>
         /// <param name="count">要写入的线圈数量</param>
         /// <param name="values">要写入的线圈值，按位排列</param>
         /// <returns></returns>
