@@ -12,7 +12,7 @@ namespace Factory.NET.Modules
     /// <summary>
     /// GDM906X万用表
     /// </summary>
-    public class GDM906X : ModuleBase
+    public class GDM906XMeter : ModuleBase
     {
         #region 类变量
 

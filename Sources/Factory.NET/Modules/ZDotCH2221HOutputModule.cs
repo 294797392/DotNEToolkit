@@ -9,11 +9,11 @@ namespace Factory.NET.Modules
     /// 零点自动化CH2221H数字输出模块
     /// 32个输出口，输出电压24V
     /// </summary>
-    public class ZDotCH2221H : ModbusTCPClient
+    public class ZDotCH2221HOutputModule : ModbusTCPClient
     {
         #region 类变量
 
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("ZDotCH2221H");
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("ZDotCH2221HOutputModule");
 
         #endregion
 

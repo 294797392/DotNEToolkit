@@ -59,11 +59,12 @@
     <Compile Include="Modbus\ModbusRTUClient.cs" />
     <Compile Include="Modbus\ModbusTCPClient.cs" />
     <Compile Include="Modules\CheckAdbFile.cs" />
-    <Compile Include="Modules\GDM906X.cs" />
+    <Compile Include="Modules\GDM906XMeter.cs" />
     <Compile Include="Modules\ITECH6500CDDCPower.cs" />
-    <Compile Include="Modules\ITECH85XX.cs" />
+    <Compile Include="Modules\ITECH85XXLoader.cs" />
     <Compile Include="Modules\N36100DCPower.cs" />
-    <Compile Include="Modules\ZDotCH2221H.cs" />
+    <Compile Include="Modules\PK9015M.cs" />
+    <Compile Include="Modules\ZDotCH2221HOutputModule.cs" />
     <Compile Include="ResponseCode.cs" />
     <Compile Include="Channels\ChannelBase.cs" />
     <Compile Include="Channels\ChannelFactory.cs" />

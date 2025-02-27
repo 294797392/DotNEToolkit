@@ -65,6 +65,12 @@
                 <Button Content="高电平" Click="ButtonHigh_Click"/>
             </Grid>
         </TabItem>
-        
+
+        <TabItem Header="PK9015M">
+            <Grid>
+                <Button Content="读取" Click="ButtonRead_Click"/>
+            </Grid>
+        </TabItem>
+
     </TabControl>
 </UserControl>

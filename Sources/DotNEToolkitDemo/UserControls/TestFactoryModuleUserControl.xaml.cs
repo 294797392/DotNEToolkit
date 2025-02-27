@@ -1,10 +1,12 @@
 ﻿using DotNEToolkit;
 using DotNEToolkit.Modular;
+using DotNEToolkit.Utility;
 using Factory.NET.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,8 +26,9 @@ namespace DotNEToolkitDemo.UserControls
     public partial class IT85XXElectronicLoadUserControl : UserControl
     {
         private ModuleFactory moduleFactory;
-        private ITECH85XX electronicLoad;
-        private ZDotCH2221H ch2221Module;
+        private ITECH85XXLoader electronicLoad;
+        private ZDotCH2221HOutputModule ch2221Module;
+        private PK9015M pk9015m;
 
         public IT85XXElectronicLoadUserControl()
         {
@@ -43,21 +46,23 @@ namespace DotNEToolkitDemo.UserControls
 
             this.moduleFactory = ModuleFactory.CreateFactory(moduleFactoryOptions);
             this.moduleFactory.Initialize();
-            this.electronicLoad = this.moduleFactory.LookupModule<ITECH85XX>();
+
+            this.electronicLoad = this.moduleFactory.LookupModule<ITECH85XXLoader>();
             if (this.electronicLoad != null)
             {
-                this.electronicLoad.SetControlMode(ITECH85XX.ControlMode.Remote);
+                this.electronicLoad.SetControlMode(ITECH85XXLoader.ControlMode.Remote);
             }
 
-            this.ch2221Module = this.moduleFactory.LookupModule<ZDotCH2221H>();
+            this.ch2221Module = this.moduleFactory.LookupModule<ZDotCH2221HOutputModule>();
 
+            this.pk9015m = this.moduleFactory.LookupModule<PK9015M>();
 
-            List<ITECH85XX.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XX.ElectronicLoadMode>()
+            List<ITECH85XXLoader.ElectronicLoadMode> electronicLoadModes = new List<ITECH85XXLoader.ElectronicLoadMode>()
             {
-                ITECH85XX.ElectronicLoadMode.CW,
-                ITECH85XX.ElectronicLoadMode.CV,
-                ITECH85XX.ElectronicLoadMode.CR,
-                ITECH85XX.ElectronicLoadMode.CC
+                ITECH85XXLoader.ElectronicLoadMode.CW,
+                ITECH85XXLoader.ElectronicLoadMode.CV,
+                ITECH85XXLoader.ElectronicLoadMode.CR,
+                ITECH85XXLoader.ElectronicLoadMode.CC
             };
             ComboBoxModes.ItemsSource = electronicLoadModes;
             ComboBoxModes.SelectedIndex = 0;
@@ -65,12 +70,12 @@ namespace DotNEToolkitDemo.UserControls
 
         private void ButtonOpen_Click(object sender, RoutedEventArgs e)
         {
-            this.electronicLoad.SetInputMode(ITECH85XX.InputMode.ON);
+            this.electronicLoad.SetInputMode(ITECH85XXLoader.InputMode.ON);
         }
 
         private void ButtonSetMode_Click(object sender, RoutedEventArgs e)
         {
-            ITECH85XX.ElectronicLoadMode electronicLoad = (ITECH85XX.ElectronicLoadMode)ComboBoxModes.SelectedItem;
+            ITECH85XXLoader.ElectronicLoadMode electronicLoad = (ITECH85XXLoader.ElectronicLoadMode)ComboBoxModes.SelectedItem;
 
             this.electronicLoad.SetMode(electronicLoad);
         }
@@ -119,8 +124,35 @@ namespace DotNEToolkitDemo.UserControls
 
             //this.ch2221Module.WriteCoils(0x00, 32, new byte[] { 0x00, 0x00, 0x00, 0x00 });
 
-            this.ch2221Module.WriteCoils(0, 32, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+            this.ch2221Module.WriteCoils(0, 31, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+
             //this.ch2221Module.WriteCoils(0, 32, new byte[] { 0x00, 0x00, 0x00, 0x00 });
+        }
+
+        private void ButtonRead_Click(object sender, RoutedEventArgs e)
+        {
+            byte[] values = this.pk9015m.ReadHoldingRegister(1, 0x02, 1);
+
+            values = values.Reverse().ToArray();
+
+            double v = (double)BitConverter.ToUInt16(values, 0) / 100;
+
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    byte[] bytes = this.pk9015m.ReadHoldingRegister(1, 0x03, 1);
+
+                    bytes = bytes.Reverse().ToArray();
+
+                    ushort value = BitConverter.ToUInt16(bytes, 0);
+                    double d = (double)value / 10000 * v;
+
+                    Console.WriteLine(ByteUtils.JoinHexNumber(bytes));
+
+                    Thread.Sleep(1000);
+                }
+            });
         }
     }
 }

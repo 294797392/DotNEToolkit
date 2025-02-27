@@ -9,14 +9,24 @@
     //    }
     //},
 
+    //{
+    //    "ID": "2",
+    //    "Name": "ZDotCH2221HDigitalOutputModule",
+    //    "ClassName": "Factory.NET.Modules.ZDotCH2221HOutputModule, Factory.NET",
+    //    "Inputs": {
+    //        "IODriverType": 2,
+    //        "IPAddress": "192.168.1.100",
+    //        "Port": 502
+    //    }
+    //}
+
     {
-        "ID": "2",
-        "Name": "ZDotCH2221HDigitalOutputModule",
-        "ClassName": "Factory.NET.Modules.ZDotCH2221H, Factory.NET",
+        "ID": "3",
+        "Name": "PK9015M",
+        "ClassName": "Factory.NET.Modules.PK9015M, Factory.NET",
         "Inputs": {
-            "IODriverType": 2,
-            "IPAddress": "192.168.1.100",
-            "Port": 502
+            "PortName": "COM1",
+            "BaudRate": 9600
         }
     }
 ]

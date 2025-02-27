@@ -1,7 +1,5 @@
 ﻿using DotNEToolkit.Bindings;
-using DotNEToolkit.Crypto;
 using DotNEToolkit.Modular;
-using DotNEToolkit.Utility;
 using Factory.NET.Channels;
 using System;
 using System.Collections.Generic;
@@ -10,20 +8,34 @@ using System.Linq;
 namespace Factory.NET.Modbus
 {
     /// <summary>
-    /// AddressCode(1字节) FunctionCode(1字节) Data(4字节，Address + Value) CRC(2字节)
+    /// 数据帧格式：
+    /// [设备地址] [功能码] [数据] [CRC校验]
     /// 
-    /// Modbus名词解释：https://blog.csdn.net/lingshi75/article/details/105991450
-    /// Modbus协议：https://blog.csdn.net/qq_36339249/article/details/90664839
+    /// 1. 设备地址 (Address Field)
+    /// 长度：1字节
+    /// 范围：0x01 到 0xFF（通常使用 0x01 到 0x7F）
+    /// 描述：标识目标设备的地址。主机发送请求时，指定从机的地址；从机响应时，返回自己的地址。
+    /// 
+    /// 2. 功能码 (Function Code)
+    /// 长度：1字节
+    /// 描述：定义操作类型。例如：
+    /// 0x01：读线圈状态
+    /// 0x02：读离散输入
+    /// 0x03：读保持寄存器
+    /// 0x06：写单个寄存器
+    /// 0x10：写多个寄存器
+    /// 
+    /// 3. 数据 (Data Field)
+    /// 长度：可变
+    /// 描述：根据功能码的不同，数据字段的内容和长度会变化。例如：
+    /// 功能码 0x03：读取寄存器值时，数据字段包含寄存器的数量和实际值。
+    /// 功能码 0x06：写单个寄存器时，数据字段包含寄存器地址和要写入的值。
+    /// 
+    /// 4. CRC校验 (Cyclic Redundancy Check)
+    /// 长度：2字节
+    /// 描述：用于检测数据传输过程中是否发生错误。CRC值通过特定算法计算得出，并附加在帧的末尾。
     /// 
     /// RTU：远程终端控制系统
-    /// 
-    /// 
-    /// 简单点说，modbus有四种数据，DI、DO、AI、AO
-    /// DI: 数字输入，离散输入，一个地址一个数据位，用户只能读取它的状态，不能修改。比如面板上的按键、开关状态，电机的故障状态。
-    /// DO: 数字输出，线圈输出，一个地址一个数据位，用户可以置位、复位，可以回读状态，比如继电器输出，电机的启停控制信号。
-    /// AI: 模拟输入，输入寄存器，一个地址16位数据，用户只能读，不能修改，比如一个电压值的读数。
-    /// AO: 模拟输出，保持寄存器，一个地址16位数据，用户可以写，也可以回读，比如一个控制变频器的电流值。
-    /// 无论这些东西被叫做什么名字，其内容不外乎这几种，输入的信号用户只能看不能改，输出的信号用户控制，并可以回读。离散的数据只有一位，模拟的数据有16位。
     /// </summary>
     public class ModbusRTUClient : ModuleBase
     {
@@ -80,54 +92,33 @@ namespace Factory.NET.Modbus
 
         #endregion
 
-        #region 数字输入
+        #region 公开接口
 
         /// <summary>
-        /// 读取一路线圈输入寄存器的值
+        /// 读保持寄存器
         /// </summary>
-        /// <param name="address">要读取的线圈寄存器的地址</param>
-        /// <param name="value">读取到寄存器的数据</param>
+        /// <param name="slaveAddress">从机地址</param>
+        /// <param name="addr">要读取的保存寄存器地址</param>
+        /// <param name="count">要读取的保持寄存器的数量</param>
         /// <returns></returns>
-        public bool ReadDI(byte address, out byte value)
+        public byte[] ReadHoldingRegister(byte slaveAddress, ushort addr, ushort count)
         {
-            return this.ReadDigtalIO(address, FUNCTION_CODE_READ_DI, out value);
-        }
+            byte[] dataBytes = new byte[4];
+            dataBytes[0] = (byte)(addr >> 8);  // 起始地址高字节
+            dataBytes[1] = (byte)(addr & 0xFF); // 起始地址低字节
+            dataBytes[2] = (byte)(count >> 8); // 寄存器数量高字节
+            dataBytes[3] = (byte)(count & 0xFF); // 寄存器数量低字节
 
-        #endregion
+            byte[] readPacket;
+            if (!this.SendAndReceive(slaveAddress, 0x03, dataBytes, out readPacket))
+            {
+                return null;
+            }
 
-        #region 数字输出
-
-        public bool ReadDO(ushort address, out byte value)
-        {
-            return this.ReadDigtalIO(FUNCTION_CODE_READ_DO, address, out value);
-        }
-
-        public bool WriteDO(ushort address, ushort value)
-        {
-            return this.WriteDigtalOutput(FUNCTION_CODE_WRITE_DO, address, value);
-        }
-
-        #endregion
-
-        #region 模拟输出
-
-        public bool ReadAO(byte address, short numReg, out List<short> value)
-        {
-            return this.ReadAnalogIO(address, FUNCTION_CODE_READ_AO, numReg, out value);
-        }
-
-        public bool WriteAO(byte address, short value)
-        {
-            return this.WriteAnalogOutput(FUNCTION_CODE_WRITE_AO, address, value);
-        }
-
-        #endregion
-
-        #region 模拟输入
-
-        public bool ReadAI(byte address, short numReg, out List<short> value)
-        {
-            return this.ReadAnalogIO(address, FUNCTION_CODE_READ_AI, numReg, out value);
+            // 一个寄存器存储2字节数据
+            byte[] result = new byte[count * 2];
+            Buffer.BlockCopy(readPacket, 3, result, 0, result.Length);
+            return result;
         }
 
         #endregion
@@ -135,157 +126,147 @@ namespace Factory.NET.Modbus
         #region 实例方法
 
         /// <summary>
-        /// 读取数字量
-        /// </summary>
-        /// <param name="address"></param>
-        /// <param name="fcode"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        private bool ReadDigtalIO(byte fcode, ushort address, out byte value)
-        {
-            value = 0;
-
-            byte[] buffer = new byte[4];
-            byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
-            byte[] numBytes = this.ReverseBytes(BitConverter.GetBytes((short)8));                  // 一次性读取8路
-            Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
-            Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
-
-            byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            this.channel.WriteBytes(data);
-
-            byte[] result = this.channel.ReadBytesFull(6);
-
-            if (result[0] != this.AddressCode || result[1] != fcode || result[2] != 1)
-            {
-                logger.ErrorFormat("收到的Mosbus数据格式不正确");
-                return false;
-            }
-
-            value = result[3];
-
-            return true;
-        }
-
-        /// <summary>
-        /// 写数字输出寄存器
-        /// </summary>
-        /// <param name="address">要写的寄存器地址</param>
-        /// <param name="fcode">功能代码</param>
-        /// <param name="value">寄存器的值</param>
-        /// <returns></returns>
-        private bool WriteDigtalOutput(byte fcode, ushort address, ushort value)
-        {
-            byte[] buffer = new byte[4];
-            byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
-            byte[] valueBytes = this.ReverseBytes(BitConverter.GetBytes(value));
-            Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
-            Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
-
-            byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            this.channel.WriteBytes(data);
-
-            byte[] result = this.channel.ReadBytesFull(8);
-
-            if (!ByteUtils.Compare(result, data))
-            {
-                logger.ErrorFormat("WriteDigtalOutput失败, 返回的数据和发送的数据不一致");
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// 读取单路模拟量
-        /// </summary>
-        /// <param name="address">要读取的数据的地址</param>
-        /// <param name="fcode">功能码</param>
-        /// <param name="numReg">要读取的寄存器的数量</param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        private bool ReadAnalogIO(byte address, byte fcode, short numReg, out List<short> values)
-        {
-            values = null;
-
-            byte[] buffer = new byte[4];
-            byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
-            byte[] numBytes = this.ReverseBytes(BitConverter.GetBytes(numReg));                  // 要读取的寄存器的数量，一个寄存器是两个字节
-            Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
-            Buffer.BlockCopy(numBytes, 0, buffer, 2, numBytes.Length);
-
-            byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            this.channel.WriteBytes(data);
-
-            int valueBytes = numReg * 2;    // 寄存器的值所占用的字节数
-            byte[] result = this.channel.ReadBytesFull(3 + valueBytes + 2);
-
-            // result[2]是字节数，参考MODBUS_Communication_Protocol_Chinese_Version# MODBUS通讯协议中文版.pdf, 16页
-            if (result[0] != this.AddressCode || result[1] != fcode || result[2] != valueBytes)
-            {
-                logger.ErrorFormat("收到的Mosbus数据格式不正确");
-                return false;
-            }
-
-            values = new List<short>();
-
-            for (int i = 0; i < valueBytes; i += 2)
-            {
-                byte[] vbs = new byte[2] { result[3 + i + 1], result[3 + i] };
-                short v = BitConverter.ToInt16(vbs, 0);
-                values.Add(v);
-            }
-
-            return true;
-        }
-
-        private bool WriteAnalogOutput(byte fcode, short address, short value)
-        {
-            byte[] buffer = new byte[4];
-            byte[] addressByte = this.ReverseBytes(BitConverter.GetBytes(address));
-            byte[] valueBytes = this.ReverseBytes(BitConverter.GetBytes(value));
-            Buffer.BlockCopy(addressByte, 0, buffer, 0, addressByte.Length);
-            Buffer.BlockCopy(valueBytes, 0, buffer, 2, valueBytes.Length);
-
-            byte[] data = this.PackData(this.AddressCode, fcode, buffer);
-            this.channel.WriteBytes(data);
-
-            byte[] result = this.channel.ReadBytesFull(8);
-
-            if (!ByteUtils.Compare(result, data))
-            {
-                logger.ErrorFormat("WriteDigtalOutput失败, 返回的数据和发送的数据不一致");
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// 打包Modbus数据
         /// </summary>
-        /// <param name="addressCode">地址码</param>
+        /// <param name="slaveAddress">地址码</param>
         /// <param name="fcode">功能代码</param>
-        /// <param name="data">要发送的数据</param>
+        /// <param name="dataBytes">要发送的数据</param>
         /// <returns></returns>
-        private byte[] PackData(byte addressCode, byte fcode, byte[] data)
+        private byte[] CreatePacket(byte slaveAddress, byte functionCode, byte[] dataBytes)
         {
-            byte[] buffer = new byte[1 + 1 + data.Length];
-            buffer[0] = addressCode;
-            buffer[1] = fcode;
-            Buffer.BlockCopy(data, 0, buffer, 2, data.Length);
+            byte[] result = new byte[2 + dataBytes.Length + 2];
+            result[0] = slaveAddress;
+            result[1] = functionCode;
+            Buffer.BlockCopy(dataBytes, 0, result, 2, dataBytes.Length);
 
-            byte[] crcBytes = this.ReverseBytes(CRC.CRC16(buffer));
-
-            byte[] result = new byte[buffer.Length + crcBytes.Length];
-            Buffer.BlockCopy(buffer, 0, result, 0, buffer.Length);
-            Buffer.BlockCopy(crcBytes, 0, result, buffer.Length, crcBytes.Length);
+            byte[] crcBytes = this.ReverseBytes(CRC16(result, 0, result.Length - 2));
+            Buffer.BlockCopy(crcBytes, 0, result, result.Length - 2, crcBytes.Length);
             return result;
+        }
+
+        private byte[] ReadPacket()
+        {
+            byte[] bytes1 = this.channel.ReadBytesFull(2);
+
+            byte functionCode = bytes1[1];
+            if (functionCode > 0x80)
+            {
+                // 如果从机无法处理请求，会返回异常帧，功能码会被设置为 请求功能码 + 0x80，并附加错误代码。
+                byte[] bytes2 = this.channel.ReadBytesFull(3);
+                List<byte> packet = new List<byte>();
+                packet.AddRange(bytes1);
+                packet.AddRange(bytes2);
+                return packet.ToArray();
+            }
+
+            switch (functionCode)
+            {
+                case 0x03:
+                    {
+                        byte[] bytes2 = this.channel.ReadBytesFull(1);
+
+                        // 后续有几个字节的数据
+                        byte remain = bytes2[0];
+
+                        // 加2是CRC占用2字节
+                        byte[] bytes3 = this.channel.ReadBytesFull(remain + 2);
+
+                        List<byte> packet = new List<byte>();
+                        packet.AddRange(bytes1);
+                        packet.AddRange(bytes2);
+                        packet.AddRange(bytes3);
+
+                        return packet.ToArray();
+                    }
+
+                default:
+                    {
+                        throw new NotImplementedException();
+                    }
+            }
+        }
+
+        private bool SendAndReceive(byte slaveAddress, byte functionCode, byte[] dataBytes, out byte[] readPacket)
+        {
+            readPacket = null;
+
+            byte[] sendPacket = this.CreatePacket(slaveAddress, functionCode, dataBytes);
+
+            try
+            {
+                this.channel.WriteBytes(sendPacket);
+
+                readPacket = this.ReadPacket();
+
+                if (readPacket[1] != sendPacket[1])
+                {
+                    logger.ErrorFormat("指令执行失败, {0}, {1}", this.FCode2Text(sendPacket[1]), this.ErrorCode2Text(readPacket[2]));
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.Error("发送数据异常", ex);
+                return false;
+            }
         }
 
         private byte[] ReverseBytes(byte[] src)
         {
             return src.Reverse().ToArray();
+        }
+
+        private string FCode2Text(byte functionCode)
+        {
+            switch (functionCode)
+            {
+                case 0x01: return "读线圈状态 (Read Coils)";
+                case 0x02: return "读离散输入 (Read Discrete Inputs)";
+                case 0x03: return " 读保持寄存器 (Read Holding Registers)";
+                case 0x04: return "读输入寄存器 (Read Input Registers)";
+                case 0x05: return "写单个线圈 (Write Single Coil)";
+                case 0x06: return "写单个寄存器 (Write Single Register)";
+                case 0x07: return "写多个线圈 (Write Multiple Coils)";
+                case 0x08: return "写多个寄存器 (Write Multiple Registers)";
+                default: return string.Format("未知的功能码:{0}", functionCode);
+            }
+        }
+
+        private string ErrorCode2Text(byte errorCode)
+        {
+            switch (errorCode)
+            {
+                case 0x01: return "非法功能 (Illegal Function)";
+                case 0x02: return "非法数据地址 (Illegal Data Address)";
+                case 0x03: return "非法数据值 (Illegal Data Value)";
+                case 0x04: return "从机设备故障 (Slave Device Failure)";
+                case 0x05: return "确认 (Acknowledge)";
+                case 0x06: return "从机设备忙 (Slave Device Busy)";
+                case 0x07: return "内存奇偶校验错误 (Memory Parity Error)";
+                case 0x08: return "网关路径不可用 (Gateway Path Unavailable)";
+                case 0x0A: return "网关目标设备未响应 (Gateway Target Device Failed to Respond)";
+                default: return string.Format("未知的错误码:{0}", errorCode);
+            }
+        }
+
+        private byte[] CRC16(byte[] data, int offset, int len)
+        {
+            ushort crc = 0xFFFF;
+
+            for (int i = 0; i < len; i++)
+            {
+                crc = (ushort)(crc ^ (data[i + offset]));
+                for (int j = 0; j < 8; j++)
+                {
+                    crc = (crc & 1) != 0 ? (ushort)((crc >> 1) ^ 0xA001) : (ushort)(crc >> 1);
+                }
+            }
+            byte hi = (byte)((crc & 0xFF00) >> 8);  //高位置
+            byte lo = (byte)(crc & 0x00FF);         //低位置
+
+            return new byte[] { hi, lo };
         }
 
         #endregion

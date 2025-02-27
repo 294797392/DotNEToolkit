@@ -82,58 +82,47 @@ namespace Factory.NET.Modules
             return true;
         }
 
+        private bool Send(params string[] commands)
+        {
+            try
+            {
+                foreach (string command in commands)
+                {
+                    this.channel.WriteLine(command);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.Error("发送控制指令异常", ex);
+                return false;
+            }
+        }
+
         #endregion
 
         #region 公开接口
 
         /// <summary>
-        /// 读取电压值
-        /// 单位伏特
+        /// 打开电源
         /// </summary>
+        /// <param name="voltage">电压，单位V</param>
         /// <returns></returns>
-        public bool ReadVoltage(out double value)
+        public bool Open(int voltage) 
         {
-            value = 0;
-            string result = this.Query("CONF:VOLT:DC", "READ?");
-            if (string.IsNullOrEmpty(result))
-            {
-                return false;
-            }
-
-            return this.Scientific2Double(result, out value);
+            return this.Send("SYST:REM", string.Format("VOLT {0}", voltage), "OUTP ON");
         }
 
         /// <summary>
-        /// 读取电流值
+        /// 关闭电源
         /// </summary>
         /// <returns></returns>
-        //public bool ReadCurrent() 
-        //{
-        //    string result = this.Query("CONF:CURR:DC", "READ?");
-        //    if (string.IsNullOrEmpty(result)) 
-        //    {
-        //        return false;
-        //    }
-        //}
-
-        /// <summary>
-        /// 读取电阻值，单位欧姆
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public bool ReadResistance(out double value)
+        public bool Close() 
         {
-            value = 0;
-            string result = this.Query("CONF:RES", "READ?");
-            if (string.IsNullOrEmpty(result))
-            {
-                return false;
-            }
-
-            return this.Scientific2Double(result, out value);
+            return this.Send("OUTP OFF");
         }
 
         #endregion
-
     }
 }

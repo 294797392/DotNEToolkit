@@ -134,9 +134,14 @@ namespace Factory.NET.Modbus
             }
 
             readPacket = this.ReadPacket();
-            if (readPacket[7] != readPacket[7])
+            if (readPacket == null) 
             {
-                logger.ErrorFormat("指令执行失败, {0}, {1}", this.FCode2Text(readPacket[7]), this.ErrorCode2Text(readPacket[8]));
+                return false;
+            }
+
+            if (readPacket[7] != sendPacket[7])
+            {
+                logger.ErrorFormat("指令执行失败, {0}, {1}", this.FCode2Text(sendPacket[7]), this.ErrorCode2Text(readPacket[8]));
                 return false;
             }
 

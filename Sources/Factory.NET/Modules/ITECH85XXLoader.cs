@@ -11,7 +11,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static Factory.NET.Modules.ITECH85XX;
+using static Factory.NET.Modules.ITECH85XXLoader;
 using static System.Collections.Specialized.BitVector32;
 
 namespace Factory.NET.Modules
@@ -19,7 +19,7 @@ namespace Factory.NET.Modules
     /// <summary>
     /// IT8500Plus电子负载
     /// </summary>
-    public class ITECH85XX : ModuleBase
+    public class ITECH85XXLoader : ModuleBase
     {
         private static log4net.ILog logger = log4net.LogManager.GetLogger("ITECH85XX");
 
