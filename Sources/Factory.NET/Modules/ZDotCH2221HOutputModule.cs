@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using System;
 using DotNEToolkit.Utility;
+using System.Linq;
 
 namespace Factory.NET.Modules
 {
     /// <summary>
     /// 零点自动化CH2221H数字输出模块
     /// 32个输出口，输出电压24V
+    /// 
+    /// 第一块板子地址：0-31
+    /// 第二块板子地址：32-63
+    /// 第三块板子地址：64-95
+    /// 第三块板子地址：96
     /// </summary>
     public class ZDotCH2221HOutputModule : ModbusTCPClient
     {

@@ -9,6 +9,8 @@ namespace Factory.NET.Modbus
     /// +------------------+------------------+------------------+------------------+------------------+
     /// | 事务标识符(2B) | 协议标识符(2B) | 长度(2B)       | 单元标识符(1B) | PDU(N 字节)     |
     /// +------------------+------------------+------------------+------------------+------------------+
+    /// 
+    /// ModbusTCP的从站有一个看门狗参数设置，这个看门狗的作用是 在规定时间内没有检测到通讯后会断开
     /// </summary>
     public class ModbusTCPClient : ModuleBase
     {
@@ -71,8 +73,18 @@ namespace Factory.NET.Modbus
             try
             {
                 bytes1 = this.channel.ReadBytesFull(6);
+                if (bytes1 == null)
+                {
+                    logger.Error("接收数据包失败, bytes1为空，到达流的末尾");
+                    return null;
+                }
 
                 bytes2 = this.channel.ReadBytesFull(bytes1[5]);
+                if (bytes2 == null)
+                {
+                    logger.Error("接收数据包失败, bytes2为空，到达流的末尾");
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -246,7 +258,7 @@ namespace Factory.NET.Modbus
             pduBytes[5] = (byte)values.Length;
 
             // 数据，N字节，实际要写入的线圈状态，按位排列
-            Buffer.BlockCopy(values.Reverse().ToArray(), 0, pduBytes, 6, values.Length);
+            Buffer.BlockCopy(values, 0, pduBytes, 6, values.Length);
 
             #endregion
 

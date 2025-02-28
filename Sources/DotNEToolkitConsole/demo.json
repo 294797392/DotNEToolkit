@@ -1,0 +1,12 @@
+﻿[
+    {
+        "ID": "2",
+        "Name": "ZDotCH2221HDigitalOutputModule",
+        "ClassName": "Factory.NET.Modules.ZDotCH2221HOutputModule, Factory.NET",
+        "Inputs": {
+            "IODriverType": 2,
+            "IPAddress": "192.168.1.100",
+            "Port": 502
+        }
+    }
+]

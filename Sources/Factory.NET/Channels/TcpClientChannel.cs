@@ -64,7 +64,7 @@ namespace Factory.NET.Channels
             this.tcpClient.SendTimeout = base.writeTimeout;
             this.tcpClient.Connect(ep);
 
-            logger.DebugFormat("TcpIODriver - {0}:{1}连接成功", ipAddress, port);
+            logger.DebugFormat("TcpClientChannel - {0}:{1}连接成功", ipAddress, port);
 
             this.stream = this.tcpClient.GetStream();
             this.sr = new StreamReader(stream);

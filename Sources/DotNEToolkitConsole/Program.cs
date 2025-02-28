@@ -6,6 +6,7 @@ using DotNEToolkit.Media;
 using DotNEToolkit.Modular;
 using DotNEToolkit.Utility;
 using Factory.NET;
+using Factory.NET.Modules;
 using Factory.NET.Utility;
 using Newtonsoft.Json;
 using System;
@@ -23,34 +24,73 @@ namespace DotNEToolkitConsole
 {
     class Program
     {
-        public class TestItem
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("Program");
+
+        static void Add(ZDotCH2221HOutputModule outputModule)
         {
-            public void Run() { }
+            byte start = 0x80;
+
+            while (true)
+            {
+                byte[] bytes = new byte[] { start++, 0x00, 0x00, 0x00, };
+                string hex = ByteUtils.ToString(bytes, " ", HexNumberOptions.WithPrefix);
+                logger.InfoFormat(hex);
+                outputModule.WriteCoils(96, 32, bytes);
+                logger.InfoFormat("按回车键测量下一个");
+                Console.ReadLine();
+            }
         }
+
+        static void Add2(ZDotCH2221HOutputModule outputModule)
+        {
+            byte[] values = new byte[] { 0x80, 0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0 };
+
+            byte start = 0;
+
+            while (true)
+            {
+                byte[] bytes = new byte[] { values[start++], 0x00, 0x00, 0x00, };
+                string hex = ByteUtils.ToString(bytes, " ", HexNumberOptions.WithPrefix);
+                logger.InfoFormat(hex);
+                outputModule.WriteCoils(96, 32, bytes);
+                logger.InfoFormat("按回车键测量下一个");
+                Console.ReadLine();
+            }
+        }
+
+        static void Add3(ZDotCH2221HOutputModule outputModule)
+        {
+            byte start = 0x01;
+
+            while (true)
+            {
+                byte[] bytes = new byte[] { 0x00, 0x00, 0x00, start, };
+                string hex = ByteUtils.ToString(bytes, " ", HexNumberOptions.WithPrefix);
+                logger.InfoFormat(hex);
+                outputModule.WriteCoils(96, 32, bytes);
+                logger.InfoFormat("按回车键测量下一个");
+                Console.ReadLine();
+                start *= 2;
+            }
+        }
+
 
         static void Main(string[] args)
         {
-            List<TestItem> testItems = new List<TestItem>();
-            for (int i = 0; i < 19; i++)
+            Log4net.InitializeLog4net();
+
+            ModuleFactoryOptions moduleFactoryOptions = new ModuleFactoryOptions()
             {
-                testItems.Add(new TestItem());
-            }
+                ModuleList = JSONHelper.File2Object<List<ModuleDefinition>>("demo.json")
+            };
 
-            foreach (TestItem testItem in testItems)
-            {
-                testItem.Run();
-            }
+            ModuleFactory moduleFactory = ModuleFactory.CreateFactory(moduleFactoryOptions);
+            moduleFactory.Initialize();
+            ZDotCH2221HOutputModule outputModule = moduleFactory.LookupModule<ZDotCH2221HOutputModule>();
 
-            //
-
-
-
-
-
+            Add3(outputModule);
 
             Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().Id);
-
-            DotNEToolkit.Log4net.InitializeLog4net();
 
             Console.WriteLine(byte.MaxValue);
 

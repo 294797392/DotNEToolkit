@@ -29,7 +29,7 @@ namespace DotNEToolkit.Utility
         /// <param name="source"></param>
         /// <param name="separator">每个字节之间的分隔符</param>
         /// <returns></returns>
-        public static string JoinHexNumber(this byte[] source, string separator = null, HexNumberOptions options = HexNumberOptions.None)
+        public static string ToString(this byte[] source, string separator = null, HexNumberOptions options = HexNumberOptions.None)
         {
             if (source.Length == 0)
             {

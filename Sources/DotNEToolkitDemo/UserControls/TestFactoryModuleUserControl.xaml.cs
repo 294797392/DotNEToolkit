@@ -148,7 +148,7 @@ namespace DotNEToolkitDemo.UserControls
                     ushort value = BitConverter.ToUInt16(bytes, 0);
                     double d = (double)value / 10000 * v;
 
-                    Console.WriteLine(ByteUtils.JoinHexNumber(bytes));
+                    Console.WriteLine(ByteUtils.ToString(bytes));
 
                     Thread.Sleep(1000);
                 }
