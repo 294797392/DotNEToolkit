@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using static DotNEToolkit.Shell32;
+using static DotNEToolkit.Win32API;
 
 // 所有的Win32API用Dll名字给类命名
 
@@ -60,7 +61,7 @@ namespace DotNEToolkit
             info.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(info);
             info.lpVerb = "properties";
             info.lpFile = Filename;
-            info.nShow = SW_SHOW;
+            info.nShow = Shell32.SW_SHOW;
             info.fMask = SEE_MASK_INVOKEIDLIST;
             return ShellExecuteEx(ref info);
         }
@@ -970,6 +971,16 @@ namespace DotNEToolkit
 
         [DllImport(User32Dll)]
         public static extern short GetAsyncKeyState();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetWindowDC(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        public static extern IntPtr ReleaseDC(IntPtr hWnd, IntPtr hDC);
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetWindowRect(IntPtr hWnd, out RECT rect);
+
+        [DllImport("user32.dll", EntryPoint = "FindWindow", CharSet = CharSet.Unicode)]
+        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
     }
 
     /// <summary>
@@ -1313,4 +1324,25 @@ namespace DotNEToolkit
             public IntPtr hProcess;
         }
     }
+
+    public static class Gdi32
+    {
+        public const int SRCCOPY = 0x00CC0020; // BitBlt dwRop parameter
+        [DllImport("gdi32.dll")]
+        public static extern bool BitBlt(IntPtr hObject, int nXDest, int nYDest,
+            int nWidth, int nHeight, IntPtr hObjectSource,
+            int nXSrc, int nYSrc, int dwRop);
+        [DllImport("gdi32.dll")]
+        public static extern IntPtr CreateCompatibleBitmap(IntPtr hDC, int nWidth,
+            int nHeight);
+        [DllImport("gdi32.dll")]
+        public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
+        [DllImport("gdi32.dll")]
+        public static extern bool DeleteDC(IntPtr hDC);
+        [DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
+        [DllImport("gdi32.dll")]
+        public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
+    }
+
 }
