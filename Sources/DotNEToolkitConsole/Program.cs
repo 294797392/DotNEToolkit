@@ -35,7 +35,7 @@ namespace DotNEToolkitConsole
                 byte[] bytes = new byte[] { start++, 0x00, 0x00, 0x00, };
                 string hex = ByteUtils.ToString(bytes, " ", HexNumberOptions.WithPrefix);
                 logger.InfoFormat(hex);
-                outputModule.WriteCoils(96, 32, bytes);
+                outputModule.WriteCoils(192, 32, bytes);
                 logger.InfoFormat("按回车键测量下一个");
                 Console.ReadLine();
             }
@@ -52,7 +52,7 @@ namespace DotNEToolkitConsole
                 byte[] bytes = new byte[] { values[start++], 0x00, 0x00, 0x00, };
                 string hex = ByteUtils.ToString(bytes, " ", HexNumberOptions.WithPrefix);
                 logger.InfoFormat(hex);
-                outputModule.WriteCoils(96, 32, bytes);
+                outputModule.WriteCoils(192, 32, bytes);
                 logger.InfoFormat("按回车键测量下一个");
                 Console.ReadLine();
             }
@@ -64,10 +64,11 @@ namespace DotNEToolkitConsole
 
             while (true)
             {
-                byte[] bytes = new byte[] { 0x00, 0x00, 0x00, start, };
+                byte[] bytes = new byte[] {  0x00,  0x00, start, 0x00,  };
+                //byte[] bytes = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, };
                 string hex = ByteUtils.ToString(bytes, " ", HexNumberOptions.WithPrefix);
                 logger.InfoFormat(hex);
-                outputModule.WriteCoils(96, 32, bytes);
+                outputModule.WriteCoils(224, 32, bytes);
                 logger.InfoFormat("按回车键测量下一个");
                 Console.ReadLine();
                 start *= 2;

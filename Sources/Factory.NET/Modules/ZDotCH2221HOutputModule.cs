@@ -13,7 +13,11 @@ namespace Factory.NET.Modules
     /// 第一块板子地址：0-31
     /// 第二块板子地址：32-63
     /// 第三块板子地址：64-95
-    /// 第三块板子地址：96
+    /// 第4块板子地址：96
+    /// 5:128
+    /// 6:160
+    /// 7:192
+    /// 8:224
     /// </summary>
     public class ZDotCH2221HOutputModule : ModbusTCPClient
     {
