@@ -37,6 +37,13 @@
     <Reference Include="log4net">
       <HintPath>..\..\Dependence\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="NationalInstruments.Common, Version=19.1.40.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependence\NationalInstruments.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="NationalInstruments.VisaNS">
+      <HintPath>..\..\Dependence\NationalInstruments.VisaNS.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\Dependence\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -64,6 +71,7 @@
     <Compile Include="Modules\ITECH85XXLoader.cs" />
     <Compile Include="Modules\N36100DCPower.cs" />
     <Compile Include="Modules\PK9015M.cs" />
+    <Compile Include="Modules\RogolDG1000WaveformGenerator.cs" />
     <Compile Include="Modules\ZDotCH2221HOutputModule.cs" />
     <Compile Include="ResponseCode.cs" />
     <Compile Include="Channels\ChannelBase.cs" />
