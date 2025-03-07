@@ -1,4 +1,5 @@
 ﻿using DotNEToolkit.Modular;
+using Factory.NET.Channels;
 using NationalInstruments.VisaNS;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace Factory.NET.Modules
 {
-    public class RogolDG1000WaveformGenerator : ModuleBase
+    /// <summary>
+    /// Rogo DG1000型号的信号发生器
+    /// </summary>
+    public class RogolDG1000Generator : ModuleBase
     {
         #region 类变量
 
@@ -18,7 +22,8 @@ namespace Factory.NET.Modules
 
         #region 实例变量
 
-        private MessageBasedSession messageSession;
+        private ChannelBase channel;
+        private int channelIndex;
 
         #endregion
 
@@ -26,36 +31,32 @@ namespace Factory.NET.Modules
 
         protected override int OnInitialize()
         {
-            string resourceName = this.GetParameter<string>("resourceName");
+            this.channelIndex = this.GetParameter<int>("channelIndex");
 
-            ResourceManager resourceMgr = ResourceManager.GetLocalManager();
-
-            // 查询所有资源
-            string[] allResource = resourceMgr.FindResources("?*INSTR");
-            string name = allResource.FirstOrDefault(v => v.Contains(resourceName));
-            if (string.IsNullOrEmpty(name))
-            {
-                logger.ErrorFormat("没有找到对应的资源, {0}", resourceName);
-                return ResponseCode.FAILED;
-            }
-
-            this.messageSession = resourceMgr.Open(resourceName) as MessageBasedSession;
+            this.channel = ChannelFactory.Create(this.InputParameters);
+            this.channel.Initialize(this.InputParameters);
 
             return ResponseCode.SUCCESS;
         }
 
         protected override void OnRelease()
         {
-            this.messageSession.Dispose();
+            this.channel.Release();
         }
 
         #endregion
 
         #region 公开接口
 
-        public void Write(string command) 
+        /// <summary>
+        /// 输出PWM信号
+        /// </summary>
+        /// <param name="frequency">频率，单位赫兹</param>
+        /// <param name="dutyCycle">占空比，单位百分比，占空比越高功率越高</param>
+        /// <param name="highVoltage">高电平电压</param>
+        public void SetPWMOutput(int frequency, int dutyCycle, double highVoltage)
         {
-            this.messageSession.Write(command);
+
         }
 
         #endregion

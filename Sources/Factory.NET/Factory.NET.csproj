@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Channels\NIVisaChannel.cs" />
     <Compile Include="DelegateUtility.cs" />
     <Compile Include="DUTClient.cs" />
     <Compile Include="FactoryUtils.cs" />
