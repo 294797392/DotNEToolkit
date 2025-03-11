@@ -138,7 +138,7 @@ namespace Factory.NET.Modules
         /// 设置定电流
         /// </summary>
         /// <param name="current">要设置的定电流大小，单位是A</param>
-        public bool SetCurrent(int current)
+        public bool SetCurrent(double current)
         {
             byte[] buffer = BitConverter.GetBytes(current * 10000);
             byte[] requestPacket = this.CreatePacket(0x2A, buffer);
@@ -152,7 +152,7 @@ namespace Factory.NET.Modules
         /// </summary>
         /// <param name="voltage">要设置的定电压大小，单位是V</param>
         /// <returns></returns>
-        public bool SetVoltage(int voltage)
+        public bool SetVoltage(double voltage)
         {
             byte[] buffer = BitConverter.GetBytes(voltage * 1000);
             byte[] requestPacket = this.CreatePacket(0x2C, buffer);
@@ -166,7 +166,7 @@ namespace Factory.NET.Modules
         /// </summary>
         /// <param name="power">单位是W</param>
         /// <returns></returns>
-        public bool SetPower(int power)
+        public bool SetPower(double power)
         {
             byte[] buffer = BitConverter.GetBytes(power * 1000);
             byte[] requestPacket = this.CreatePacket(0x2E, buffer);
@@ -180,7 +180,7 @@ namespace Factory.NET.Modules
         /// </summary>
         /// <param name="resistance">单位是R</param>
         /// <returns></returns>
-        public bool SetResistance(int resistance)
+        public bool SetResistance(double resistance)
         {
             byte[] buffer = BitConverter.GetBytes(resistance * 1000);
             byte[] requestPacket = this.CreatePacket(0x30, buffer);

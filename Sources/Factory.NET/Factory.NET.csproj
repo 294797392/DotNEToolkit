@@ -69,6 +69,7 @@
     <Compile Include="Modules\CheckAdbFile.cs" />
     <Compile Include="Modules\GDM906XMeter.cs" />
     <Compile Include="Modules\ITECH6500CDDCPower.cs" />
+    <Compile Include="Modules\ITECH67XXDCPower.cs" />
     <Compile Include="Modules\ITECH85XXLoader.cs" />
     <Compile Include="Modules\N36100DCPower.cs" />
     <Compile Include="Modules\PK9015M.cs" />
