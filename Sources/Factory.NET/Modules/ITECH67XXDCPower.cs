@@ -90,14 +90,30 @@ namespace Factory.NET.Modules
         {
             if (this.CommType == CommTypes.SCPI)
             {
-                return true;
+                switch (controlMode)
+                {
+                    case ControlMode.Remote:
+                        {
+                            return this.SendSCPIRequest("设置电源远程控制模式", "SYST:REM");
+                        }
+
+                    case ControlMode.Panel:
+                        {
+                            return this.SendSCPIRequest("设置电源本地控制模式", "SYST:LOC");
+                        }
+
+                    default:
+                        throw new NotImplementedException();
+                }
             }
+            else
+            {
+                byte[] buffer = new byte[] { (byte)controlMode };
+                byte[] requestPacket = this.CreatePacket(0x20, buffer);
+                byte[] responsePacket = null;
 
-            byte[] buffer = new byte[] { (byte)controlMode };
-            byte[] requestPacket = this.CreatePacket(0x20, buffer);
-            byte[] responsePacket = null;
-
-            return this.SendRequest(string.Format("设置负载的控制模式, {0}", controlMode), requestPacket, out responsePacket);
+                return this.SendRequest(string.Format("设置电源的控制模式, {0}", controlMode), requestPacket, out responsePacket);
+            }
         }
 
         public bool SetInputMode(InputMode inputMode)
@@ -126,7 +142,7 @@ namespace Factory.NET.Modules
                 byte[] requestPacket = this.CreatePacket(0x21, buffer);
                 byte[] responsePacket = null;
 
-                return this.SendRequest(string.Format("控制负载输入状态, {0}", inputMode), requestPacket, out responsePacket);
+                return this.SendRequest(string.Format("控制电源输入状态, {0}", inputMode), requestPacket, out responsePacket);
             }
         }
 

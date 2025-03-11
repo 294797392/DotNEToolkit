@@ -16,7 +16,9 @@ namespace Factory.NET.Modules
     {
         #region 类变量
 
-        private static log4net.ILog logger = log4net.LogManager.GetLogger("GDM906X");
+        private static readonly char[] Splitter = new char[] { ',' };
+
+        private static log4net.ILog logger = log4net.LogManager.GetLogger("GDM906XMeter");
 
         #endregion
 
@@ -64,6 +66,79 @@ namespace Factory.NET.Modules
             }
         }
 
+        private bool SendSCPIRequest(string action, string scpi, out string result)
+        {
+            result = string.Empty;
+
+            try
+            {
+                this.channel.WriteLine(scpi);
+
+                result = this.channel.ReadLine();
+
+                return this.SYST_ERR(action);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("发送SCPI指令异常", ex);
+                return false;
+            }
+        }
+
+        private bool SendSCPIRequest(string action, string scpi)
+        {
+            try
+            {
+                this.channel.WriteLine(scpi);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("发送SCPI指令异常", ex);
+                return false;
+            }
+
+            return this.SYST_ERR(action);
+        }
+
+        private bool SYST_ERR(string action)
+        {
+            string result = string.Empty;
+
+            try
+            {
+                this.channel.WriteLine("SYST:ERR?");
+
+                result = this.channel.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                logger.Error("发送SCPI指令异常", ex);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(result))
+            {
+                logger.ErrorFormat("{0}, 执行失败, 仪器有错误发生, SYST:ERR?返回值为空", action);
+                return false;
+            }
+
+            string[] items = result.Split(Splitter, StringSplitOptions.RemoveEmptyEntries);
+
+            if (items.Length != 2)
+            {
+                logger.ErrorFormat("{0}, 执行失败, SYST:ERR?返回值不正确, {1}", action, result);
+                return false;
+            }
+
+            if (items[0] != "0")
+            {
+                logger.ErrorFormat("{0}, 执行失败, {1}", action, result);
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// 科学计数法转换成小数，保留两位小数
         /// </summary>
@@ -91,30 +166,23 @@ namespace Factory.NET.Modules
         /// 单位伏特
         /// </summary>
         /// <returns></returns>
-        public bool ReadVoltage(out double value)
+        public bool ReadVoltage(double range, out double value)
         {
             value = 0;
-            string result = this.Query("CONF:VOLT:DC", "READ?");
-            if (string.IsNullOrEmpty(result))
+
+            if (!this.SendSCPIRequest("设置电压测量参数", string.Format("CONF:VOLT:DC;:VOLT:DC:RANG:AUTO OFF;:VOLT:DC:RANGE 40;", range)))
+            {
+                return false;
+            }
+
+            string result;
+            if (!this.SendSCPIRequest("电压测量", ":SAMP:COUN 1;:TRIG:SOUR IMM;:READ?", out result))
             {
                 return false;
             }
 
             return this.Scientific2Double(result, out value);
         }
-
-        /// <summary>
-        /// 读取电流值
-        /// </summary>
-        /// <returns></returns>
-        //public bool ReadCurrent() 
-        //{
-        //    string result = this.Query("CONF:CURR:DC", "READ?");
-        //    if (string.IsNullOrEmpty(result)) 
-        //    {
-        //        return false;
-        //    }
-        //}
 
         /// <summary>
         /// 读取电阻值，单位欧姆
