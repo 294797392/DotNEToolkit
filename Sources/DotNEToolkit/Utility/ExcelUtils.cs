@@ -89,11 +89,10 @@ namespace DotNEToolkit.Utility
 
             int startRow = sheet.PhysicalNumberOfRows;
             int rows = table.GetRows();
+            int cols = table.GetColumns();
 
             for (int row = 0; row < rows; row++)
             {
-                int cols = table.GetColumns(row);
-
                 IRow irow = sheet.CreateRow(startRow);
 
                 for (int col = 0; col < cols; col++)

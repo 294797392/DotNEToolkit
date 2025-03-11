@@ -92,11 +92,10 @@ namespace DotNEToolkit.Utility
             StringBuilder builder = new StringBuilder();
 
             int rows = tableData.GetRows();
+            int cols = tableData.GetColumns();
 
             for (int row = 0; row < rows; row++)
             {
-                int cols = tableData.GetColumns(row);
-
                 for (int col = 0; col < cols; col++)
                 {
                     object data = tableData.GetCellValue(row, col, null);

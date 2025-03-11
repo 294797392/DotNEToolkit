@@ -75,11 +75,8 @@ namespace DotNEToolkitConsole
             }
         }
 
-
-        static void Main(string[] args)
+        static void TestLingdian() 
         {
-            Log4net.InitializeLog4net();
-
             ModuleFactoryOptions moduleFactoryOptions = new ModuleFactoryOptions()
             {
                 ModuleList = JSONHelper.File2Object<List<ModuleDefinition>>("demo.json")
@@ -106,12 +103,17 @@ namespace DotNEToolkitConsole
 
             Console.WriteLine(v % 256);
             Console.ReadLine();
+        }
+
+        static void Main(string[] args)
+        {
+            Log4net.InitializeLog4net();
+
+            TestCSV.TableData2CSVFile2();
 
             //string content;
             //FactoryUtils.AdbReadFile("adb.exe", "/etc/version.conf", "123", out content);
             //Console.WriteLine(content);
-
-            Console.ReadLine();
 
             //TestExcel.Array2Excel();
 

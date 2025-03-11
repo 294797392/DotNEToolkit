@@ -40,5 +40,31 @@ namespace DotNEToolkitConsole
             //List<Msg_log> list = CSVUtils.CSVFile2Objects<Msg_log>("1.csv");
             //Console.WriteLine();
         }
+
+        public static void TableData2CSVFile()
+        {
+            TableData tableData = TableData.Create();
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    tableData.SetCell(i, j, string.Format("{0}-{1}", i, j));
+                }
+            }
+
+            CSVUtils.TableData2CSVFile(tableData, "1.csv");
+        }
+
+        public static void TableData2CSVFile2() 
+        {
+            TableData tableData = TableData.Create();
+
+            tableData.SetCell(10, 10, "10-10");
+            tableData.SetCell(0, 0, "0-0");
+            tableData.SetCell(5, 5, "5-5");
+
+            CSVUtils.TableData2CSVFile(tableData, "1.csv");
+        }
     }
 }

@@ -138,18 +138,18 @@ namespace DotNEToolkit
         /// <param name="value">该单元格的值</param>
         public abstract void SetCell(int row, int col, CellSpan spanType, int span, object value);
 
-        public object GetCellValue(int row, int col, object defaultValue) 
+        public object GetCellValue(int row, int col, object defaultValue)
         {
             CellData cellData = this.GetCell(row, col);
             return cellData == null ? defaultValue : cellData.Value;
         }
 
         /// <summary>
-        /// 读取某个单元格的值
-        /// 如果没有这个单元格的值，那么返回空
+        /// 读取某个单元格对象
+        /// 如果没有这个单元格，那么返回空
         /// </summary>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
+        /// <param name="row">单元格所在行索引</param>
+        /// <param name="col">单元格所在列索引</param>
         /// <returns></returns>
         public abstract CellData GetCell(int row, int col);
 
@@ -180,20 +180,6 @@ namespace DotNEToolkit
         public abstract int GetColumns();
 
         /// <summary>
-        /// 获取某一列的总行数
-        /// </summary>
-        /// <param name="column"></param>
-        /// <returns></returns>
-        public abstract int GetRows(int column);
-
-        /// <summary>
-        /// 获取某一行的总列数
-        /// </summary>
-        /// <param name="row"></param>
-        /// <returns></returns>
-        public abstract int GetColumns(int row);
-
-        /// <summary>
         /// 和tableData合并
         /// 把tableData追加到该tableData下面
         /// </summary>
@@ -206,7 +192,7 @@ namespace DotNEToolkit
 
             for (int row = 0; row < rows; row++)
             {
-                int cols = tableData.GetColumns(row);
+                int cols = tableData.GetColumns();
 
                 for (int col = 0; col < cols; col++)
                 {
@@ -227,7 +213,8 @@ namespace DotNEToolkit
         /// <returns>TableData实例</returns>
         public static TableData Create()
         {
-            return new ListTableData();
+            //return new ListTableData();
+            return new ArrayTableData();
         }
 
         /// <summary>
@@ -274,7 +261,7 @@ namespace DotNEToolkit
         /// <returns></returns>
         public List<string> GetRowData(int row)
         {
-            int cols = this.GetColumns(row);
+            int cols = this.GetColumns();
 
             List<string> result = new List<string>();
 
@@ -288,6 +275,10 @@ namespace DotNEToolkit
         }
     }
 
+    /// <summary>
+    /// 遇到大数据量这个实现就非常慢，不再使用这个实现
+    /// </summary>
+    [Obsolete]
     internal class ListTableData : TableData
     {
         #region 实例变量
@@ -462,30 +453,100 @@ namespace DotNEToolkit
             }
         }
 
-        public override int GetRows(int column)
-        {
-            if (this.cellDatas.Exists(v => v.Column == column))
-            {
-                return this.cellDatas.Where(v => v.Column == column).Max(v => v.Row) + 1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        public override int GetColumns(int row)
-        {
-            if (this.cellDatas.Exists(v => v.Row == row))
-            {
-                return this.cellDatas.Where(v => v.Row == row).Max(v => v.Column) + 1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
         #endregion
+    }
+
+    internal class ArrayTableData : TableData
+    {
+        private int cols;
+        private int rows;
+        private CellData[][] dataList;
+
+        private int maxCols;
+        private int maxRows;
+
+        public ArrayTableData()
+        {
+            this.dataList = new CellData[5000][];
+            for (int i = 0; i < this.dataList.Length; i++)
+            {
+                this.dataList[i] = new CellData[500];
+
+                for (int j = 0; j < 500; j++)
+                {
+                    this.dataList[i][j] = new CellData();
+                }
+            }
+
+            this.maxRows = 5000;
+            this.maxCols = 500;
+        }
+
+        public override void Clear(int row, int col)
+        {
+            dataList[row][col].Value = null;
+        }
+
+        public override CellData GetCell(int row, int col)
+        {
+            if (this.cols < col + 1 || this.rows < row + 1)
+            {
+                return null;
+            }
+
+            return this.dataList[row][col];
+        }
+
+        public override List<CellData> GetCells(int row)
+        {
+            return this.dataList[row].Take(this.cols).ToList();
+        }
+
+        public override int GetColumns()
+        {
+            return this.cols;
+        }
+
+        public override int GetRows()
+        {
+            return this.rows;
+        }
+
+        public override bool IsEmpty()
+        {
+            return this.cols == 0 && this.rows == 0;
+        }
+
+        public override void SetCell(int row, int col, object value)
+        {
+            if (this.rows < row + 1)
+            {
+                this.rows = row + 1;
+            }
+
+            if (this.cols < col + 1)
+            {
+                this.cols = col + 1;
+            }
+
+            this.dataList[row][col].Value = value;
+        }
+
+        public override void SetCell(int row, int col, CellSpan spanType, int span, object value)
+        {
+            if (this.rows < row + 1)
+            {
+                this.rows = row + 1;
+            }
+
+            if (this.cols < col + 1)
+            {
+                this.cols = col + 1;
+            }
+
+            this.dataList[row][col].Value = value;
+            this.dataList[row][col].Span = span;
+            this.dataList[row][col].SpanType = spanType;
+        }
     }
 }
