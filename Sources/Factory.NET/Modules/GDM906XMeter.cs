@@ -47,8 +47,10 @@ namespace Factory.NET.Modules
 
         #region 实例方法
 
-        private string Query(params string[] commands)
+        private bool Query(string action, out string result, params string[] commands)
         {
+            result = string.Empty;
+
             try
             {
                 foreach (string command in commands)
@@ -57,12 +59,14 @@ namespace Factory.NET.Modules
                 }
                 this.channel.WriteLine("READ?");
 
-                return this.channel.ReadLine();
+                result = this.channel.ReadLine();
+
+                return this.SYST_ERR(action);
             }
             catch (Exception ex)
             {
                 logger.Error("发送查询指令异常", ex);
-                return string.Empty;
+                return false;
             }
         }
 
@@ -166,17 +170,26 @@ namespace Factory.NET.Modules
         /// 单位伏特
         /// </summary>
         /// <returns></returns>
-        public bool ReadVoltage(double range, out double value)
+        public bool ReadVoltage(out double value)
         {
+            //value = 0;
+
+            //if (!this.SendSCPIRequest("设置电压测量参数", string.Format("CONF:VOLT:DC;:VOLT:DC:RANG:AUTO OFF;:VOLT:DC:RANGE {0};", range)))
+            //{
+            //    return false;
+            //}
+
+            //string result;
+            //if (!this.SendSCPIRequest("电压测量", ":SAMP:COUN 1;:TRIG:SOUR IMM;:READ?", out result))
+            //{
+            //    return false;
+            //}
+
+            //return this.Scientific2Double(result, out value);
+
             value = 0;
-
-            if (!this.SendSCPIRequest("设置电压测量参数", string.Format("CONF:VOLT:DC;:VOLT:DC:RANG:AUTO OFF;:VOLT:DC:RANGE 40;", range)))
-            {
-                return false;
-            }
-
             string result;
-            if (!this.SendSCPIRequest("电压测量", ":SAMP:COUN 1;:TRIG:SOUR IMM;:READ?", out result))
+            if (!this.Query("读取电压", out result, "CONF:VOLT:DC", "READ?"))
             {
                 return false;
             }
@@ -192,8 +205,8 @@ namespace Factory.NET.Modules
         public bool ReadResistance(out double value)
         {
             value = 0;
-            string result = this.Query("CONF:RES", "READ?");
-            if (string.IsNullOrEmpty(result))
+            string result;
+            if (!this.Query("读取电阻", out result, "CONF:RES", "READ?"))
             {
                 return false;
             }
