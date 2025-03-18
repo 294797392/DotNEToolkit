@@ -11,6 +11,7 @@ using Factory.NET.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -109,7 +110,9 @@ namespace DotNEToolkitConsole
         {
             Log4net.InitializeLog4net();
 
-            TestCSV.TableData2CSVFile2();
+            Console.WriteLine(Math.Log(0x08, 2));
+
+            //TestCSV.TableData2CSVFile2();
 
             //string content;
             //FactoryUtils.AdbReadFile("adb.exe", "/etc/version.conf", "123", out content);
