@@ -54,13 +54,23 @@ namespace Factory.NET.Modules
         /// <param name="frequency">频率，单位赫兹</param>
         /// <param name="dutyCycle">占空比，单位百分比，占空比越高功率越高</param>
         /// <param name="highVoltage">高电平电压</param>
-        public void SetPWMOutput(int frequency, int dutyCycle, double highVoltage)
+        public void OpenPWMOutput(int frequency, int dutyCycle, double highVoltage)
         {
             string ch = this.channelIndex == 1 ? string.Empty : string.Format(":CH{0}", this.channel);
+            this.channel.WriteLine(string.Format("FUNC{0} PULSe", ch, highVoltage));
             this.channel.WriteLine(string.Format("VOLT{0} {1}", ch, highVoltage));
             this.channel.WriteLine(string.Format("FREQ{0} {1}", ch, frequency));
             this.channel.WriteLine(string.Format("FUNCtion:SQUare:DCYCle{0} {1}", ch, dutyCycle));
             this.channel.WriteLine(string.Format("OUTP{0} ON", ch));
+        }
+
+        /// <summary>
+        /// 关闭信号输出
+        /// </summary>
+        public void Close()
+        {
+            string ch = this.channelIndex == 1 ? string.Empty : string.Format(":CH{0}", this.channel);
+            this.channel.WriteLine(string.Format("OUTP{0} OFF", ch));
         }
 
         #endregion

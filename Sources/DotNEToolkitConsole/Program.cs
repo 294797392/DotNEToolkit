@@ -110,7 +110,17 @@ namespace DotNEToolkitConsole
         {
             Log4net.InitializeLog4net();
 
-            Console.WriteLine(Math.Log(0x08, 2));
+            bool oldState = false;
+            bool newState = true;
+
+            if (oldState != false || newState != true)
+            {
+                Console.WriteLine("未触发");
+            }
+            else
+            {
+                Console.WriteLine("触发");
+            }
 
             //TestCSV.TableData2CSVFile2();
 
