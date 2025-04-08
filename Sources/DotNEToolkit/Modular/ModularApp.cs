@@ -267,6 +267,14 @@ namespace DotNEToolkit
             return this.settings.ContainsKey(key);
         }
 
+        /// <summary>
+        /// 如果存在指定的配置，则返回指定配置
+        /// 如果指定配置不存在，那么新建并保存指定配置
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public T EnsureSetting<T>(string key, T value)
         {
             if (this.settings.ContainsKey(key))
