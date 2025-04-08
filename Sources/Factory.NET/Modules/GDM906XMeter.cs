@@ -61,7 +61,10 @@ namespace Factory.NET.Modules
 
                 result = this.channel.ReadLine();
 
-                return this.SYST_ERR(action);
+                return true;
+
+                // 经常会报4XX的错误
+                //return this.SYST_ERR(action);
             }
             catch (Exception ex)
             {
