@@ -59,7 +59,7 @@ namespace DotNEToolkitConsole
             tableData.SetCell(0, 3, "0");
             tableData.SetCell(0, 4, "0");
             tableData.SetCell(0, 5, "0");
-            ExcelUtils.TableData2ExcelFile(excelPath, tableData, WriteOptions.CreateNew);
+            ExcelUtils.TableData2ExcelFile(excelPath, tableData);
         }
 
         public static void CreateOrAppend()
@@ -73,7 +73,7 @@ namespace DotNEToolkitConsole
             tableData.SetCell(0, 3, value++.ToString());
             tableData.SetCell(0, 4, value++.ToString());
             tableData.SetCell(0, 6, value++.ToString());
-            ExcelUtils.TableData2ExcelFile(excelPath, tableData, WriteOptions.Append);
+            ExcelUtils.TableData2ExcelFile(excelPath, tableData);
         }
 
         public static void CreateSpan()
@@ -94,7 +94,7 @@ namespace DotNEToolkitConsole
 
             tableData.Merge(tableData);
 
-            ExcelUtils.TableData2ExcelFile(excelPath, tableData, WriteOptions.Append);
+            ExcelUtils.TableData2ExcelFile(excelPath, tableData);
         }
 
         public static void ExcelFile2Objects()
@@ -118,7 +118,7 @@ namespace DotNEToolkitConsole
                 });
             }
 
-            ExcelUtils.Objects2ExcelFile<AlarmItem>(messageItems, "1.xls", WriteOptions.Append, "Message");
+            ExcelUtils.Objects2ExcelFile<AlarmItem>(messageItems, "1.xls", "Message");
         }
 
         public static void Array2Excel()
@@ -146,7 +146,59 @@ namespace DotNEToolkitConsole
                 }
             }
 
-            ExcelUtils.Array2Excel("1.xls", datas, WriteOptions.Append, "Message");
+            ExcelUtils.Array2Excel("1.xls", datas, "Message");
+        }
+
+
+
+        public static void TableData2Excel()
+        {
+            TableData tableData = TableData.Create();
+
+            for (int row = 0; row < 5; row++)
+            {
+                for (int col = 0; col < 100; col++)
+                {
+                    tableData.SetCell(row, col, string.Format("{0}_{1}", row, col));
+                }
+            }
+
+            ExcelUtils.TableData2ExcelFile("1.xlsx", tableData, "sheet1", ExcelVersions.Xlsx);
+        }
+
+        public static void TableData2Excel2() 
+        {
+            List<TableData> tableDatas = new List<TableData>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                TableData tableData = TableData.Create();
+                tableData.Name = i.ToString();
+
+
+                for (int row = 0; row < 5; row++)
+                {
+                    for (int col = 0; col < 100; col++)
+                    {
+                        tableData.SetCell(row, col, string.Format("{0}_{1}", row, col));
+                    }
+                }
+
+                tableDatas.Add(tableData);
+            }
+
+            ExcelUtils.TableData2ExcelFile("3.xlsx", tableDatas, ExcelVersions.Xlsx);
+        }
+
+        public static void TableData2Excel3()
+        {
+            TableData tableData = TableData.Create();
+
+            tableData.SetCell(10, 10, "10_10");
+            tableData.SetCell(0, 0, "0_0");
+            tableData.SetCell(5, 5, "5_5");
+
+            ExcelUtils.TableData2ExcelFile("2.xlsx", tableData, "sheet1", ExcelVersions.Xlsx);
         }
     }
 }

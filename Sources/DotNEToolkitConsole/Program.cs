@@ -1,25 +1,9 @@
 ﻿using DotNEToolkit;
-using DotNEToolkit.Crypto;
-using DotNEToolkit.DataAccess;
-using DotNEToolkit.Expressions;
-using DotNEToolkit.Media;
 using DotNEToolkit.Modular;
 using DotNEToolkit.Utility;
-using Factory.NET;
 using Factory.NET.Modules;
-using Factory.NET.Utility;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 
 namespace DotNEToolkitConsole
 {
@@ -65,7 +49,7 @@ namespace DotNEToolkitConsole
 
             while (true)
             {
-                byte[] bytes = new byte[] {  0x00,  0x00, start, 0x00,  };
+                byte[] bytes = new byte[] { 0x00, 0x00, start, 0x00, };
                 //byte[] bytes = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, };
                 string hex = ByteUtils.ToString(bytes, " ", HexNumberOptions.WithPrefix);
                 logger.InfoFormat(hex);
@@ -76,7 +60,7 @@ namespace DotNEToolkitConsole
             }
         }
 
-        static void TestLingdian() 
+        static void TestLingdian()
         {
             ModuleFactoryOptions moduleFactoryOptions = new ModuleFactoryOptions()
             {
@@ -110,19 +94,12 @@ namespace DotNEToolkitConsole
         {
             Log4net.InitializeLog4net();
 
-            bool oldState = false;
-            bool newState = true;
-
-            if (oldState != false || newState != true)
-            {
-                Console.WriteLine("未触发");
-            }
-            else
-            {
-                Console.WriteLine("触发");
-            }
-
+            //TestCSV.TableData2CSVFile();
             //TestCSV.TableData2CSVFile2();
+            //TestCSV.TableData2CSVFile3();
+
+            TestExcel.TableData2Excel2();
+            //TestExcel.TableData2Excel3();
 
             //string content;
             //FactoryUtils.AdbReadFile("adb.exe", "/etc/version.conf", "123", out content);

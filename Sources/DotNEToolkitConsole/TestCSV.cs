@@ -45,26 +45,47 @@ namespace DotNEToolkitConsole
         {
             TableData tableData = TableData.Create();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 500; i++)
             {
-                for (int j = 0; j < 10; j++)
+                for (int j = 0; j < 500; j++)
                 {
-                    tableData.SetCell(i, j, string.Format("{0}-{1}", i, j));
+                    tableData.SetCell(i, j, string.Format("{0}_{1}", i, j));
                 }
             }
 
             CSVUtils.TableData2CSVFile(tableData, "1.csv");
         }
 
-        public static void TableData2CSVFile2() 
+        public static void TableData2CSVFile3()
+        {
+            TableData tableData = CSVUtils.CSVFile2TableData("1.csv", new string[] { "," }, Encoding.GetEncoding("GB2312"));
+
+            int cols = tableData.GetColumns(0);
+
+            for (int row = 0; row < 10; row++)
+            {
+                int rows = tableData.GetRows();
+
+                for (int col = 0; col < cols; col++)
+                {
+                    int newRow = rows;
+
+                    tableData.SetCell(newRow, col, string.Format("{0}_{1}", newRow, col));
+                }
+            }
+
+            CSVUtils.TableData2CSVFile(tableData, "1.csv");
+        }
+
+        public static void TableData2CSVFile2()
         {
             TableData tableData = TableData.Create();
 
-            tableData.SetCell(10, 10, "10-10");
-            tableData.SetCell(0, 0, "0-0");
-            tableData.SetCell(5, 5, "5-5");
+            tableData.SetCell(10, 10, "10_10");
+            tableData.SetCell(0, 0, "0_0");
+            tableData.SetCell(5, 5, "5_5");
 
-            CSVUtils.TableData2CSVFile(tableData, "1.csv");
+            CSVUtils.TableData2CSVFile(tableData, "2.csv");
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using DotNEToolkit.Excels;
-using NPOI.HSSF.UserModel;
+﻿using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
@@ -8,7 +7,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace DotNEToolkit.Utility
@@ -89,11 +87,12 @@ namespace DotNEToolkit.Utility
 
             int startRow = sheet.PhysicalNumberOfRows;
             int rows = table.GetRows();
-            int cols = table.GetColumns();
 
             for (int row = 0; row < rows; row++)
             {
                 IRow irow = sheet.CreateRow(startRow);
+
+                int cols = table.GetColumns(row);
 
                 for (int col = 0; col < cols; col++)
                 {
@@ -184,32 +183,13 @@ namespace DotNEToolkit.Utility
         /// <param name="sheetName"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        private static ISheet OpenSheet(IWorkbook workbook, string sheetName, WriteOptions options)
+        private static ISheet OpenSheet(IWorkbook workbook, string sheetName)
         {
-            ISheet sheet = null;
-
-            switch (options)
+            ISheet sheet = workbook.GetSheet(sheetName);
+            if (sheet == null)
             {
-                case WriteOptions.Append:
-                    {
-                        sheet = workbook.GetSheet(sheetName);
-                        if (sheet == null)
-                        {
-                            sheet = workbook.CreateSheet(sheetName);
-                        }
-                        break;
-                    }
-
-                case WriteOptions.CreateNew:
-                    {
-                        sheet = workbook.CreateSheet(sheetName);
-                        break;
-                    }
-
-                default:
-                    throw new NotImplementedException();
+                sheet = workbook.CreateSheet(sheetName);
             }
-
             return sheet;
         }
 
@@ -231,10 +211,10 @@ namespace DotNEToolkit.Utility
 
         private static void SaveExcel(string excelPath, IWorkbook workbook)
         {
-            using (FileStream fs = new FileStream(excelPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using (MemoryStream ms = new MemoryStream())
             {
-                workbook.Write(fs);
-                fs.Close();
+                workbook.Write(ms);
+                File.WriteAllBytes(excelPath, ms.ToArray());
             }
         }
 
@@ -322,44 +302,52 @@ namespace DotNEToolkit.Utility
             return true;
         }
 
-        private static IWorkbook OpenWrite(string excelPath, ExcelVersions version, WriteOptions options)
+        private static IWorkbook CreateWorkbook(ExcelVersions version)
         {
-            FileStream fs = null;
-
-            switch (options)
+            switch (version)
             {
-                case WriteOptions.Append:
+                case ExcelVersions.Xls:
                     {
-                        if (File.Exists(excelPath))
-                        {
-                            fs = new FileStream(excelPath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                        }
-                        break;
+                        return new HSSFWorkbook();
                     }
 
-                case WriteOptions.CreateNew:
+                case ExcelVersions.Xlsx:
                     {
-                        if (File.Exists(excelPath))
-                        {
-                            File.Delete(excelPath);
-                        }
-                        break;
+                        return new XSSFWorkbook();
                     }
 
                 default:
                     throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// 打开一个Exce文件用来写入
+        /// 如果不存在文件，那么创建一个新的Workbook实例
+        /// </summary>
+        /// <param name="excelPath"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static IWorkbook OpenWrite(string excelPath, ExcelVersions version)
+        {
+            MemoryStream ms = null;
+
+            if (File.Exists(excelPath))
+            {
+                ms = new MemoryStream(File.ReadAllBytes(excelPath));
             }
 
             switch (version)
             {
                 case ExcelVersions.Xls:
                     {
-                        return fs == null ? new HSSFWorkbook() : new HSSFWorkbook(fs);
+                        return ms == null ? new HSSFWorkbook() : new HSSFWorkbook(ms);
                     }
 
                 case ExcelVersions.Xlsx:
                     {
-                        return fs == null ? new XSSFWorkbook() : new XSSFWorkbook(fs);
+                        return ms == null ? new XSSFWorkbook() : new XSSFWorkbook(ms);
                     }
 
                 default:
@@ -369,40 +357,38 @@ namespace DotNEToolkit.Utility
 
         private static ICell CreateCell(IRow row, int cellIndex, object value, ICellStyle cellStyle)
         {
+            ICell cell = row.CreateCell(cellIndex);
+            cell.CellStyle = cellStyle;
+
             Type valueType = value.GetType();
             if (valueType == typeof(int))
             {
-                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellType(CellType.Numeric);
                 cell.SetCellValue((int)value);
-                cell.CellStyle = cellStyle;
                 return cell;
             }
             else if (valueType == typeof(float))
             {
-                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellType(CellType.Numeric);
                 cell.SetCellValue((float)value);
-                cell.CellStyle = cellStyle;
                 return cell;
             }
             else if (valueType == typeof(double))
             {
-                ICell cell = row.CreateCell(cellIndex, CellType.Numeric);
+                cell.SetCellType(CellType.Numeric);
                 cell.SetCellValue((double)value);
-                cell.CellStyle = cellStyle;
                 return cell;
             }
             else if (valueType == typeof(string))
             {
-                ICell cell = row.CreateCell(cellIndex, CellType.String);
+                cell.SetCellType(CellType.String);
                 cell.SetCellValue(value.ToString());
-                cell.CellStyle = cellStyle;
                 return cell;
             }
             else if (valueType == typeof(DateTime))
             {
-                ICell cell = row.CreateCell(cellIndex, CellType.String);
+                cell.SetCellType(CellType.String);
                 cell.SetCellValue((DateTime)value);
-                cell.CellStyle = cellStyle;
                 return cell;
             }
             else
@@ -506,14 +492,13 @@ namespace DotNEToolkit.Utility
             CSVUtils.TableData2CSVFile(tableData, csvPath, fileEncoding, splitter);
         }
 
-        public static int TableData2ExcelFile(string excelPath, TableData tableData, List<TableColumnAttribute> tableColumns, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static void TableData2ExcelFile(string excelPath, TableData tableData, List<TableColumnAttribute> tableColumns, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            IWorkbook workbook = OpenWrite(excelPath, version, options);
-            ISheet sheet = OpenSheet(workbook, sheetName, options);
+            IWorkbook workbook = CreateWorkbook(version);
+            ISheet sheet = OpenSheet(workbook, sheetName);
             ApplySheetStyle(sheet, tableColumns);
             WriteTableData(workbook, sheet, tableData);
             SaveExcel(excelPath, workbook);
-            return DotNETCode.SUCCESS;
         }
 
         /// <summary>
@@ -525,13 +510,23 @@ namespace DotNEToolkit.Utility
         /// <param name="sheetName"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static int TableData2ExcelFile(string excelPath, TableData tableData, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static void TableData2ExcelFile(string excelPath, TableData tableData, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            IWorkbook workbook = OpenWrite(excelPath, version, options);
-            ISheet sheet = OpenSheet(workbook, sheetName, options);
+            IWorkbook workbook = CreateWorkbook(version);
+            ISheet sheet = OpenSheet(workbook, sheetName);
             WriteTableData(workbook, sheet, tableData);
             SaveExcel(excelPath, workbook);
-            return DotNETCode.SUCCESS;
+        }
+
+        public static void TableData2ExcelFile(string excelPath, List<TableData> tableDatas, ExcelVersions version = ExcelVersions.Xls)
+        {
+            IWorkbook workboot = CreateWorkbook(version);
+            foreach (TableData tableData in tableDatas)
+            {
+                ISheet sheet = OpenSheet(workboot, tableData.Name);
+                WriteTableData(workboot, sheet, tableData);
+            }
+            SaveExcel(excelPath, workboot);
         }
 
         /// <summary>
@@ -543,13 +538,12 @@ namespace DotNEToolkit.Utility
         /// <param name="sheetName"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static int DataTable2ExcelFile(string excelPath, DataTable table, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static void DataTable2ExcelFile(string excelPath, DataTable table, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            IWorkbook workbook = OpenWrite(excelPath, version, options);
-            ISheet sheet = OpenSheet(workbook, sheetName, options);
+            IWorkbook workbook = CreateWorkbook(version);
+            ISheet sheet = OpenSheet(workbook, sheetName);
             WriteDataTable(workbook, sheet, table);
             SaveExcel(excelPath, workbook);
-            return DotNETCode.SUCCESS;
         }
 
         /// <summary>
@@ -561,13 +555,12 @@ namespace DotNEToolkit.Utility
         /// <param name="sheetName"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static int Array2Excel(string excelPath, object[,] array, WriteOptions options, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
+        public static void Array2Excel(string excelPath, object[,] array, string sheetName = "sheet1", ExcelVersions version = ExcelVersions.Xls)
         {
-            IWorkbook workbook = OpenWrite(excelPath, version, options);
-            ISheet sheet = OpenSheet(workbook, sheetName, options);
+            IWorkbook workbook = CreateWorkbook(version);
+            ISheet sheet = OpenSheet(workbook, sheetName);
             WriteArray(workbook, sheet, array);
             SaveExcel(excelPath, workbook);
-            return DotNETCode.SUCCESS;
         }
 
         /// <summary>
@@ -582,7 +575,7 @@ namespace DotNEToolkit.Utility
             return tableData.ConvertToObjects<T>();
         }
 
-        public static int Objects2ExcelFile<T>(List<T> objects, string excelPath, WriteOptions options, string sheetName, ExcelVersions version = ExcelVersions.Xls)
+        public static void Objects2ExcelFile<T>(List<T> objects, string excelPath, string sheetName, ExcelVersions version = ExcelVersions.Xls)
         {
             List<PropertyAttribute<TableColumnAttribute>> propertyAttributes = ReflectionUtils.GetPropertyAttribute<TableColumnAttribute>(typeof(T));
             List<TableColumnAttribute> tableColumns = propertyAttributes.Select(v => v.Attribute).ToList();
@@ -612,7 +605,7 @@ namespace DotNEToolkit.Utility
                 }
             }
 
-            return TableData2ExcelFile(excelPath, tableData, tableColumns, options, sheetName, version);
+            TableData2ExcelFile(excelPath, tableData, tableColumns, sheetName, version);
         }
 
         #endregion

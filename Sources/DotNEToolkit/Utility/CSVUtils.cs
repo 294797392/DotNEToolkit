@@ -92,10 +92,11 @@ namespace DotNEToolkit.Utility
             StringBuilder builder = new StringBuilder();
 
             int rows = tableData.GetRows();
-            int cols = tableData.GetColumns();
 
             for (int row = 0; row < rows; row++)
             {
+                int cols = tableData.GetColumns(row);
+
                 for (int col = 0; col < cols; col++)
                 {
                     object data = tableData.GetCellValue(row, col, null);
@@ -143,10 +144,10 @@ namespace DotNEToolkit.Utility
         /// <param name="excelPath"></param>
         /// <param name="options">写入Excel文件的选项</param>
         /// <returns></returns>
-        public static void CSVFile2Excel(string csvPath, string excelPath, WriteOptions options, string[] splitters, Encoding csvEncoding)
+        public static void CSVFile2Excel(string csvPath, string excelPath, string[] splitters, Encoding csvEncoding)
         {
             TableData tableData = CSVFile2TableData(csvPath, splitters, csvEncoding);
-            ExcelUtils.TableData2ExcelFile(excelPath, tableData, options);
+            ExcelUtils.TableData2ExcelFile(excelPath, tableData);
         }
 
         /// <summary>
@@ -155,10 +156,10 @@ namespace DotNEToolkit.Utility
         /// <param name="csvText"></param>
         /// <param name="excelPath"></param>
         /// <param name="options">写入Excel文件的选项</param>
-        public static void CSV2Excel(string csvText, string excelPath, string[] splitters, WriteOptions options)
+        public static void CSV2Excel(string csvText, string excelPath, string[] splitters)
         {
             TableData tableData = CSV2TableData(csvText, splitters);
-            ExcelUtils.TableData2ExcelFile(excelPath, tableData, options);
+            ExcelUtils.TableData2ExcelFile(excelPath, tableData);
         }
 
         /// <summary>
